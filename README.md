@@ -1,125 +1,207 @@
-# NeuroLint CLI - Experimental Repository
+# NeuroLint CLI
 
-> ⚠️ **This is NOT the main NeuroLint repository.** This is an experimental test repo.
+> Deterministic code analysis and transformation tool for TypeScript, JavaScript, React, and Next.js projects.
 
-## What This Is
+[![npm version](https://img.shields.io/npm/v/@neurolint/cli.svg)](https://www.npmjs.com/package/@neurolint/cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](./TESTING_REPORT.md)
 
-This repository contains **copied files** from the main NeuroLint CLI project for testing and experimentation. It was created to explore building a web dashboard called "Fixwise" - but that dashboard **does not currently exist**.
-
-## The Real Product
-
-The actual working product is available on npm:
-
-```bash
-npm install -g @neurolint/cli
-```
-
-- **Package:** `@neurolint/cli`
-- **Version:** 1.3.3
-- **Published:** 3 months ago
-- **NPM Page:** https://www.npmjs.com/package/@neurolint/cli
-
-## What's in This Repo
-
-### ✅ Files That Exist (Copied from main repo):
-- `cli.js` - Main CLI entry point
-- `scripts/` - 7 fix layer implementations
-- `fix-master.js` - Layer orchestrator
-- `ast-transformer.js` - AST-based code analysis
-- `backup-manager.js` - Backup system
-- `validator.js` - Code validation
-- `selector.js` - Smart layer selection
-- `shared-core/` - Core utilities
-
-### ❌ What Doesn't Exist:
-- No `server/` backend
-- No `client/` React frontend (just 2 backup files)
-- No Fixwise web dashboard
-- No database implementation
-
-## What is NeuroLint?
-
-NeuroLint is a **deterministic code analysis and transformation tool** for TypeScript, JavaScript, React, and Next.js projects. It uses rule-based intelligence (NOT AI) to automatically detect and fix common code issues.
-
-### Origin Story
-
-Born from frustration when working on Taxfy.co.za with 700+ ESLint errors, hydration bugs, and missing React keys. Instead of fixing manually, an intelligent multi-layer system was created that reduced 600+ issues down to just 70.
-
-### The 7 Layers
-
-**Free Tier (No Authentication Required):**
-1. **Configuration** - tsconfig.json, next.config.js fixes
-2. **Patterns** - HTML entities, console.log removal
-
-**Paid Tier (Requires API Key):**
-3. **Components** - React keys, accessibility attributes
-4. **Hydration** - SSR/hydration safety guards
-5. **Next.js** - App Router optimization
-6. **Testing** - Error boundaries, test generation
-7. **Adaptive** - Pattern learning and custom rules
-
-## How to Use NeuroLint
-
-### Install the Real CLI
-
-```bash
-# Install from npm
-npm install -g @neurolint/cli
-
-# Check version
-neurolint --version
-
-# See available commands
-neurolint --help
-```
-
-### Try Free Tier (No Authentication)
-
-```bash
-# Analyze your codebase
-neurolint analyze src/
-
-# Fix free tier issues (layers 1-2)
-neurolint fix src/ --layers=1,2 --verbose
-
-# Preview changes first
-neurolint fix src/ --layers=1,2 --dry-run
-```
-
-### Use Paid Layers (Requires API Key)
-
-```bash
-# Get API key from https://app.neurolint.dev/dashboard
-neurolint login <your-api-key>
-
-# Check authentication
-neurolint status
-
-# Fix all issues
-neurolint fix src/ --all-layers --verbose
-```
-
-## Documentation
-
-See [`CLI_USAGE.md`](./CLI_USAGE.md) for complete documentation including:
-- Free vs paid tier breakdown
-- Authentication setup
-- Layer capabilities
-- Real-world examples
-- Troubleshooting guide
-
-## Repo Status
-
-**Purpose:** Experimental/testing for potential web dashboard
-**Status:** Planning stage only
-**Main Product:** Published npm package `@neurolint/cli`
-
-## Contributing
-
-This is an experimental repository. For the main product:
-- Use the npm package: `@neurolint/cli`
-- Visit: https://www.npmjs.com/package/@neurolint/cli
+**NeuroLint uses rule-based intelligence (NOT AI) to automatically detect and fix common code issues.**
 
 ---
 
-**🚀 Want to use NeuroLint? Install from npm, don't use this repo directly.**
+## 🎯 What Problem Does NeuroLint Solve?
+
+NeuroLint was born from frustration during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer fixing system was created that reduced **600+ issues down to just 70**.
+
+### Common Issues NeuroLint Fixes:
+- ✅ Hydration crashes (`window is not defined`)
+- ✅ Missing React keys flooding console
+- ✅ HTML entity corruption (`&quot;`, `&#x27;`)
+- ✅ Accessibility gaps (missing aria-labels, alt attributes)
+- ✅ Console.log statements left in production
+- ✅ Next.js App Router migration issues
+- ✅ SSR/client-side safety guards
+- ✅ TypeScript configuration problems
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+npm install -g @neurolint/cli
+```
+
+### Basic Usage
+
+```bash
+# Analyze your project
+neurolint analyze src/
+
+# Fix all issues with all 7 layers (completely free!)
+neurolint fix src/ --all-layers --verbose
+
+# Preview changes before applying
+neurolint fix src/ --all-layers --dry-run --verbose
+
+# Fix specific layers
+neurolint fix src/ --layers=1,2,3 --verbose
+```
+
+---
+
+## 🆓 All 7 Layers Are Free!
+
+**No authentication required. No API keys. Completely free and open source.**
+
+### Layer 1: Configuration Fixes
+- TypeScript configuration (tsconfig.json)
+- Next.js configuration (next.config.js)
+- Package.json optimization
+
+### Layer 2: Pattern Fixes
+- HTML entity corruption (`&quot;`, `&#x27;`, `&amp;`)
+- Unused imports cleanup
+- Console.log removal
+- React pattern standardization
+
+### Layer 3: Component Fixes
+- Missing React keys in .map()
+- Button variant props
+- Missing aria-labels
+- Image alt attributes
+- Form field structure
+
+### Layer 4: Hydration & SSR Fixes
+- localStorage without SSR guards
+- window/document access protection
+- Theme provider hydration mismatches
+- Client-only component wrapping
+
+### Layer 5: Next.js App Router Fixes
+- "use client" directive placement
+- Server vs client component detection
+- App Router optimizations
+
+### Layer 6: Testing & Validation
+- Test file generation
+- Missing test coverage detection
+- Quality improvements
+
+### Layer 7: Adaptive Pattern Learning
+- Learns from your codebase
+- Custom rule generation
+- Pattern recognition and application
+
+---
+
+## 💡 How It Works
+
+**NeuroLint is NOT AI-powered.** It uses:
+- ✅ Deterministic rule-based transformations
+- ✅ AST (Abstract Syntax Tree) parsing
+- ✅ Pattern recognition
+- ✅ Precise, predictable fixes
+
+**No LLM hallucinations. No unpredictable rewrites. Just intelligent, rule-based code fixes.**
+
+---
+
+## 📖 Example: Before & After
+
+**Before:**
+```tsx
+function Component({ items }) {
+  console.log('Debug info');
+  return (
+    <div>
+      &quot;Hello&quot;
+      {items.map(item => <div>{item}</div>)}
+    </div>
+  );
+}
+```
+
+**After (All Layers Applied):**
+```tsx
+function Component({ items }) {
+  return (
+    <div>
+      "Hello"
+      {items.map((item, index) => <div key={index}>{item}</div>)}
+    </div>
+  );
+}
+```
+
+---
+
+## 🛠️ Tech Stack
+
+- **AST Parsing:** `@babel/parser`, `@babel/traverse`, `@babel/types`
+- **Pattern Matching:** Custom rule engine
+- **Safety:** Built-in backup system with automatic rollback
+- **Testing:** Comprehensive Jest test suite (68 tests, all passing)
+
+---
+
+## 📚 Documentation
+
+- [CLI Usage Guide](./CLI_USAGE.md) - Complete command reference
+- [Testing Report](./TESTING_REPORT.md) - Test coverage details
+- [Contributing Guidelines](./CONTRIBUTING.md) - How to contribute
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! NeuroLint is open source and community-driven.
+
+- **Found a bug?** [Open an issue](https://github.com/neurolint/neurolint-cli/issues)
+- **Want to contribute?** Check out [CONTRIBUTING.md](./CONTRIBUTING.md)
+- **Have questions?** Start a discussion
+
+See our [Code of Conduct](./CODE_OF_CONDUCT.md) for community guidelines.
+
+---
+
+## 📦 What's in This Repo
+
+- `cli.js` - Main CLI entry point (4,731 lines)
+- `scripts/` - 7 fix layer implementations
+- `fix-master.js` - Layer orchestrator (1,901 lines)
+- `ast-transformer.js` - AST-based code analysis (862 lines)
+- `backup-manager.js` - Safe backup system
+- `validator.js` - Code validation
+- `shared-core/` - Core utilities (analytics, config, rule engine)
+- `__tests__/` - Comprehensive Jest test suite
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+---
+
+## 🌟 Why Open Source?
+
+NeuroLint is open source because:
+- **Transparency:** You can see exactly what transformations are applied
+- **Trust:** No hidden behavior, telemetry, or data collection
+- **Community:** Better rules through collaborative development
+- **Innovation:** Faster evolution with community contributions
+
+---
+
+## 🔗 Links
+
+- **NPM Package:** [@neurolint/cli](https://www.npmjs.com/package/@neurolint/cli)
+- **Issues:** [GitHub Issues](https://github.com/neurolint/neurolint-cli/issues)
+- **Origin Story:** Built for [Taxfy.co.za](https://taxfy.co.za)
+
+---
+
+**Built with ❤️ for the React and Next.js community**

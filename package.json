@@ -69,12 +69,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neurolint/neurolint-cli.git"
+    "url": "git+https://github.com/Alcatecablee/Neurolint.git"
   },
   "bugs": {
-    "url": "https://github.com/neurolint/neurolint-cli/issues"
+    "url": "https://github.com/Alcatecablee/Neurolint/issues"
   },
-  "homepage": "https://github.com/neurolint/neurolint-cli#readme",
+  "homepage": "https://github.com/Alcatecablee/Neurolint#readme",
   "license": "MIT",
   "author": "NeuroLint"
 }
