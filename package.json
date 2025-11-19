@@ -1,7 +1,6 @@
 {
   "name": "neurolint-cli",
   "version": "1.0.0",
-  "type": "module",
   "description": "NeuroLint CLI - Deterministic code fixing for TypeScript, JavaScript, React, and Next.js",
   "main": "cli.js",
   "bin": {
