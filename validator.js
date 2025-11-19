@@ -88,6 +88,18 @@ class TransformationValidator {
       suggestion: result.errors.length > 0 ? 'Review the transformation' : null
     };
   }
+
+  static async validateTransformation(originalCode, transformedCode, filePath) {
+    const validator = new TransformationValidator();
+    const result = validator.validate(originalCode, transformedCode, filePath);
+    
+    return {
+      shouldRevert: !result.valid,
+      reason: result.errors.length > 0 ? result.errors.join(', ') : null,
+      valid: result.valid,
+      errors: result.errors
+    };
+  }
 }
 
 module.exports = TransformationValidator;
