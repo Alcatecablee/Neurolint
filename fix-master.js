@@ -354,9 +354,11 @@ async function executeLayers(code, layers, options = {}) {
   let successfulLayers = 0;
   let finalCode = code;
 
-  // Create .neurolint directory for state tracking
+  // Create .neurolint directory for state tracking (only if not in dry-run mode)
   const stateDir = path.join(process.cwd(), '.neurolint');
-  await fs.mkdir(stateDir, { recursive: true });
+  if (!dryRun) {
+    await fs.mkdir(stateDir, { recursive: true });
+  }
 
   // Layer configuration
   const layerConfig = {
@@ -626,12 +628,14 @@ async function executeLayers(code, layers, options = {}) {
     }
   }
 
-  // Record final state
+  // Record final state (only if not in dry-run mode)
   state.executionTime = performance.now() - startTime;
-  await fs.writeFile(
-    path.join(stateDir, `states-${state.timestamp}.json`),
-    JSON.stringify(state, null, 2)
-  );
+  if (!dryRun) {
+    await fs.writeFile(
+      path.join(stateDir, `states-${state.timestamp}.json`),
+      JSON.stringify(state, null, 2)
+    );
+  }
 
   return {
     success: successfulLayers > 0,

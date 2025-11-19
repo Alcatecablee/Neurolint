@@ -2337,7 +2337,7 @@ async function fixFile(filePath, options, spinner) {
 
   // Initialize centralized backup manager
   let backupManager = null;
-  if (options.backup) {
+  if (options.backup && !options.dryRun) {
     backupManager = createBackupManager({
       backupDir: '.neurolint-backups',
       maxBackups: options.production ? 50 : 10,
@@ -2632,7 +2632,7 @@ async function handleCommand(args) {
     targetPath = path.resolve(targetPath);
     
     // Validate that the target path exists (skip for commands that don't need it)
-    const commandsWithoutTargetPath = ['backups', 'version', 'login', 'logout', 'status', 'stats', 'rules', 'health', 'security', 'monitoring', 'encryption'];
+    const commandsWithoutTargetPath = ['backups', 'version', 'login', 'logout', 'status', 'stats', 'rules', 'health', 'security', 'monitoring', 'encryption', 'help'];
     if (!commandsWithoutTargetPath.includes(command)) {
       try {
         await fs.access(targetPath);
@@ -2642,10 +2642,79 @@ async function handleCommand(args) {
     }
 
     switch (command) {
-              case 'version':
-          console.log('1.4.0');
-          logSuccess('Version displayed');
-          break;
+      case 'help':
+        spinner.stop();
+        process.stdout.write(`
+ NeuroLint CLI - Code Quality Tool
+
+Usage: neurolint <command> [options] [path]
+
+Authentication Commands:
+  login <api-key>         Authenticate with your API key
+  logout                  Remove authentication
+  status                  Show authentication and usage status
+
+Analysis Commands:
+  analyze [path]          Analyze code for potential improvements
+  assess [path]           Assess project complexity and suggest simplifications
+  fix [path]             Fix code quality issues
+  simplify [path]         Simplify project complexity (convert Next.js to React, etc.)
+  migrate [path]         One-time migration service (enterprise)
+  migrate-nextjs-15.5 [path] Migrate project to Next.js 15.5 compatibility
+  migrate-react19 [path] Migrate project to React 19 compatibility
+  migrate-biome [path]   Migrate from ESLint to Biome
+  layers                  Display information about all layers
+  validate [path]         Validate files without applying fixes
+  init-tests [path]       Generate test files for components
+
+Configuration Commands:
+  init-config             Generate or display configuration
+  health                  Run a health check to verify configuration
+
+Enterprise Commands:
+  security                Manage security, users, and audit trails
+  monitoring              View metrics, alerts, and system health
+  encryption              Manage encryption keys and settings
+
+Utility Commands:
+  stats                   Show project statistics
+  clean                   Clean up old backup and state files
+  backups                 Manage centralized backups
+  rules                   Manage learned rules
+  help                    Show this help message
+
+Layer Commands:
+  config scan|fix         Layer 1: Configuration fixes
+  patterns scan|fix       Layer 2: Pattern fixes
+  components scan|fix     Layer 3: Component fixes
+  hydration scan|fix      Layer 4: Hydration fixes
+  nextjs scan|fix         Layer 5: Next.js fixes
+  testing scan|fix        Layer 6: Testing fixes
+  adaptive scan|fix       Layer 7: Adaptive pattern learning
+
+Options:
+  --dry-run              Show changes without applying them
+  --verbose              Show detailed output
+  --backup               Create backups (default: true)
+  --no-backup            Skip backup creation
+  --layers <list>        Specify layers to run (e.g., 1,2,3)
+  --all-layers           Apply all layers (1-7)
+  --help, -h            Show this help message
+  --version, -v         Show version information
+
+Examples:
+  neurolint help
+  neurolint analyze src/ --verbose
+  neurolint fix . --layers=1,2,7 --dry-run
+  neurolint components fix src/ --verbose
+
+Get your API key from: https://app.neurolint.dev/dashboard
+`);
+        process.exit(0);
+      case 'version':
+        console.log('1.4.0');
+        logSuccess('Version displayed');
+        break;
       case 'login':
         await handleLogin(args.slice(1), spinner);
         break;
@@ -2885,7 +2954,7 @@ if (process.argv.includes('--version') || process.argv.includes('-v')) {
 }
 
 // Show help if no arguments or help requested (only when run as main module)
-if (require.main === module && (process.argv.length <= 2 || process.argv.includes('--help') || process.argv.includes('-h'))) {
+if (require.main === module && (process.argv.length <= 2 || process.argv.includes('--help') || process.argv.includes('-h') || process.argv[2] === 'help')) {
   process.stdout.write(`
 NeuroLint CLI - Code Quality Tool
 
