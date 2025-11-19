@@ -8,101 +8,157 @@ NeuroLint is a deterministic code analysis and transformation tool for TypeScrip
 
 Born from frustration when a project had 700+ ESLint errors, hydration bugs, and missing React keys. Instead of fixing manually, an intelligent multi-layer fixing system was created that reduced 600+ issues down to just 70 - and NeuroLint was born.
 
-## Quick Start
-
-### Installation
-
-The CLI is located in the `v1/` directory:
+## Installation
 
 ```bash
-cd v1
+npm install -g @neurolint/cli
 ```
 
-### Basic Commands
+## 🆓 Free vs 💳 Paid Tiers
 
-**Analyze your code:**
-```bash
-node cli.js analyze <path> --layers=1,2,3,4
-```
+**IMPORTANT**: NeuroLint has a freemium model. Understand what's free before getting started.
 
-**Get project statistics:**
-```bash
-node cli.js stats <path>
-```
+### Free Tier (No Authentication Required)
 
-**Show all available commands:**
-```bash
-node cli.js --help
-```
+**Layers 1-2** are completely free and work without an account:
 
-**Check layer information:**
-```bash
-node cli.js layers --verbose
-```
-
-## The 7 Layers
-
-### Layer 1: Configuration Fixes
+#### Layer 1: Configuration Fixes
 - TypeScript configuration (tsconfig.json)
 - Next.js configuration (next.config.js)
 - Package.json optimization
-- **Free tier available**
+- ✅ **FREE - No auth required**
 
-### Layer 2: Pattern Fixes
+#### Layer 2: Pattern Fixes
 - HTML entity corruption (`&quot;`, `&#x27;`, `&amp;`)
 - Unused imports cleanup
-- Console.log to console.debug conversion
+- Console.log removal
 - React pattern standardization
-- **Free tier available**
+- ✅ **FREE - No auth required**
 
-### Layer 3: Component Fixes
+### Paid Tier (Requires Authentication)
+
+**Layers 3-7** require an API key from https://app.neurolint.dev
+
+#### Layer 3: Component Fixes
 - Missing React keys in .map()
 - Button variant props
 - Missing aria-labels
 - Image alt attributes
 - Form field structure
-- **Free tier available**
+- 💳 **REQUIRES AUTHENTICATION**
 
-### Layer 4: Hydration & SSR Fixes
+#### Layer 4: Hydration & SSR Fixes
 - localStorage without SSR guards
 - window/document access protection
 - Theme provider hydration mismatches
 - Client-only component wrapping
-- **Free tier available**
+- 💳 **REQUIRES AUTHENTICATION**
 
-### Layer 5: Next.js App Router Fixes
+#### Layer 5: Next.js App Router Fixes
 - "use client" directive placement
 - Server vs client component detection
 - App Router optimizations
-- **Requires paid tier**
+- 💳 **REQUIRES AUTHENTICATION**
 
-### Layer 6: Testing & Validation
+#### Layer 6: Testing & Validation
 - Test file generation
 - Missing test coverage detection
 - Quality improvements
-- **Requires paid tier**
+- 💳 **REQUIRES AUTHENTICATION**
 
-### Layer 7: Adaptive Pattern Learning
+#### Layer 7: Adaptive Pattern Learning
 - Learns from your codebase
 - Custom rule generation
 - Pattern recognition and application
-- **Requires paid tier**
+- 💳 **REQUIRES AUTHENTICATION**
 
-## Usage Examples
+## Quick Start (Free Tier)
 
-### Analyze a Single File
+### Try It Without Authentication
+
 ```bash
-node cli.js analyze client/src/pages/dashboard.tsx --layers=1,2,3,4
+# Install globally
+npm install -g @neurolint/cli
+
+# Analyze your project (works without auth)
+neurolint analyze src/
+
+# Fix free tier issues (layers 1-2)
+neurolint fix src/ --layers=1,2 --verbose
+
+# Preview what free tier can fix
+neurolint fix src/ --layers=1,2 --dry-run
 ```
 
-### Analyze Entire Directory
+### What Free Tier Actually Fixes
+
+**Example Before:**
+```tsx
+function Component() {
+  console.log('Debug info');
+  return <div>&quot;Hello&quot;</div>;
+}
+```
+
+**Example After (Free Tier):**
+```tsx
+function Component() {
+  // [NeuroLint] Removed console.log: 'Debug info'
+  return <div>"Hello"</div>;
+}
+```
+
+**What Free Tier DOES NOT Fix:**
+- ❌ Missing React keys
+- ❌ Hydration issues (localStorage, window access)
+- ❌ Missing accessibility attributes
+- ❌ "use client" directives
+
+## Authentication (For Paid Layers)
+
+To access layers 3-7, you need an API key:
+
 ```bash
-node cli.js analyze client/src --layers=1,2,3,4 --verbose
+# 1. Get API key from dashboard
+# Visit: https://app.neurolint.dev/dashboard
+
+# 2. Login with your key
+neurolint login <your-api-key>
+
+# 3. Check authentication status
+neurolint status
+
+# 4. Now you can use all layers
+neurolint fix src/ --layers=3,4,5 --verbose
+```
+
+If you try to use layers 3-7 without authentication:
+```bash
+$ neurolint fix src/ --layers=3,4,5
+❌ ERROR: Authentication required for selected layers
+❌ Free tier allows fixes for layers 1-2 without authentication
+```
+
+## Basic Commands
+
+### Show All Commands
+```bash
+neurolint --help
+```
+
+### Show Layer Information
+```bash
+neurolint layers --verbose
+```
+
+### Check Version
+```bash
+neurolint --version
 ```
 
 ### Get Project Statistics
 ```bash
-node cli.js stats .
+neurolint stats .
 ```
 
 Output:
@@ -115,160 +171,243 @@ Performance: 1609ms (14 files/sec)
 Memory: 88.91MB (peak: 9.8MB)
 ```
 
-### Fix with Dry Run (Preview Changes)
+## Usage Examples
+
+### Free Tier Examples (No Auth Required)
+
+**Analyze a Single File:**
 ```bash
-node cli.js fix client/src --layers=1,2,3,4 --dry-run --verbose
+neurolint analyze src/components/Button.tsx
 ```
 
-### Clean Old Backups
+**Analyze Entire Directory:**
 ```bash
-node cli.js clean --older-than=7 --verbose
+neurolint analyze src/ --verbose
 ```
 
-## Results from This Codebase
-
-When tested on this NeuroLint dashboard project:
-
-- **Files Analyzed:** 61
-- **Total Issues Found:** 15
-- **Average Issues per File:** 0.2 (very clean!)
-- **Layer Recommendations:**
-  - Layer 4 (Hydration): 4 files (6.6%)
-  - Layer 5 (Next.js): 2 files (3.3%)
-- **Performance:** 14 files/sec
-
-## Authentication (Optional)
-
-For access to layers 5-7 (enterprise features):
-
+**Fix Free Tier Issues (Layers 1-2):**
 ```bash
-# Login with API key
-node cli.js login <your-api-key>
+# Preview changes first
+neurolint fix src/ --layers=1,2 --dry-run --verbose
 
-# Check authentication status
-node cli.js status
-
-# Logout
-node cli.js logout
+# Apply fixes
+neurolint fix src/ --layers=1,2 --verbose
 ```
 
-Free tier includes layers 1-4 with unlimited usage.
-
-## Advanced Options
-
-### Custom File Patterns
+**Fix Specific Files:**
 ```bash
-node cli.js analyze src/ --include="**/*.tsx" --exclude="**/*.test.tsx"
+neurolint fix src/components/Button.tsx --layers=1,2
 ```
 
-### Output Formats
-```bash
-# JSON output
-node cli.js analyze src/ --format=json --output=results.json
+### Paid Tier Examples (Requires Auth)
 
-# Console output (default)
-node cli.js analyze src/ --format=console
+**Fix React Keys (Layer 3):**
+```bash
+neurolint login <your-api-key>
+neurolint fix src/ --layers=3 --verbose
 ```
 
-### Backup Management
+**Fix Hydration Issues (Layer 4):**
 ```bash
-# Enable backups (default)
-node cli.js fix src/ --backup
-
-# Disable backups
-node cli.js fix src/ --no-backup
-
-# Production-grade backups with encryption
-node cli.js fix src/ --production
+neurolint fix src/ --layers=4 --verbose
 ```
 
-### Parallel Processing
+**Fix Next.js App Router (Layer 5):**
 ```bash
-node cli.js fix src/ --parallel=8 --verbose
+neurolint fix src/ --layers=5 --verbose
 ```
 
-## Rule Management (Layer 7)
-
+**Apply All Layers:**
 ```bash
-# List learned rules
-node cli.js rules --list
+neurolint fix src/ --all-layers --verbose
+```
 
-# Export rules
-node cli.js rules --export=my-rules.json
-
-# Import rules
-node cli.js rules --import=my-rules.json
-
-# Edit rule confidence
-node cli.js rules --edit=0 --confidence=0.9
-
-# Delete a rule
-node cli.js rules --delete=0
-
-# Reset all rules
-node cli.js rules --reset
+**Combine Multiple Layers:**
+```bash
+neurolint fix src/ --layers=3,4,5 --verbose
 ```
 
 ## Migration Commands
 
 ### Next.js 15.5 Migration
 ```bash
-node cli.js migrate-nextjs-15.5 . --dry-run --verbose
+# Preview migration changes (requires auth)
+neurolint migrate . --all-layers --dry-run --verbose
+
+# Apply migration with rollback safety
+neurolint migrate . --all-layers --backup --verbose
+
+# Migrate specific layers
+neurolint migrate . --layers=1,2,5 --dry-run --verbose
 ```
 
 ### React 19 Migration
 ```bash
-node cli.js migrate-react19 . --dry-run --verbose
+neurolint migrate-react19 . --dry-run --verbose
 ```
 
 ### ESLint to Biome Migration
 ```bash
-node cli.js migrate-biome . --dry-run --verbose
+neurolint migrate-biome . --dry-run --verbose
 ```
 
-## Current Status
+## Advanced Options
 
-### ✅ Working Features
-- **Analysis Engine:** Fully functional, analyzes code and detects issues
-- **Layer Detection:** Smart recommendations for which layers to apply
-- **Statistics:** Project health metrics and performance data
-- **Backup System:** Creates backups before modifications
-- **CLI Interface:** Complete command structure and help system
-
-### 🚧 In Development
-- **Fix Application:** Layer transformations are being finalized
-- **Validator Integration:** Code validation after fixes
-- **API Authentication:** Connection to app.neurolint.dev
-
-### 📊 Test Results
-Tested on this codebase (NeuroLint dashboard):
-- ✅ Analyzed 61 files successfully
-- ✅ Detected 15 issues accurately
-- ✅ Performance: 14 files/sec
-- ✅ Layer recommendations working correctly
-
-## Architecture
-
-### Files Structure
+### Dry Run (Preview Changes)
+```bash
+neurolint fix src/ --layers=1,2 --dry-run --verbose
 ```
-v1/
-├── cli.js                          # Main CLI entry point
-├── fix-master.js                   # Orchestrator for all layers
-├── shared-core/                    # Core utilities
-│   ├── analytics.js
-│   ├── config-manager.js
-│   └── rule-engine.js
-├── scripts/                        # Layer implementations
-│   ├── fix-layer-1-config.js
-│   ├── fix-layer-2-patterns.js
-│   ├── fix-layer-3-components.js
-│   ├── fix-layer-4-hydration.js
-│   ├── fix-layer-5-nextjs.js
-│   ├── fix-layer-6-testing.js
-│   └── fix-layer-7-adaptive.js
-├── ast-transformer.js              # AST-based code transformations
-├── backup-manager.js               # Backup system
-└── validator.js                    # Code validation
+
+### Custom File Patterns
+```bash
+neurolint analyze src/ --include="**/*.tsx" --exclude="**/*.test.tsx"
+```
+
+### Output Formats
+```bash
+# JSON output
+neurolint analyze src/ --format=json --output=results.json
+
+# Console output (default)
+neurolint analyze src/ --format=console
+```
+
+### Backup Management
+```bash
+# Enable backups (default)
+neurolint fix src/ --backup
+
+# Disable backups (not recommended)
+neurolint fix src/ --no-backup
+
+# Production-grade backups with encryption
+neurolint fix src/ --production
+```
+
+### Parallel Processing
+```bash
+neurolint fix src/ --parallel=8 --verbose
+```
+
+### Clean Old Backups
+```bash
+# Clean backups older than 7 days
+neurolint clean --older-than=7 --verbose
+
+# Keep only latest 5 backups
+neurolint clean --keep-latest=5 --verbose
+```
+
+## Rule Management (Layer 7 - Paid)
+
+```bash
+# List learned rules
+neurolint rules --list
+
+# Export rules
+neurolint rules --export=my-rules.json
+
+# Import rules
+neurolint rules --import=my-rules.json
+
+# Edit rule confidence
+neurolint rules --edit=0 --confidence=0.9
+
+# Delete a rule
+neurolint rules --delete=0
+
+# Reset all rules
+neurolint rules --reset
+```
+
+## Real-World Workflow
+
+### Step 1: Analyze First (Free)
+```bash
+# See what issues exist
+neurolint analyze src/ --verbose
+```
+
+### Step 2: Fix Free Issues (Free)
+```bash
+# Fix HTML entities and console.logs
+neurolint fix src/ --layers=1,2 --verbose
+```
+
+### Step 3: Decide if You Need Paid Layers
+If analysis shows:
+- Missing React keys → Need Layer 3
+- Hydration issues → Need Layer 4
+- Next.js issues → Need Layer 5
+
+### Step 4: Get API Key & Fix Remaining Issues (Paid)
+```bash
+# Login and fix paid issues
+neurolint login <your-api-key>
+neurolint fix src/ --layers=3,4,5 --verbose
+```
+
+## Integration Examples
+
+### Pre-commit Hook (Free Tier)
+```bash
+# In .husky/pre-commit
+neurolint fix src/ --layers=1,2 --dry-run || exit 1
+```
+
+### CI/CD Pipeline
+```bash
+# Free tier - analyze only
+neurolint analyze src/ --format=json --output=analysis.json
+
+# Paid tier - analyze and fix
+neurolint login $NEUROLINT_API_KEY
+neurolint fix src/ --layers=1,2,3,4,5
+```
+
+### Team Collaboration (Paid)
+```bash
+# Export team rules
+neurolint rules --export=team-rules.json
+
+# Import on other machines
+neurolint rules --import=team-rules.json
+```
+
+## Troubleshooting
+
+### "Authentication required for selected layers"
+
+**Problem:** You're trying to use layers 3-7 without authentication.
+
+**Solution:**
+```bash
+# Get API key from https://app.neurolint.dev/dashboard
+neurolint login <your-api-key>
+neurolint status  # Verify authentication
+```
+
+### "No changes applied" but file was modified
+
+**Issue:** Output may show conflicting messages about fixes.
+
+**Solution:** Check the actual file - if changes are present, it worked. This is a reporting bug, not a functional bug.
+
+### Command not working
+
+**Check authentication status:**
+```bash
+neurolint status
+```
+
+**Check available layers:**
+```bash
+neurolint layers --verbose
+```
+
+**Try free tier first:**
+```bash
+neurolint fix src/ --layers=1,2 --verbose
 ```
 
 ## Philosophy
@@ -281,19 +420,34 @@ v1/
 
 **No LLM hallucinations. No unpredictable rewrites. Just intelligent, rule-based code fixes.**
 
-## Support
+## Current Status
 
-- **Dashboard:** Located at root level (Express + React)
-- **Documentation:** See `/Fixwise/README.md` for layer details
-- **Get API Key:** https://app.neurolint.dev/dashboard (for layers 5-7)
+### ✅ Working Features
+- **Analysis Engine:** Fully functional, analyzes code and detects issues
+- **Layer Detection:** Smart recommendations for which layers to apply
+- **Statistics:** Project health metrics and performance data
+- **Backup System:** Creates backups before modifications
+- **CLI Interface:** Complete command structure and help system
+- **Free Tier (Layers 1-2):** HTML entity fixes, console.log removal, pattern cleanup
+
+### 🔒 Requires Authentication
+- **Layers 3-7:** React keys, accessibility, hydration, Next.js, testing, adaptive learning
+- **API Authentication:** Connection to app.neurolint.dev required for paid features
+
+## Support & Resources
+
+- **Get API Key:** https://app.neurolint.dev/dashboard (for layers 3-7)
+- **Published Package:** https://www.npmjs.com/package/@neurolint/cli
+- **Issue Tracking:** Check npm page for latest updates
 
 ## Next Steps
 
-1. Try analyzing your project: `node v1/cli.js analyze . --layers=1,2,3,4`
-2. Review the detected issues
-3. Run with `--dry-run` to preview fixes
-4. Apply fixes layer by layer for safety
+1. **Try the free tier:** `neurolint analyze . && neurolint fix . --layers=1,2`
+2. **Review detected issues:** See what paid layers could fix
+3. **Decide on paid tier:** If you need React keys, hydration fixes, or accessibility improvements
+4. **Get API key:** Visit https://app.neurolint.dev/dashboard
+5. **Apply paid fixes:** `neurolint login <key>` then `neurolint fix . --all-layers`
 
 ---
 
-**Built with ❤️ for developers who want deterministic, not AI-driven, code quality.**
+**Built for developers who want deterministic, rule-based code quality - not AI-driven unpredictability.**
