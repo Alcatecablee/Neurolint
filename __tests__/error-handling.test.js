@@ -69,7 +69,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`patterns fix ${testDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Read-only files should either succeed (skip) or fail gracefully
+      expect([0, 1]).toContain(result.exitCode);
     });
 
     test('should handle unwritable directories', () => {
@@ -87,7 +88,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`patterns fix ${subDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Unwritable directories should either succeed (no changes) or fail gracefully
+      expect([0, 1]).toContain(result.exitCode);
     });
 
     test('should report permission errors in output', () => {
@@ -101,7 +103,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`patterns fix ${testDir} --verbose`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Should either skip locked files (exit 0) or report error (exit 1)
+      expect([0, 1]).toContain(result.exitCode);
     });
   });
 
@@ -112,6 +115,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${emptyDir}`, { cwd: testDir });
 
+      // Empty directory is valid - should succeed
       expect(result.exitCode).toBe(0);
     });
 
@@ -121,6 +125,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Empty files are valid - should succeed
       expect(result.exitCode).toBe(0);
     });
 
@@ -130,6 +135,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Whitespace-only files are valid - should succeed
       expect(result.exitCode).toBe(0);
     });
 
@@ -140,6 +146,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Long filenames are valid - should succeed
       expect(result.exitCode).toBe(0);
     });
   });
@@ -151,7 +158,9 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Syntax errors should be skipped gracefully, file should remain
       expect(fs.existsSync(syntaxErrorFile)).toBe(true);
+      expect([0, 1]).toContain(result.exitCode);
     });
 
     test('should handle incomplete JSX', () => {
@@ -160,7 +169,9 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Invalid JSX should be skipped, file should remain
       expect(fs.existsSync(incompleteJSX)).toBe(true);
+      expect([0, 1]).toContain(result.exitCode);
     });
 
     test('should handle mixed encoding issues gracefully', () => {
@@ -169,7 +180,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // UTF-8 with emojis should work fine
+      expect(result.exitCode).toBe(0);
     });
   });
 
@@ -191,6 +203,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Symlinks should be handled without infinite loops
       expect(result.exitCode).toBe(0);
     });
 
@@ -204,6 +217,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Special characters in filenames should work
       expect(result.exitCode).toBe(0);
     });
 
@@ -219,6 +233,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Deep nesting should work
       expect(result.exitCode).toBe(0);
     });
 
@@ -228,6 +243,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Files without extensions should be skipped gracefully
       expect(result.exitCode).toBe(0);
     });
 
@@ -238,6 +254,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
+      // Binary files should be skipped
       expect(result.exitCode).toBe(0);
     });
   });
@@ -255,7 +272,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // File deletion race should be handled gracefully
+      expect([0, 1]).toContain(result.exitCode);
     });
   });
 
@@ -267,7 +285,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`analyze ${testDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Large files should be handled (analyzed or skipped)
+      expect([0, 1]).toContain(result.exitCode);
     });
 
     test('should handle many files in directory', () => {
@@ -278,6 +297,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`analyze ${testDir}`, { cwd: testDir });
 
+      // Many files should be handled successfully
       expect(result.exitCode).toBe(0);
     });
   });
@@ -299,8 +319,9 @@ describe('Error Handling and Edge Cases', () => {
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
-      expect(result1.exitCode).toBeGreaterThanOrEqual(0);
-      expect(result2.exitCode).toBeGreaterThanOrEqual(0);
+      // Both concurrent runs should complete
+      expect([0, 1]).toContain(result1.exitCode);
+      expect([0, 1]).toContain(result2.exitCode);
     });
   });
 
@@ -311,7 +332,8 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ${testDir}`, { cwd: testDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Missing node_modules should not crash the CLI
+      expect([0, 1]).toContain(result.exitCode);
     });
   });
 
@@ -322,6 +344,7 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix .`, { cwd: testDir });
 
+      // Relative path '.' should work
       expect(result.exitCode).toBe(0);
     });
 
@@ -334,7 +357,27 @@ describe('Error Handling and Edge Cases', () => {
 
       const result = runCLI(`fix ..`, { cwd: subDir });
 
-      expect(result.exitCode).toBeGreaterThanOrEqual(0);
+      // Parent directory references should work
+      expect([0, 1]).toContain(result.exitCode);
+    });
+  });
+
+  describe('Non-Existent Paths', () => {
+    test('should fail with exit code 1 for non-existent directory', () => {
+      const nonExistent = path.join(testDir, 'does-not-exist');
+
+      const result = runCLI(`fix ${nonExistent}`, { cwd: testDir });
+
+      // Non-existent paths should return error exit code
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout + result.stderr).toMatch(/not found|does not exist|ENOENT/i);
+    });
+
+    test('should fail with exit code 1 for invalid command', () => {
+      const result = runCLI(`invalid-command ${testDir}`, { cwd: testDir });
+
+      // Invalid commands should return error exit code
+      expect(result.exitCode).toBe(1);
     });
   });
 });
