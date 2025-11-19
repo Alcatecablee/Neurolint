@@ -1,4 +1,4 @@
-modules = ["nodejs-16"]
+modules = ["nodejs-16", "web"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
@@ -17,6 +17,10 @@ externalPort = 80
 [[ports]]
 localPort = 38261
 externalPort = 3001
+
+[[ports]]
+localPort = 41297
+externalPort = 3000
 
 [env]
 PORT = "5000"
