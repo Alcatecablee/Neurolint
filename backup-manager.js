@@ -11,6 +11,7 @@ class BackupManager {
   constructor(options = {}) {
     this.backupDir = options.backupDir || '.neurolint-backups';
     this.maxBackups = options.maxBackups || 10;
+    this.verbose = options.verbose !== undefined ? options.verbose : false;
     this.excludePatterns = options.excludePatterns || [
       '**/node_modules/**',
       '**/dist/**',
@@ -40,9 +41,13 @@ class BackupManager {
   async initialize() {
     try {
       await fs.mkdir(this.backupDir, { recursive: true });
-      console.log(`Backup directory initialized: ${this.backupDir}`);
+      if (this.verbose) {
+        console.log(`Backup directory initialized: ${this.backupDir}`);
+      }
     } catch (error) {
-      console.error(`Failed to initialize backup directory: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to initialize backup directory: ${error.message}`);
+      }
     }
   }
 
@@ -89,7 +94,9 @@ class BackupManager {
         hash
       };
     } catch (error) {
-      console.error(`Failed to create backup for ${filePath}: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to create backup for ${filePath}: ${error.message}`);
+      }
       return {
         success: false,
         error: error.message,
@@ -146,7 +153,9 @@ class BackupManager {
         backupInfo: backupData
       };
     } catch (error) {
-      console.error(`Failed to restore from backup ${backupPath}: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to restore from backup ${backupPath}: ${error.message}`);
+      }
       return {
         success: false,
         error: error.message,
@@ -183,7 +192,7 @@ class BackupManager {
       }
     } catch (error) {
       // Ignore errors for non-existent directories
-      if (error.code !== 'ENOENT') {
+      if (error.code !== 'ENOENT' && this.verbose) {
         console.error(`Failed to clean old backups: ${error.message}`);
       }
     }
@@ -233,7 +242,9 @@ class BackupManager {
       
       return backups.sort((a, b) => b.timestamp - a.timestamp);
     } catch (error) {
-      console.error(`Failed to list backups: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to list backups: ${error.message}`);
+      }
       return [];
     }
   }
@@ -244,9 +255,13 @@ class BackupManager {
   async cleanAllBackups() {
     try {
       await fs.rm(this.backupDir, { recursive: true, force: true });
-      console.log('All backups cleaned');
+      if (this.verbose) {
+        console.log('All backups cleaned');
+      }
     } catch (error) {
-      console.error(`Failed to clean all backups: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to clean all backups: ${error.message}`);
+      }
     }
   }
 
@@ -266,7 +281,9 @@ class BackupManager {
         maxBackups: this.maxBackups
       };
     } catch (error) {
-      console.error(`Failed to get backup stats: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to get backup stats: ${error.message}`);
+      }
       return null;
     }
   }
@@ -325,7 +342,7 @@ class BackupManager {
       try {
         await fs.access(filePath);
         backupResult = await this.createBackup(filePath, operation);
-        if (!backupResult.success) {
+        if (!backupResult.success && this.verbose) {
           console.warn(`Warning: Could not create backup for ${filePath}: ${backupResult.error}`);
         }
       } catch {
@@ -370,7 +387,9 @@ class BackupManager {
         size: content.length
       };
     } catch (error) {
-      console.error(`Failed to safely write ${filePath}: ${error.message}`);
+      if (this.verbose) {
+        console.error(`Failed to safely write ${filePath}: ${error.message}`);
+      }
       return {
         success: false,
         error: error.message,
