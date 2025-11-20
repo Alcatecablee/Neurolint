@@ -1472,8 +1472,8 @@ async function handleClean(options, spinner) {
     // Validate numeric options
     if (options.keepLatest !== undefined && options.keepLatest !== null) {
       const keepLatest = parseInt(options.keepLatest);
-      if (isNaN(keepLatest) || keepLatest < 0) {
-        throw new Error(`--keep-latest must be a non-negative number, got: ${options.keepLatest}`);
+      if (isNaN(keepLatest) || keepLatest <= 0) {
+        throw new Error(`--keep-latest must be a positive number (at least 1), got: ${options.keepLatest}`);
       }
       options.keepLatest = keepLatest;
     }
@@ -1909,7 +1909,11 @@ async function handleRules(options, spinner) {
       }
       
       if (options.confidence !== undefined) {
-        ruleStore.rules[ruleId].confidence = parseFloat(options.confidence);
+        const confidence = parseFloat(options.confidence);
+        if (isNaN(confidence) || confidence < 0 || confidence > 1) {
+          throw new Error(`Invalid confidence value: ${options.confidence}. Confidence must be a number between 0 and 1 (inclusive)`);
+        }
+        ruleStore.rules[ruleId].confidence = confidence;
         await ruleStore.save();
         process.stdout.write(`Updated confidence for rule ID ${ruleId}\n`);
       } else {
