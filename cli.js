@@ -950,6 +950,11 @@ async function handleInitConfig(options, spinner) {
   try {
     const configPath = path.join(process.cwd(), '.neurolintrc');
     
+    // Default to --init if no flag is provided
+    if (!options.init && !options.show) {
+      options.init = true;
+    }
+    
     if (options.init) {
       const defaultConfig = {
         enabledLayers: [1, 2, 3, 4, 5, 6, 7],
@@ -1465,7 +1470,7 @@ async function handleClean(options, spinner) {
     const targetPath = options.targetPath || process.cwd();
     
     // Validate numeric options
-    if (options.keepLatest !== undefined) {
+    if (options.keepLatest !== undefined && options.keepLatest !== null) {
       const keepLatest = parseInt(options.keepLatest);
       if (isNaN(keepLatest) || keepLatest < 0) {
         throw new Error(`--keep-latest must be a non-negative number, got: ${options.keepLatest}`);
@@ -1473,7 +1478,7 @@ async function handleClean(options, spinner) {
       options.keepLatest = keepLatest;
     }
     
-    if (options.olderThan !== undefined) {
+    if (options.olderThan !== undefined && options.olderThan !== null) {
       const olderThan = parseInt(options.olderThan);
       if (isNaN(olderThan) || olderThan < 0) {
         throw new Error(`--older-than must be a non-negative number, got: ${options.olderThan}`);
@@ -1914,10 +1919,17 @@ async function handleRules(options, spinner) {
       await fs.writeFile(options.export, JSON.stringify(ruleStore.rules, null, 2));
       process.stdout.write(`Exported ${ruleStore.rules.length} rules to ${options.export}\n`);
     } else if (options.import) {
-      const importedRules = JSON.parse(await fs.readFile(options.import, 'utf8'));
-      ruleStore.rules.push(...importedRules);
-      await ruleStore.save();
-      process.stdout.write(`Imported ${importedRules.length} rules from ${options.import}\n`);
+      try {
+        const importedRules = JSON.parse(await fs.readFile(options.import, 'utf8'));
+        ruleStore.rules.push(...importedRules);
+        await ruleStore.save();
+        process.stdout.write(`Imported ${importedRules.length} rules from ${options.import}\n`);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          throw new Error(`Import file not found: ${options.import}`);
+        }
+        throw error;
+      }
     }
     
     // Stop spinner before outputting completion message
