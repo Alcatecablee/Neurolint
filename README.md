@@ -33,6 +33,16 @@ NeuroLint was born from frustration during development of [Taxfy.co.za](https://
 
 ---
 
+## 🆕 New in v1.4.0
+
+- **Biome migration**: Handles missing package.json (creates minimal file or reports clearly)
+- **Middleware runtime**: Auto-adds `export const runtime = "nodejs"` to middleware files that need it
+- **React 19 migration docs** + Next.js 15.5 feature guide
+- **Added tests** for Biome migration and middleware runtime detection
+- **Improved troubleshooting** and command help
+
+---
+
 ## 🚀 Quick Demo
 
 **Before (Legacy React component):**
@@ -333,6 +343,118 @@ const useCustomHook = () => {
 
 ---
 
+## 🔄 Migration Features
+
+### React 19 & Next.js 15.5 Migration
+
+**Problem:** Upgrading to React 19 and Next.js 15.5 requires comprehensive codebase updates
+
+```bash
+# Migrate your project to React 19 compatibility
+neurolint migrate-react19 ./src --dry-run --verbose
+
+# Migrate your project to Next.js 15.5 compatibility
+neurolint migrate-nextjs-15.5 ./src --dry-run --verbose
+
+# Migrate from ESLint to Biome (Next.js 15.5 recommendation)
+neurolint migrate-biome ./src --dry-run --verbose
+
+# Traditional layer-based migration for all layers
+neurolint fix ./src --all-layers --dry-run --verbose
+```
+
+#### React 19 Features:
+
+- **forwardRef Removal**: Converts to direct ref prop automatically
+- **String Refs Migration**: Migrates to ref callbacks with class/function detection
+- **PropTypes Removal**: Detects usage and provides TypeScript migration guidance
+- **ReactDOM.render Conversion**: Converts to createRoot with proper import management
+- **Legacy Context Detection**: Warns about contextTypes and getChildContext removal
+
+#### Next.js 15.5 Features:
+
+- **Type Safe Routing**: Enhanced routing with automatic type generation
+- **Node Runtime on Middleware**: Automatically adds stable runtime configuration (no longer experimental)
+- **Biome Integration**: Official support for Biome as ESLint alternative
+- **next lint Deprecation**: Detects and migrates away from deprecated next lint
+- **Server Actions Enhancement**: Automatic error handling and validation
+- **Metadata API Modernization**: Stricter TypeScript typing for generateMetadata
+- **Caching Optimization**: Smart suggestions for cache: 'force-cache'
+- **Turbopack Integration**: Automatic configuration for Next.js 15+
+
+---
+
+## 📊 Complexity Management for Small Projects
+
+**Problem:** Next.js complexity concerns for small projects - as discussed in [r/nextjs](https://www.reddit.com/r/nextjs/)
+
+```bash
+# Assess your project's complexity level
+neurolint assess ./src --verbose
+
+# Convert Next.js project to plain React for simplicity
+neurolint simplify ./src --target=react --dry-run
+
+# Remove unnecessary Next.js features while keeping framework
+neurolint simplify ./src --target=minimal-nextjs --dry-run
+
+# Apply simplification changes (remove --dry-run to apply)
+neurolint simplify ./src --target=react
+```
+
+### Complexity Assessment Features:
+
+- **Complexity Scoring**: 0-100 scale with simple/moderate/complex/enterprise levels
+- **Feature Usage Analysis**: Detects App Router, Middleware, API Routes, Server Components
+- **Unnecessary Feature Detection**: Identifies unused middleware, API routes for static sites
+- **Simplification Opportunities**: Converts to SPA when SSR isn't needed
+- **Alternative Recommendations**: Suggests when plain React would be sufficient
+
+### When to Use What
+
+**Use Plain React When:**
+- Building simple SPAs or static sites
+- No SSR/SSG requirements
+- Team prefers simplicity over features
+- Learning React fundamentals
+
+```bash
+# Convert your Next.js project to plain React
+neurolint assess ./src --verbose          # Analyze current complexity
+neurolint simplify ./src --target=react   # Convert to React SPA
+```
+
+**Use Minimal Next.js When:**
+- Need basic routing and build optimization
+- Want to keep upgrade path for future features
+- Team is comfortable with Next.js
+
+```bash
+# Remove unnecessary complexity while keeping Next.js
+neurolint simplify ./src --target=minimal-nextjs --dry-run
+```
+
+**Keep Full Next.js When:**
+- Using SSR, SSG, or API routes
+- Building production applications
+- Need advanced performance optimizations
+
+```bash
+# Just clean up and modernize existing setup
+neurolint fix ./src --layers=1,2,5 --dry-run
+```
+
+### Complexity Assessment Tool
+
+The `neurolint assess` command provides objective complexity scoring:
+
+- **Score 0-30 (Simple)**: Consider plain React for maximum simplicity
+- **Score 30-60 (Moderate)**: Next.js minimal setup is appropriate
+- **Score 60-80 (Complex)**: Full Next.js features justified
+- **Score 80+ (Enterprise)**: Complexity is necessary for requirements
+
+---
+
 ## 📖 Usage Examples
 
 ### Basic Codebase Modernization
@@ -428,6 +550,39 @@ neurolint fix src/ --layers=7 --verbose
 
 ---
 
+### 5. Complexity Reduction for Small Projects
+**Scenario:** Next.js project that's too complex for a simple landing page
+
+```bash
+# Assess complexity and get recommendations
+neurolint assess ./src --verbose
+
+# Convert to plain React when Next.js features aren't needed
+neurolint simplify ./src --target=react
+```
+
+**Result:** 15 Next.js files converted to React components, 40% reduction in dependencies, simpler development workflow
+
+---
+
+### 6. Next.js 15.5 Migration
+**Scenario:** Upgrading from Next.js 13 to Next.js 15.5
+
+```bash
+# Fix entire project with all layers
+neurolint fix ./src --all-layers --backup --verbose
+
+# Add Node runtime to middleware (now stable in 15.5)
+neurolint fix middleware.ts --layers=5 --verbose
+
+# Migrate from ESLint to Biome (15.5 recommendation)
+neurolint migrate-biome ./src --verbose
+```
+
+**Result:** 396 files processed, 31 files updated, 0 breaking changes, full Next.js 15.5 compatibility with Biome integration
+
+---
+
 ## 🛠️ Commands Reference
 
 ### Core Commands
@@ -461,6 +616,17 @@ neurolint backups                # Manage centralized backups
 neurolint init-config            # Generate or display configuration
 neurolint init-tests [path]      # Generate test files for components
 neurolint health                 # Run a health check to verify configuration
+```
+
+### Migration Commands
+
+```bash
+neurolint migrate-react19 [path]        # Migrate to React 19 compatibility
+neurolint migrate-nextjs-15.5 [path]    # Migrate to Next.js 15.5 compatibility
+neurolint migrate-biome [path]          # Migrate from ESLint to Biome
+neurolint fix-deprecations [path]       # Fix Next.js 15.5 deprecations
+neurolint assess [path]                 # Assess project complexity
+neurolint simplify [path]               # Simplify project (convert to React/minimal Next.js)
 ```
 
 ### Flags & Options
