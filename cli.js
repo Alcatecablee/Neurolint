@@ -4541,7 +4541,7 @@ function displaySimplificationResults(results) {
   console.log('='.repeat(60));
   
   if (results.success) {
-    console.log('\n✓ Simplification completed successfully!');
+    console.log('\n[SUCCESS] Simplification completed successfully!');
     
     const totalChanges = results.steps.reduce((sum, step) => sum + (step.changes || 0), 0);
     console.log(`\nSummary:`);
@@ -4549,7 +4549,7 @@ function displaySimplificationResults(results) {
     console.log(`  - Files modified: ${totalChanges}`);
     console.log(`  - Errors: 0`);
   } else {
-    console.log('\n✗ Simplification failed');
+    console.log('\n[FAILED] Simplification failed');
     
     if (results.errors.length > 0) {
       console.log('\nErrors:');
