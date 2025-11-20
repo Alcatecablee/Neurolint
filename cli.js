@@ -1147,6 +1147,19 @@ async function handleStats(options, spinner) {
     const include = options.include || ['**/*.{ts,tsx,js,jsx,json}'];
     const exclude = options.exclude || ['**/node_modules/**', '**/dist/**', '**/.next/**'];
     
+    // Validate that the target path exists
+    try {
+      const pathStats = await fs.stat(targetPath);
+      if (!pathStats.isDirectory() && !pathStats.isFile()) {
+        throw new Error(`Path is neither a file nor directory: ${targetPath}`);
+      }
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`Path does not exist: ${targetPath}`);
+      }
+      throw error;
+    }
+    
     spinner.text = 'Scanning files...';
     
     // Start memory tracking
@@ -1450,6 +1463,24 @@ function needsReact19Migration(code) {
 async function handleClean(options, spinner) {
   try {
     const targetPath = options.targetPath || process.cwd();
+    
+    // Validate numeric options
+    if (options.keepLatest !== undefined) {
+      const keepLatest = parseInt(options.keepLatest);
+      if (isNaN(keepLatest) || keepLatest < 0) {
+        throw new Error(`--keep-latest must be a non-negative number, got: ${options.keepLatest}`);
+      }
+      options.keepLatest = keepLatest;
+    }
+    
+    if (options.olderThan !== undefined) {
+      const olderThan = parseInt(options.olderThan);
+      if (isNaN(olderThan) || olderThan < 0) {
+        throw new Error(`--older-than must be a non-negative number, got: ${options.olderThan}`);
+      }
+      options.olderThan = olderThan;
+    }
+    
     const include = ['**/*.backup-*', ...(options.states ? ['.neurolint/states-*.json'] : [])];
     
     // Use streaming approach for large file sets
