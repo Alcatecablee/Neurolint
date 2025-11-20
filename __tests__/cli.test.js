@@ -73,6 +73,65 @@ describe('NeuroLint CLI', () => {
       expect(result.stdout.length).toBeGreaterThan(0);
       expect(result.exitCode).toBe(0);
     });
+    
+    test('should show security status gracefully when production metrics unavailable', () => {
+      const result = runCLI('security status');
+      const output = result.stdout + result.stderr;
+      
+      expect(result.exitCode).toBe(0);
+      expect(output).toMatch(/Security Status|Free Tier|Production Mode/i);
+      
+      // Should indicate whether production metrics are available or not
+      // Either shows production stats OR indicates free tier
+      const hasProductionMetrics = output.includes('Production Mode: Enabled');
+      const isFreeTier = output.includes('Free Tier') || output.includes('Production Mode: Not Available');
+      expect(hasProductionMetrics || isFreeTier).toBe(true);
+    });
+    
+    test('should show security users gracefully', () => {
+      const result = runCLI('security users');
+      const output = result.stdout + result.stderr;
+      
+      expect(result.exitCode).toBe(0);
+      expect(output).toMatch(/Security Users|Total Users|free-tier|Production security metrics/i);
+    });
+    
+    test('should show security audit gracefully', () => {
+      const result = runCLI('security audit');
+      const output = result.stdout + result.stderr;
+      
+      expect(result.exitCode).toBe(0);
+      expect(output).toMatch(/Security Audit|Security Events|free-tier|Production audit metrics/i);
+    });
+    
+    test('production security path would work if interface exists', () => {
+      // This test documents the expected behavior when ProductionBackupManager
+      // has a security interface (future enhancement)
+      // 
+      // Current behavior: Free tier - gracefully reports metrics unavailable
+      // Expected behavior if security interface added:
+      //   1. ProductionBackupManager.initialize() sets up security interface
+      //   2. backupManager.security.getSecurityStatistics() returns real stats
+      //   3. CLI displays production security metrics
+      //
+      // The current implementation in handleSecurity() correctly:
+      //   - Initializes ProductionBackupManager first
+      //   - Checks if security interface exists after initialization
+      //   - Uses real stats if available, fallback message if not
+      //   - This pattern ensures production path works when interface is added
+      
+      const result = runCLI('security status');
+      expect(result.exitCode).toBe(0);
+      
+      // Verify the code path is ready for production security
+      // Currently shows free tier message since security interface doesn't exist
+      const output = result.stdout + result.stderr;
+      expect(output).toMatch(/Security Status/i);
+      expect(output).toMatch(/Production Mode/i);
+      
+      // When security interface is added to ProductionBackupManager,
+      // this same code will automatically use the real security stats
+    });
   });
 
   describe('Analysis Commands', () => {

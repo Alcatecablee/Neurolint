@@ -1959,50 +1959,83 @@ async function handleRules(options, spinner) {
 // Handle security management
 async function handleSecurity(args, options, spinner) {
   try {
+    // Create and initialize production backup manager
+    const backupManager = createBackupManager({
+      production: true,
+      verbose: options.verbose
+    });
+    
+    // Always initialize - security features may be set up during initialization
+    if (backupManager instanceof ProductionBackupManager) {
+      await backupManager.initialize();
+    }
+    
+    // Check if security interface is available after initialization
+    const hasSecurityInterface = backupManager instanceof ProductionBackupManager && 
+                                  backupManager.security && 
+                                  typeof backupManager.security.getSecurityStatistics === 'function';
+    
     const subcommand = args[1];
     
-    // All security features are now free - no authentication required
-    const mockSecurityStats = {
-      systemStatus: 'Active',
-      users: {
-        total: 1,
-        activeSessions: 1,
-        failedAttempts: 0,
-        lockedAccounts: 0
-      },
-      audit: {
-        securityEvents: 0,
-        accessAttempts: 1
-      }
-    };
+    // Get security statistics if available
+    let securityStats = null;
+    if (hasSecurityInterface) {
+      securityStats = backupManager.security.getSecurityStatistics();
+    }
     
     switch (subcommand) {
       case 'users':
         console.log('\nSecurity Users:');
         console.log('===============');
-        console.log(`Total Users: ${mockSecurityStats.users.total}`);
-        console.log(`Active Sessions: ${mockSecurityStats.users.activeSessions}`);
-        console.log(`Failed Attempts (24h): ${mockSecurityStats.users.failedAttempts}`);
-        console.log(`Locked Accounts: ${mockSecurityStats.users.lockedAccounts}`);
+        if (securityStats) {
+          console.log(`Total Users: ${securityStats.users.total}`);
+          console.log(`Active Sessions: ${securityStats.users.activeSessions}`);
+          console.log(`Failed Attempts (24h): ${securityStats.users.failedAttempts}`);
+          console.log(`Locked Accounts: ${securityStats.users.lockedAccounts}`);
+        } else {
+          console.log('Production security metrics are not currently available');
+          console.log('This is a free-tier installation without advanced user tracking');
+        }
         break;
         
       case 'audit':
         console.log('\nSecurity Audit:');
         console.log('===============');
-        console.log(`Security Events: ${mockSecurityStats.audit.securityEvents}`);
-        console.log(`Access Attempts: ${mockSecurityStats.audit.accessAttempts}`);
+        if (securityStats) {
+          console.log(`Security Events: ${securityStats.audit.securityEvents}`);
+          console.log(`Access Attempts: ${securityStats.audit.accessAttempts}`);
+        } else {
+          console.log('Production audit metrics are not currently available');
+          console.log('This is a free-tier installation without detailed audit logging');
+        }
         break;
         
       case 'status':
         if (options.format === 'json') {
-          console.log(JSON.stringify(mockSecurityStats, null, 2));
+          const statusOutput = securityStats 
+            ? { ...securityStats, productionMode: true }
+            : { 
+                available: false, 
+                message: 'Production security metrics not available - free tier installation',
+                productionMode: false
+              };
+          console.log(JSON.stringify(statusOutput, null, 2));
         } else {
           console.log('\nSecurity Status:');
           console.log('================');
-          console.log(`System Status: ${mockSecurityStats.systemStatus}`);
-          console.log(`Encryption: Enabled`);
-          console.log(`Authentication: Not Required (Free Tier)`);
-          console.log(`Audit Logging: Basic`);
+          if (securityStats) {
+            console.log(`System Status: ${securityStats.systemStatus}`);
+            console.log(`Production Mode: Enabled`);
+            console.log(`Encryption: Enterprise Grade`);
+            console.log(`Authentication: Not Required (All features are free)`);
+            console.log(`Audit Logging: Detailed`);
+          } else {
+            console.log(`System Status: Free Tier`);
+            console.log(`Production Mode: Not Available`);
+            console.log(`Encryption: Basic`);
+            console.log(`Authentication: Not Required (All features are free)`);
+            console.log(`Audit Logging: Basic (production metrics unavailable)`);
+          }
         }
         break;
         
@@ -2014,6 +2047,9 @@ async function handleSecurity(args, options, spinner) {
         console.log('neurolint security status    - Show security status');
         console.log('');
         console.log('Note: All security features are free and require no authentication');
+        if (!hasSecurityInterface) {
+          console.log('Production security metrics are not currently available');
+        }
     }
     
     spinner.stop();
