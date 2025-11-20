@@ -102,9 +102,9 @@ function App() {
               </div>
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
                 <div className="text-3xl md:text-4xl font-bold text-blue-500 mb-2">
-                  100%
+                  0
                 </div>
-                <div className="text-slate-400 text-sm">Test Coverage</div>
+                <div className="text-slate-400 text-sm">API Keys Needed</div>
               </div>
             </div>
           </div>
@@ -151,6 +151,51 @@ function App() {
   )
 }`}</code></pre>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Video */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-slate-900/30">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+              See It In Action
+            </h2>
+            <p className="text-lg text-slate-400">
+              Watch NeuroLint automatically transform buggy code into production-ready components
+            </p>
+          </div>
+          
+          <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950">
+            <video 
+              className="w-full aspect-video"
+              controls
+              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%230f172a' width='1920' height='1080'/%3E%3C/svg%3E"
+            >
+              <source src="/neurolint_code_fixing_demo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="absolute inset-0 pointer-events-none border-2 border-blue-500/20 rounded-2xl"></div>
+          </div>
+          
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <div className="text-2xl font-bold text-blue-500">8s</div>
+              <div className="text-xs text-slate-400 mt-1">Fix Time</div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <div className="text-2xl font-bold text-green-500">50+</div>
+              <div className="text-xs text-slate-400 mt-1">Issues Fixed</div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <div className="text-2xl font-bold text-purple-500">7</div>
+              <div className="text-xs text-slate-400 mt-1">Layers Applied</div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <div className="text-2xl font-bold text-blue-500">0</div>
+              <div className="text-xs text-slate-400 mt-1">Manual Work</div>
             </div>
           </div>
         </div>
