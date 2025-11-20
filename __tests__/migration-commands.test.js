@@ -119,7 +119,7 @@ export default MyComponent;
       // Create package.json with Next.js
       fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify({
         name: 'test-nextjs',
-        dependencies: { 'next': '^13.0.0', 'react': '^18.0.0' }
+        dependencies: { 'next': '^13.4.0', 'react': '^18.0.0' }
       }, null, 2));
       
       const testFile = path.join(testDir, 'middleware.ts');
@@ -141,7 +141,7 @@ export function middleware(request) {
       // Create package.json with Next.js
       fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify({
         name: 'test-nextjs',
-        dependencies: { 'next': '^13.0.0', 'react': '^18.0.0' }
+        dependencies: { 'next': '^13.4.0', 'react': '^18.0.0' }
       }, null, 2));
       
       const testFile = path.join(testDir, 'page.tsx');
@@ -163,7 +163,7 @@ export default function Page() {
       // Create package.json with Next.js
       fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify({
         name: 'test-nextjs',
-        dependencies: { 'next': '^13.0.0', 'react': '^18.0.0' }
+        dependencies: { 'next': '^13.4.0', 'react': '^18.0.0' }
       }, null, 2));
       
       const middlewareFile = path.join(testDir, 'middleware.js');

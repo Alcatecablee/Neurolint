@@ -68,8 +68,8 @@ describe('NeuroLint CLI', () => {
   });
 
   describe('Status Command', () => {
-    test('should show authentication status', () => {
-      const result = runCLI('status');
+    test('should show security status', () => {
+      const result = runCLI('security status');
       expect(result.stdout.length).toBeGreaterThan(0);
       expect(result.exitCode).toBe(0);
     });
