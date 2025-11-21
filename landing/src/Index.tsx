@@ -10,6 +10,8 @@ import {
   BarChart3,
   Atom,
   Settings,
+  Copy,
+  Check,
 } from "lucide-react";
 
 // Lazy Loading Hook
@@ -93,6 +95,7 @@ const TypewriterHeadline = () => {
 
 export default function Index() {
   const [mounted, setMounted] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
 
   // Lazy loading refs for each section
   const [demoSectionRef, demoSectionInView] = useInView(0.1);
@@ -101,6 +104,12 @@ export default function Index() {
   const [vscodeSectionRef, vscodeSectionInView] = useInView(0.2);
   const [faqSectionRef, faqSectionInView] = useInView(0.2);
   const [finalCtaSectionRef, finalCtaSectionInView] = useInView(0.2);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText('npm install -g @neurolint/cli');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   React.useEffect(() => {
     setMounted(true);
@@ -134,11 +143,11 @@ export default function Index() {
       </div>
 
       {/* Navigation Header */}
-      <nav className="fixed top-0 w-full z-50 bg-black/50 backdrop-blur-lg border-b border-white/10">
+      <nav className="fixed top-0 w-full z-50 bg-black/30 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-14">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-white">NeuroLint</span>
+              <img src="/logo.png" alt="NeuroLint" className="h-8" />
             </div>
             <div className="flex items-center space-x-6">
               <a href="#faq" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">
@@ -193,10 +202,21 @@ export default function Index() {
 
           {/* Install Command */}
           <div className="mb-8 animate-slide-in-up animate-delay-700">
-            <div className="max-w-2xl mx-auto bg-black/60 border-2 border-white/20 rounded-2xl p-6 backdrop-blur-xl">
-              <code className="text-green-400 font-mono text-lg md:text-xl block text-center">
+            <div className="max-w-2xl mx-auto bg-black/60 border-2 border-white/20 rounded-2xl p-6 backdrop-blur-xl relative group">
+              <code className="text-green-400 font-mono text-lg md:text-xl block text-center pr-12">
                 $ npm install -g @neurolint/cli
               </code>
+              <button
+                onClick={copyToClipboard}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                aria-label="Copy install command"
+              >
+                {copied ? (
+                  <Check className="w-5 h-5 text-green-400" />
+                ) : (
+                  <Copy className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                )}
+              </button>
             </div>
           </div>
 
