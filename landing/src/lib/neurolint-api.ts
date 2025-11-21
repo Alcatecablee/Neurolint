@@ -76,18 +76,26 @@ export const neurolintAPI = {
 
       console.log('[API] Sending analysis request to /api/analyze', {
         codeLength: options.code.length,
-        layers: requestBody.options.layers
+        layers: requestBody.options.layers,
+        apiBase: API_BASE
       });
 
-      const response = await fetch(`${API_BASE}/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      let response;
+      try {
+        response = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+      } catch (networkError) {
+        const errorMsg = networkError instanceof Error ? networkError.message : 'Network error';
+        console.error('[API] Network error:', errorMsg);
+        throw new Error(`Network error: ${errorMsg}`);
+      }
 
-      console.log('[API] Response status:', response.status, response.statusText);
+      console.log('[API] Response received, status:', response.status, response.statusText, 'ok:', response.ok);
 
       if (!response.ok) {
         let errorMessage = `Server returned ${response.status} ${response.statusText}`;
