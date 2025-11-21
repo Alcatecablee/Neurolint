@@ -136,13 +136,15 @@ class CLIRunner {
   async runLayerAnalysis(filePath, layerId, workDir) {
     return new Promise((resolve, reject) => {
       const issues = [];
+      const outputFile = path.join(workDir, `analysis-layer-${layerId}.json`);
 
       const args = [
         this.cliPath,
         'analyze',
         filePath,
         '--layers', layerId.toString(),
-        '--format', 'json'
+        '--format', 'json',
+        '--output', outputFile
       ];
 
       const proc = spawn('node', args, {
