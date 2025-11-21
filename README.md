@@ -46,15 +46,6 @@ Modern React and Next.js development suffers from repetitive, time-consuming cod
 
 ## The Solution
 
-NeuroLint was created during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared across the codebase. Instead of spending weeks on manual fixes, an intelligent multi-layer system was built that:
-
-- Fixed **90% of issues automatically** using AST transformations
-- Reduced error count from **700 to 70** in production
-- Saved **hundreds of hours** of manual work
-- Created **zero breaking changes** during fixes
-
-### Key Differentiator: No AI
-
 **NeuroLint uses deterministic, rule-based transformations—NOT artificial intelligence.**
 
 - **AST Parsing** - Understands code structure through Abstract Syntax Trees
