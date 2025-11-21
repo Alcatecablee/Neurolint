@@ -114,62 +114,77 @@ export const neurolintAPI = {
   async streamJobProgress(jobId: string): Promise<AnalysisResult> {
     return new Promise((resolve, reject) => {
       const eventSource = new EventSource(`${API_BASE}/stream/${jobId}`);
-      
-      let detectedIssues: any[] = [];
-      let transformedCode: string | null = null;
-      let appliedFixes: any[] = [];
-      let processingTime = 0;
+      let resolved = false;
+      const timeout = setTimeout(() => {
+        if (!resolved) {
+          eventSource.close();
+          resolved = true;
+          // Fallback to polling instead of timeout
+          this.pollJobResult(jobId)
+            .then(resolve)
+            .catch(reject);
+        }
+      }, 30000);
 
       eventSource.addEventListener('connected', (event) => {
-        const data = JSON.parse(event.data);
+        try {
+          const data = JSON.parse(event.data);
+        } catch (e) {
+          // Ignore parse errors
+        }
       });
 
       eventSource.addEventListener('layer_update', (event) => {
-        const data = JSON.parse(event.data);
+        try {
+          const data = JSON.parse(event.data);
+        } catch (e) {
+          // Ignore parse errors
+        }
       });
 
       eventSource.addEventListener('complete', (event) => {
-        const data = JSON.parse(event.data);
-        detectedIssues = data.detectedIssues || [];
-        transformedCode = data.transformedCode;
-        appliedFixes = data.appliedFixes || [];
-        processingTime = data.processingTime || 0;
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeout);
 
-        eventSource.close();
-        
-        resolve({
-          success: true,
-          analysis: {
-            recommendedLayers: [...new Set(detectedIssues.map((i: any) => i.fixedByLayer))],
-            detectedIssues,
-            confidence: detectedIssues.length > 0 ? 0.9 : 1.0,
-            processingTime,
-            analysisId: jobId
-          },
-          code: transformedCode,
-          appliedFixes
-        });
-      });
+        try {
+          const data = JSON.parse(event.data);
+          const detectedIssues = data.detectedIssues || [];
+          const transformedCode = data.transformedCode || null;
+          const appliedFixes = data.appliedFixes || [];
+          const processingTime = data.processingTime || 0;
 
-      eventSource.addEventListener('error', (event: any) => {
-        eventSource.close();
-        
-        const errorData = event.data ? JSON.parse(event.data) : { error: 'Stream error' };
-        reject(new Error(errorData.error || 'Stream failed'));
+          eventSource.close();
+
+          resolve({
+            success: true,
+            analysis: {
+              recommendedLayers: [...new Set(detectedIssues.map((i: any) => i.fixedByLayer))],
+              detectedIssues,
+              confidence: detectedIssues.length > 0 ? 0.9 : 1.0,
+              processingTime,
+              analysisId: jobId
+            },
+            code: transformedCode,
+            appliedFixes
+          });
+        } catch (error) {
+          eventSource.close();
+          reject(error);
+        }
       });
 
       eventSource.onerror = (error) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeout);
         eventSource.close();
-        
+
+        // Fallback to polling on EventSource error
         this.pollJobResult(jobId)
           .then(resolve)
           .catch(reject);
       };
-
-      setTimeout(() => {
-        eventSource.close();
-        reject(new Error('Analysis timeout'));
-      }, 120000);
     });
   },
 
