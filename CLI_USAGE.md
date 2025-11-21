@@ -6,7 +6,7 @@ NeuroLint is a deterministic code analysis and transformation tool for TypeScrip
 
 ## Origin Story
 
-Born from frustration when a project had 700+ ESLint errors, hydration bugs, and missing React keys. Instead of fixing manually, an intelligent multi-layer fixing system was created that reduced 600+ issues down to just 70 - and NeuroLint was born.
+Born from frustration when a project had 700+ ESLint errors, hydration bugs, and missing React keys. Instead of fixing manually, an intelligent multi-layer fixing system was created that fixed 90% of them automatically, reducing the count to just 70 - and NeuroLint was born.
 
 ## Installation
 

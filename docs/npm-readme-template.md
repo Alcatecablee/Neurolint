@@ -149,7 +149,7 @@ All layers are free. No API keys required.
 
 I built this while working on Taxfy.co.za. The codebase had over 700 ESLint errors—mostly hydration bugs, missing React keys, and console.log statements in production. Fixing them manually would have taken weeks.
 
-Instead of clicking through files, I wrote scripts using Babel's AST parser to find and fix patterns automatically. The scripts reduced the error count from 600+ down to about 70 in a few hours.
+Instead of clicking through files, I wrote scripts using Babel's AST parser to find and fix patterns automatically. The scripts fixed 90% of them automatically, reducing the count to just 70 in a few hours.
 
 NeuroLint is those scripts packaged as a CLI tool.
 

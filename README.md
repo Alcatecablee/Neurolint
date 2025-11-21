@@ -21,7 +21,7 @@ Modern React/Next.js development is plagued with repetitive code issues:
 
 ## The Solution
 
-NeuroLint was born from frustration during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer system was created that reduced **600+ issues down to just 70** automatically.
+NeuroLint was born from frustration during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer system was created that **fixed 90% of them automatically, reducing the count to just 70**.
 
 **Key differentiator:** NeuroLint uses **deterministic, rule-based transformations** (NOT AI). No LLM hallucinations, no unpredictable rewrites—just precise, repeatable code fixes using AST parsing.
 

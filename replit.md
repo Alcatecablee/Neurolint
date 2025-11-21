@@ -39,7 +39,7 @@ The **actual working product** is the npm package:
 
 ## Origin Story
 
-NeuroLint was born from frustration during development of Taxfy.co.za when over 700 ESLint errors, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer fixing system was created that reduced 600+ issues down to just 70.
+NeuroLint was born from frustration during development of Taxfy.co.za when over 700 ESLint errors, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer fixing system was created that fixed 90% of them automatically, reducing the count to just 70.
 
 ## The 7-Layer Architecture
 
