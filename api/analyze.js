@@ -97,49 +97,77 @@ module.exports = async (req, res) => {
         console.log('[API] Starting analysis for job:', job.id);
         jobManager.updateJob(job.id, { status: 'running' });
 
-        const result = await cliRunner.analyzeCode(
-          code,
-          options,
-          (progress) => {
-            if (progress.type === 'layer_start') {
-              jobManager.updateLayerProgress(
-                job.id,
-                progress.layerId,
-                'processing',
-                { name: progress.name }
-              );
-            } else if (progress.type === 'layer_complete') {
-              jobManager.updateLayerProgress(
-                job.id,
-                progress.layerId,
-                'completed',
-                {
-                  name: progress.name,
-                  issuesFound: progress.issuesFound
+        let result;
+        try {
+          console.log('[API] Calling cliRunner.analyzeCode');
+          result = await cliRunner.analyzeCode(
+            code,
+            options,
+            (progress) => {
+              try {
+                if (progress.type === 'layer_start') {
+                  jobManager.updateLayerProgress(
+                    job.id,
+                    progress.layerId,
+                    'processing',
+                    { name: progress.name }
+                  );
+                } else if (progress.type === 'layer_complete') {
+                  jobManager.updateLayerProgress(
+                    job.id,
+                    progress.layerId,
+                    'completed',
+                    {
+                      name: progress.name,
+                      issuesFound: progress.issuesFound
+                    }
+                  );
                 }
-              );
+              } catch (progressError) {
+                console.error('[API] Error in progress callback:', progressError.message);
+              }
             }
-          }
-        );
+          );
+        } catch (analyzeError) {
+          console.error('[API] cliRunner.analyzeCode failed:', analyzeError.message, analyzeError.stack);
+          throw new Error(`Analysis failed: ${analyzeError.message}`);
+        }
+
+        if (!result) {
+          throw new Error('Analysis returned no result');
+        }
 
         console.log('[API] Analysis complete, issues found:', result.detectedIssues ? result.detectedIssues.length : 0);
 
         if (result.detectedIssues) {
-          result.detectedIssues.forEach(issue => jobManager.addIssue(job.id, issue));
+          result.detectedIssues.forEach(issue => {
+            try {
+              jobManager.addIssue(job.id, issue);
+            } catch (issueError) {
+              console.error('[API] Error adding issue:', issueError.message);
+            }
+          });
         }
 
         if (result.detectedIssues && result.detectedIssues.length > 0) {
-          console.log('[API] Applying fixes for job:', job.id);
-          const fixResult = await cliRunner.fixCode(
-            code,
-            result.detectedIssues,
-            options
-          );
+          try {
+            console.log('[API] Applying fixes for job:', job.id);
+            const fixResult = await cliRunner.fixCode(
+              code,
+              result.detectedIssues,
+              options
+            );
 
-          if (fixResult.success) {
-            result.transformedCode = fixResult.code;
-            result.appliedFixes = fixResult.appliedFixes;
-            console.log('[API] Fixes applied');
+            if (fixResult && fixResult.success) {
+              result.transformedCode = fixResult.code;
+              result.appliedFixes = fixResult.appliedFixes;
+              console.log('[API] Fixes applied successfully');
+            } else {
+              console.log('[API] Fix result not successful:', fixResult);
+            }
+          } catch (fixError) {
+            console.error('[API] Error during fix:', fixError.message);
+            // Don't fail the job if fixing fails, just continue with original code
           }
         }
 
@@ -151,11 +179,12 @@ module.exports = async (req, res) => {
           processingTime: Date.now() - job.createdAt
         });
 
-        console.log('[API] Job completed:', job.id);
+        console.log('[API] Job completed successfully:', job.id);
 
       } catch (error) {
-        console.error('[API] Analysis error for job', job.id, ':', error);
-        jobManager.failJob(job.id, error.message);
+        console.error('[API] Analysis error for job', job.id, ':', error.message);
+        console.error('[API] Error details:', error.stack);
+        jobManager.failJob(job.id, error instanceof Error ? error.message : String(error));
       }
     });
 
