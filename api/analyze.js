@@ -38,7 +38,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { code, options = {} } = req.body;
+    // Ensure body is available - sometimes proxy middleware consumes it
+    let body = req.body;
+
+    // If body is empty or not an object, try to parse from raw stream
+    if (!body || typeof body !== 'object') {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'Request body must be valid JSON'
+      });
+    }
+
+    const { code, options = {} } = body;
 
     if (!code || typeof code !== 'string') {
       return res.status(400).json({
