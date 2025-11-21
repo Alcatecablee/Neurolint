@@ -36,10 +36,26 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API server is running' });
 });
 
+// 404 handler
+app.use((req, res) => {
+  console.log('[SERVER] 404 - Not found:', req.method, req.path);
+  res.status(404).json({
+    error: 'Not found',
+    message: `${req.method} ${req.path} not found`
+  });
+});
+
+// Error handler (must be last)
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
+  console.error('[SERVER] Error handler caught:', err.message, err.stack);
+
+  if (res.headersSent) {
+    console.log('[SERVER] Headers already sent, delegating to default handler');
+    return next(err);
+  }
+
+  res.status(err.status || 500).json({
+    error: err.error || 'Internal server error',
     message: err.message
   });
 });
