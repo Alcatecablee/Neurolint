@@ -446,6 +446,48 @@ function App() {
             </button>
           </div>
 
+          {/* Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+            <a 
+              href="https://github.com/Alcatecablee/Neurolint-CLI" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                src="https://img.shields.io/github/stars/Alcatecablee/Neurolint-CLI?style=social" 
+                alt="GitHub stars"
+                className="h-5"
+              />
+            </a>
+            <a 
+              href="https://www.npmjs.com/package/@neurolint/cli" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                src="https://img.shields.io/npm/v/@neurolint/cli.svg?style=flat-square&color=blue" 
+                alt="npm version"
+                className="h-5"
+              />
+            </a>
+            <a 
+              href="https://www.npmjs.com/package/@neurolint/cli" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                src="https://img.shields.io/npm/dm/@neurolint/cli.svg?style=flat-square&color=green" 
+                alt="npm downloads"
+                className="h-5"
+              />
+            </a>
+            <img 
+              src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" 
+              alt="MIT License"
+              className="h-5"
+            />
+          </div>
+
           <div className="flex items-center justify-center gap-8 text-slate-400">
             <a 
               href="https://www.npmjs.com/package/@neurolint/cli" 
