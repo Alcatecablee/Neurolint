@@ -477,7 +477,7 @@ export function ComprehensiveDemoSection() {
           </p>
           {engineStatus && (
             <div className="mt-4 text-sm text-gray-400">
-              Engine v{engineStatus.version} • {engineStatus.totalRules} rules • {engineStatus.stats.analyses} analyses completed
+              Engine v{engineStatus.version} • {engineStatus.totalRules}+ production-ready rules • 7 analysis layers
             </div>
           )}
         </div>
