@@ -168,7 +168,7 @@ export default function Index() {
 
       {/* Hero Section */}
       <section
-        className="min-h-screen flex items-center justify-center text-center px-4 py-16 relative"
+        className="min-h-screen flex items-center justify-center text-center px-4 py-16 pt-20 relative"
         aria-label="Hero section"
         role="main"
       >
