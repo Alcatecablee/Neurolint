@@ -1,55 +1,178 @@
 # NeuroLint CLI
 
-> Deterministic code analysis and transformation tool for TypeScript, JavaScript, React, and Next.js projects.
+> **Deterministic code transformation tool for React, Next.js, and TypeScript projects**
 
 [![npm version](https://img.shields.io/npm/v/@neurolint/cli.svg)](https://www.npmjs.com/package/@neurolint/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-170%20passing-brightgreen.svg)](./__tests__)
+[![Tests](https://img.shields.io/badge/tests-297%20passing-brightgreen.svg)](./__tests__)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue)]()
 
-**NeuroLint uses rule-based intelligence (NOT AI) to automatically detect and fix 50+ common code issues across 7 layers.**
+**NeuroLint uses deterministic, rule-based transformations (NOT AI) to automatically fix 50+ code issues across 7 intelligent layers.**
+
+Born from real-world frustration on [Taxfy.co.za](https://taxfy.co.za), where **700+ errors were reduced to 70** using automated AST-based fixes. No LLM hallucinations, no unpredictable rewrites—just precise, repeatable transformations.
+
+---
+
+## Table of Contents
+
+- [The Problem](#the-problem)
+- [The Solution](#the-solution)
+- [What's New in v1.4.0](#whats-new-in-v140)
+- [Quick Start](#quick-start)
+- [What NeuroLint Fixes](#what-neurolint-fixes)
+- [Migration Features](#migration-features)
+- [Analysis Tools](#analysis-tools)
+- [Usage Examples](#usage-examples)
+- [Real-World Use Cases](#real-world-use-cases)
+- [Command Reference](#command-reference)
+- [Integration](#integration)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
 ## The Problem
 
-Modern React/Next.js development is plagued with repetitive code issues:
-- Missing accessibility attributes
-- Hydration errors (`window is not defined`)
-- Outdated TypeScript/Next.js configurations
-- Inconsistent patterns across teams
-- Manual fixes that are time-consuming and error-prone
+Modern React and Next.js development suffers from repetitive, time-consuming code quality issues:
+
+- **Missing accessibility attributes** - Images without alt text, buttons without aria-labels
+- **Hydration errors** - `window is not defined`, `localStorage` accessed during SSR
+- **Outdated configurations** - TypeScript and Next.js configs causing build failures
+- **Inconsistent patterns** - Team members using different coding styles
+- **Manual migration overhead** - React 19 and Next.js 16 breaking changes
+- **Dependency conflicts** - Package version incompatibilities
+
+**The cost:** Hours of manual fixes, code review overhead, production bugs, and team frustration.
+
+---
 
 ## The Solution
 
-NeuroLint was born from frustration during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer system was created that **fixed 90% of them automatically, reducing the count to just 70**.
+NeuroLint was created during development of [Taxfy.co.za](https://taxfy.co.za) when over **700 ESLint errors**, hydration bugs, and missing React keys appeared across the codebase. Instead of spending weeks on manual fixes, an intelligent multi-layer system was built that:
 
-**Key differentiator:** NeuroLint uses **deterministic, rule-based transformations** (NOT AI). No LLM hallucinations, no unpredictable rewrites—just precise, repeatable code fixes using AST parsing.
+- Fixed **90% of issues automatically** using AST transformations
+- Reduced error count from **700 to 70** in production
+- Saved **hundreds of hours** of manual work
+- Created **zero breaking changes** during fixes
 
----
+### Key Differentiator: No AI
 
-## All 7 Layers Are Free!
+**NeuroLint uses deterministic, rule-based transformations—NOT artificial intelligence.**
 
-**No authentication. No API keys. Completely free and open source.**
+- **AST Parsing** - Understands code structure through Abstract Syntax Trees
+- **Pattern Recognition** - Identifies anti-patterns using predefined rules
+- **Repeatable Results** - Same input always produces same output
+- **No Hallucinations** - No LLM guessing or unpredictable rewrites
+- **Auditable** - Every transformation is documented and traceable
 
----
-
-## New in v1.4.0
-
-- **Next.js 16 Migration**: Full support for Next.js 16 with middleware.ts → proxy.ts rename, experimental.ppr to Cache Components migration, and Turbopack optimizations
-- **React 19 Dependency Checker**: Scans package.json for incompatible dependencies and provides fix suggestions with automatic `.npmrc` and `overrides` generation
-- **Turbopack Migration Assistant**: Analyzes Webpack-specific configurations and provides Turbopack compatibility reports
-- **React Compiler Detector**: Identifies manual memoization patterns (useMemo, useCallback, React.memo) that React Compiler can optimize automatically
-- **Biome migration**: Handles missing package.json (creates minimal file or reports clearly)
-- **Middleware runtime**: Auto-adds `export const runtime = "nodejs"` to middleware files that need it
-- **React 19 migration docs** + Next.js 15.5 feature guide
-- **Added 100+ tests** for all new migration tools and dependency checking
-- **Improved troubleshooting** and command help
+**No AI black box. Just intelligent, rule-based code fixes.**
 
 ---
 
-## Quick Demo
+## What's New in v1.4.0
+
+**Released:** November 21, 2025
+
+### Next.js 16 Migration
+
+Full support for Next.js 16 with comprehensive migration tooling:
+
+- **Middleware Rename** - Automatic `middleware.ts` → `proxy.ts` migration
+- **PPR to Cache Components** - Converts `experimental.ppr` to Cache Components
+- **Async Request APIs** - Updates `cookies()` and `headers()` to use `await`
+- **Async Params** - Converts `({ params })` → `async (props) => { const params = await props.params }`
+- **Caching APIs** - Adds `'use cache'` directives and integrates `cacheLife`/`updateTag()`
+- **Runtime Configuration** - Auto-adds `export const runtime = "nodejs"` to proxy files
+
+### React 19 Dependency Checker
+
+New `check-deps` command with intelligent dependency analysis:
+
+- Scans `package.json` for React 19 incompatibilities
+- Detects issues with Radix UI, Ant Design, next-auth, react-is
+- Auto-generates `.npmrc` with `legacy-peer-deps` when needed
+- Adds `overrides` to `package.json` for stubborn dependencies
+- `--fix` flag for automatic resolution
+
+### Turbopack Migration Assistant
+
+New `check-turbopack` command for Webpack → Turbopack migration:
+
+- Analyzes Webpack-specific configurations in `next.config.js`
+- Identifies incompatible loaders and plugins
+- Detects Babel configurations requiring SWC migration
+- Recommends Turbopack filesystem caching for performance
+
+### React Compiler Detector
+
+New `check-compiler` command for optimization opportunities:
+
+- Detects manual `useMemo`, `useCallback`, `React.memo` patterns
+- Identifies `useRef` for previous value tracking
+- Calculates potential bundle size savings
+- Recommends React Compiler when 3+ opportunities found
+
+### Router Complexity Assessor
+
+New `assess-router` command for complexity analysis:
+
+- Complexity scoring (0-100 scale)
+- Detects App Router, Pages Router, middleware, API routes
+- Identifies Server/Client Components and SSR/SSG usage
+- Recommends optimal setup (plain React vs minimal/full Next.js)
+- Provides simplification opportunities
+
+### React 19.2 Feature Detector
+
+New `detect-react192` command for modern React adoption:
+
+- **View Transitions** - Finds manual animation code that could use View Transitions API
+- **useEffectEvent** - Identifies `useEffect` callbacks that could benefit from `useEffectEvent`
+- **Activity Components** - Detects `display: none` patterns that could use Activity components
+
+### Testing & Quality
+
+- **100+ new tests** added (297 total, all passing)
+- Comprehensive coverage for all migration and analysis tools
+- Integration tests with real-world fixtures
+- Critical bug fixes in AST parsing and regex handling
+
+---
+
+## Quick Start
+
+### Installation
+
+```bash
+# Install globally (recommended)
+npm install -g @neurolint/cli
+
+# Verify installation
+neurolint --version
+
+# Show available commands
+neurolint --help
+```
+
+### First Analysis
+
+```bash
+# Analyze your project
+neurolint analyze . --verbose
+
+# Preview fixes without applying
+neurolint fix . --all-layers --dry-run --verbose
+
+# Apply fixes
+neurolint fix . --all-layers --verbose
+```
+
+### Quick Example
 
 **Before (Legacy React component):**
+
 ```tsx
 // Button.tsx - Common issues
 function Button({ children, onClick }) {
@@ -62,6 +185,7 @@ function Button({ children, onClick }) {
 ```
 
 **After (Modern, accessible component):**
+
 ```tsx
 // Button.tsx - Fixed automatically
 'use client';
@@ -87,6 +211,7 @@ function Button({
       disabled={disabled}
       className={`btn btn-${variant}`}
       aria-label={typeof children === 'string' ? children : undefined}
+      type="button"
     >
       {children}
     </button>
@@ -96,22 +221,21 @@ function Button({
 export default Button;
 ```
 
+**Fixes applied:**
+- Added `'use client'` directive for App Router
+- TypeScript interface for props
+- `aria-label` for accessibility (WCAG 2.1 AA)
+- `type="button"` to prevent form submission
+- Default values for optional props
+- Proper exports
+
 ---
 
-## 📦 Installation
-
-```bash
-npm install -g @neurolint/cli
-neurolint --help
-```
-
----
-
-## **TIP** What NeuroLint Fixes
+## What NeuroLint Fixes
 
 ### Layer 1: Configuration Modernization
 
-**Problem:** Outdated TypeScript and Next.js configs causing build issues
+Updates TypeScript, Next.js, and package configurations to modern standards.
 
 **Before:**
 ```json
@@ -135,7 +259,7 @@ neurolint --help
 }
 ```
 
-**Fixes:**
+**What it fixes:**
 - TypeScript configuration (tsconfig.json)
 - Next.js configuration (next.config.js)
 - Package.json optimization
@@ -145,7 +269,7 @@ neurolint --help
 
 ### Layer 2: Pattern Standardization
 
-**Problem:** Inconsistent patterns and deprecated syntax
+Cleans up code patterns and removes deprecated syntax.
 
 **Before:**
 ```tsx
@@ -162,7 +286,7 @@ const Component = () => {
 }
 ```
 
-**Fixes:**
+**What it fixes:**
 - HTML entity corruption (`&quot;`, `&#x27;`, `&amp;`)
 - Unused imports cleanup
 - Console.log removal
@@ -173,7 +297,7 @@ const Component = () => {
 
 ### Layer 3: Accessibility & Components
 
-**Problem:** Missing accessibility attributes and component best practices
+Ensures WCAG 2.1 AA compliance and React best practices.
 
 **Before:**
 ```tsx
@@ -192,22 +316,24 @@ const Component = () => {
 >
   Submit
 </button>
-{items.map((item, index) => <div key={item.id || index}>{item.name}</div>)}
+{items.map((item, index) => (
+  <div key={item.id || index}>{item.name}</div>
+))}
 ```
 
-**Fixes:**
-- Missing React keys in .map()
-- Button variant props
+**What it fixes:**
+- Missing React keys in `.map()` loops
+- Button type attributes
 - Missing aria-labels
 - Image alt attributes
-- Form field structure
-- WCAG 2.1 compliance
+- Form field accessibility
+- WCAG 2.1 AA compliance
 
 ---
 
 ### Layer 4: SSR/Hydration Safety
 
-**Problem:** Client-side APIs causing hydration errors
+Protects against hydration errors and SSR crashes.
 
 **Before:**
 ```tsx
@@ -236,7 +362,7 @@ const Component = () => {
 }
 ```
 
-**Fixes:**
+**What it fixes:**
 - localStorage without SSR guards
 - window/document access protection
 - Theme provider hydration mismatches
@@ -247,7 +373,7 @@ const Component = () => {
 
 ### Layer 5: Next.js App Router Optimization
 
-**Problem:** Missing directives and inefficient imports
+Optimizes for Next.js App Router and Server Components.
 
 **Before:**
 ```tsx
@@ -270,10 +396,10 @@ function ClientComponent() {
 }
 ```
 
-**Fixes:**
-- "use client" directive placement
-- "use server" for Server Actions
-- Server vs client component detection
+**What it fixes:**
+- `'use client'` directive placement
+- `'use server'` for Server Actions
+- Server vs Client Component detection
 - App Router optimizations
 - Import deduplication
 
@@ -281,7 +407,7 @@ function ClientComponent() {
 
 ### Layer 6: Testing & Error Handling
 
-**Problem:** Missing error boundaries and test infrastructure
+Adds error boundaries and test infrastructure.
 
 **Before:**
 ```tsx
@@ -303,7 +429,7 @@ function App() {
 }
 ```
 
-**Fixes:**
+**What it fixes:**
 - Error boundary generation
 - Test file scaffolding
 - Missing test coverage detection
@@ -313,7 +439,7 @@ function App() {
 
 ### Layer 7: Adaptive Pattern Learning
 
-**Problem:** Custom patterns that need intelligent detection
+Learns from your codebase to enforce custom patterns.
 
 **Before:**
 ```tsx
@@ -339,135 +465,258 @@ const useCustomHook = () => {
 }
 ```
 
-**Fixes:**
-- Learns from your codebase
+**What it fixes:**
+- Learns from your codebase patterns
 - Custom rule generation
 - Pattern recognition and application
-- Project-specific conventions
+- Project-specific conventions enforcement
 
 ---
 
-## **SYNC** Migration Features
+## Migration Features
 
-### React 19 & Next.js 15.5 Migration
+### React 19 Migration
 
-**Problem:** Upgrading to React 19 and Next.js 15.5 requires comprehensive codebase updates
+Automates breaking changes from React 18 to React 19.
 
 ```bash
-# Migrate your project to React 19 compatibility
-neurolint migrate-react19 ./src --dry-run --verbose
+# Preview migration
+neurolint migrate-react19 . --dry-run --verbose
 
-# Migrate your project to Next.js 15.5 compatibility
-neurolint migrate-nextjs-15.5 ./src --dry-run --verbose
+# Apply migration
+neurolint migrate-react19 . --verbose
 
-# Migrate from ESLint to Biome (Next.js 15.5 recommendation)
-neurolint migrate-biome ./src --dry-run --verbose
-
-# Traditional layer-based migration for all layers
-neurolint fix ./src --all-layers --dry-run --verbose
+# Update dependencies after migration
+npm install react@19 react-dom@19
+npm install -D @types/react@19 @types/react-dom@19
 ```
 
-#### React 19 Features:
+**What it migrates:**
 
-- **forwardRef Removal**: Converts to direct ref prop automatically
-- **String Refs Migration**: Migrates to ref callbacks with class/function detection
-- **PropTypes Removal**: Detects usage and provides TypeScript migration guidance
-- **ReactDOM.render Conversion**: Converts to createRoot with proper import management
-- **Legacy Context Detection**: Warns about contextTypes and getChildContext removal
-
-#### Next.js 15.5 Features:
-
-- **Type Safe Routing**: Enhanced routing with automatic type generation
-- **Node Runtime on Middleware**: Automatically adds stable runtime configuration (no longer experimental)
-- **Biome Integration**: Official support for Biome as ESLint alternative
-- **next lint Deprecation**: Detects and migrates away from deprecated next lint
-- **Server Actions Enhancement**: Automatic error handling and validation
-- **Metadata API Modernization**: Stricter TypeScript typing for generateMetadata
-- **Caching Optimization**: Smart suggestions for cache: 'force-cache'
-- **Turbopack Integration**: Automatic configuration for Next.js 15+
+- **forwardRef Removal** - Converts to direct ref props
+- **String Refs** - Migrates to callback refs
+- **ReactDOM.render** - Converts to `createRoot`
+- **ReactDOM.hydrate** - Converts to `hydrateRoot`
+- **test-utils** - Moves `act` from `react-dom/test-utils` to `react`
+- **Legacy Context** - Warns about `contextTypes` and `getChildContext`
+- **PropTypes** - Provides TypeScript migration guidance
 
 ---
 
-## **STATS** Complexity Management for Small Projects
+### Next.js 16 Migration
 
-**Problem:** Next.js complexity concerns for small projects - as discussed in [r/nextjs](https://www.reddit.com/r/nextjs/)
+Automates breaking changes and new features in Next.js 16.
 
 ```bash
-# Assess your project's complexity level
-neurolint assess ./src --verbose
+# Preview migration
+neurolint migrate-nextjs-16 . --dry-run --verbose
 
-# Convert Next.js project to plain React for simplicity
-neurolint simplify ./src --target=react --dry-run
+# Apply migration
+neurolint migrate-nextjs-16 . --verbose
 
-# Remove unnecessary Next.js features while keeping framework
-neurolint simplify ./src --target=minimal-nextjs --dry-run
-
-# Apply simplification changes (remove --dry-run to apply)
-neurolint simplify ./src --target=react
+# Update Next.js after migration
+npm install next@16
 ```
 
-### Complexity Assessment Features:
+**What it migrates:**
 
-- **Complexity Scoring**: 0-100 scale with simple/moderate/complex/enterprise levels
-- **Feature Usage Analysis**: Detects App Router, Middleware, API Routes, Server Components
-- **Unnecessary Feature Detection**: Identifies unused middleware, API routes for static sites
-- **Simplification Opportunities**: Converts to SPA when SSR isn't needed
-- **Alternative Recommendations**: Suggests when plain React would be sufficient
+- **Middleware Rename** - `middleware.ts` → `proxy.ts` (preserves logic)
+- **PPR to Cache Components** - Migrates `experimental.ppr` config
+- **Async Params** - Updates route handlers: `({ params })` → `async (props) => await props.params`
+- **Async Request APIs** - Adds `await` to `cookies()` and `headers()`
+- **Function Async** - Ensures functions using `await` are marked `async`
+- **Caching Directives** - Adds `'use cache'` to Server Components
+- **Cache Management** - Integrates `cacheLife` and `updateTag()` APIs
+- **Runtime Config** - Adds `export const runtime = "nodejs"` to proxy files
 
-### When to Use What
+**Migration guarantees:**
+- Zero functionality changes
+- Preserves all middleware logic
+- Type-safe transformations
+- Full backward compatibility during migration
 
-**Use Plain React When:**
+---
+
+### Next.js 15.5 Migration
+
+Modernizes Next.js 15.5 features and Biome integration.
+
+```bash
+# Apply all layers for comprehensive migration
+neurolint fix . --all-layers --verbose
+
+# Add stable Node runtime to middleware
+neurolint fix middleware.ts --layers=5 --verbose
+
+# Migrate to Biome (Next.js 15.5 recommendation)
+neurolint migrate-biome . --verbose
+```
+
+**What it includes:**
+
+- Type-safe routing with automatic interface generation
+- Stable Node.js runtime for middleware
+- Biome integration (ESLint alternative)
+- Server Actions enhancement with error handling
+- Metadata API modernization with stricter TypeScript
+- Caching optimizations
+- Turbopack configuration
+
+---
+
+### Biome Migration
+
+Migrates from ESLint/Prettier to Biome.
+
+```bash
+# Preview migration
+neurolint migrate-biome . --dry-run --verbose
+
+# Apply migration
+neurolint migrate-biome . --verbose
+```
+
+**What it does:**
+
+- Updates `package.json` scripts (`next lint` → `biome check`)
+- Generates `biome.json` configuration
+- Removes ESLint and Prettier config files
+- Updates CI/CD configurations
+- Maps ESLint rules to Biome equivalents
+
+---
+
+## Analysis Tools
+
+### Dependency Compatibility Checker
+
+Checks React 19 dependency compatibility.
+
+```bash
+# Check dependencies
+neurolint check-deps .
+
+# Auto-fix incompatible dependencies
+neurolint check-deps . --fix
+```
+
+**What it checks:**
+- `react-is` version compatibility
+- Radix UI package versions
+- Ant Design compatibility
+- next-auth issues
+- Creates `.npmrc` with `legacy-peer-deps`
+- Adds `overrides` to `package.json`
+
+---
+
+### Turbopack Migration Readiness
+
+Analyzes Webpack → Turbopack migration readiness.
+
+```bash
+neurolint check-turbopack .
+```
+
+**What it analyzes:**
+- Webpack-specific configurations
+- Incompatible loaders and plugins
+- Babel configurations
+- Recommends SWC migration path
+- Suggests Turbopack filesystem caching
+
+---
+
+### React Compiler Opportunities
+
+Detects manual memoization patterns.
+
+```bash
+neurolint check-compiler .
+```
+
+**What it detects:**
+- Manual `useMemo` patterns
+- `useCallback` usage
+- `React.memo` wrapping
+- `useRef` for previous values
+- Recommends React Compiler when 3+ opportunities found
+
+---
+
+### Router Complexity Assessment
+
+Assesses Next.js router complexity and recommends optimal setup.
+
+```bash
+neurolint assess-router . --verbose
+```
+
+**What it provides:**
+- Complexity score (0-100)
+- Complexity level (Simple, Moderate, Complex, Enterprise)
+- Feature detection (App/Pages Router, middleware, API routes)
+- Server/Client Component identification
+- Recommendations (plain React, minimal Next.js, full Next.js)
+
+**Score interpretation:**
+- **0-30 (Simple)** - Consider plain React
+- **30-60 (Moderate)** - Minimal Next.js appropriate
+- **60-80 (Complex)** - Full Next.js features justified
+- **80+ (Enterprise)** - Complexity necessary
+
+---
+
+### React 19.2 Feature Detection
+
+Identifies opportunities for React 19.2 features.
+
+```bash
+neurolint detect-react192 .
+```
+
+**What it finds:**
+- **View Transitions** - Manual animations that could use View Transitions API
+- **useEffectEvent** - `useEffect` callbacks that could use `useEffectEvent`
+- **Activity Components** - `display: none` patterns that could use Activity components
+
+---
+
+### Project Simplification
+
+Reduces project complexity for simpler use cases.
+
+```bash
+# Assess current complexity
+neurolint assess . --verbose
+
+# Convert to plain React SPA
+neurolint simplify . --target=react --dry-run
+
+# Simplify to minimal Next.js
+neurolint simplify . --target=minimal-nextjs --dry-run
+
+# Apply simplification
+neurolint simplify . --target=react
+```
+
+**When to simplify:**
 - Building simple SPAs or static sites
 - No SSR/SSG requirements
-- Team prefers simplicity over features
-- Learning React fundamentals
-
-```bash
-# Convert your Next.js project to plain React
-neurolint assess ./src --verbose          # Analyze current complexity
-neurolint simplify ./src --target=react   # Convert to React SPA
-```
-
-**Use Minimal Next.js When:**
-- Need basic routing and build optimization
-- Want to keep upgrade path for future features
-- Team is comfortable with Next.js
-
-```bash
-# Remove unnecessary complexity while keeping Next.js
-neurolint simplify ./src --target=minimal-nextjs --dry-run
-```
-
-**Keep Full Next.js When:**
-- Using SSR, SSG, or API routes
-- Building production applications
-- Need advanced performance optimizations
-
-```bash
-# Just clean up and modernize existing setup
-neurolint fix ./src --layers=1,2,5 --dry-run
-```
-
-### Complexity Assessment Tool
-
-The `neurolint assess` command provides objective complexity scoring:
-
-- **Score 0-30 (Simple)**: Consider plain React for maximum simplicity
-- **Score 30-60 (Moderate)**: Next.js minimal setup is appropriate
-- **Score 60-80 (Complex)**: Full Next.js features justified
-- **Score 80+ (Enterprise)**: Complexity is necessary for requirements
+- Team prefers simplicity
+- Next.js overhead not justified
 
 ---
 
-## **READ** Usage Examples
+## Usage Examples
 
 ### Basic Codebase Modernization
 
 ```bash
 # Analyze your entire project
-neurolint analyze src/
+neurolint analyze src/ --verbose
 
-# Fix all issues automatically (all 7 layers - FREE!)
+# Fix all issues automatically (all 7 layers)
 neurolint fix src/ --all-layers --verbose
 
 # Preview changes first (dry run)
@@ -507,9 +756,10 @@ neurolint rules --import=team-rules.json
 
 ---
 
-## **WIN** Real-World Use Cases
+## Real-World Use Cases
 
 ### 1. Legacy React Migration
+
 **Scenario:** Upgrading from React 16 to React 18 with Next.js 13
 
 ```bash
@@ -521,28 +771,31 @@ neurolint fix src/ --layers=1,2,4,5 --verbose
 ---
 
 ### 2. Accessibility Compliance
-**Scenario:** Meeting WCAG 2.1 AA standards
+
+**Scenario:** Meeting WCAG 2.1 AA standards for enterprise application
 
 ```bash
 neurolint fix src/ --layers=3 --verbose
 ```
 
-**Result:** 150+ accessibility issues fixed automatically
+**Result:** 150+ accessibility issues fixed automatically, audit-ready codebase
 
 ---
 
 ### 3. Performance Optimization
+
 **Scenario:** Reducing bundle size and improving Core Web Vitals
 
 ```bash
 neurolint fix src/ --layers=1,5 --verbose
 ```
 
-**Result:** 30% bundle size reduction, improved LCP scores
+**Result:** 30% bundle size reduction, improved Lighthouse scores
 
 ---
 
 ### 4. Team Code Standardization
+
 **Scenario:** Enforcing consistent patterns across 10+ developers
 
 ```bash
@@ -550,12 +803,13 @@ neurolint rules --import=company-standards.json
 neurolint fix src/ --layers=7 --verbose
 ```
 
-**Result:** Consistent codebase, reduced code review time by 60%
+**Result:** Consistent codebase, 60% reduction in code review time
 
 ---
 
-### 5. Complexity Reduction for Small Projects
-**Scenario:** Next.js project that's too complex for a simple landing page
+### 5. Complexity Reduction
+
+**Scenario:** Next.js project too complex for simple landing page
 
 ```bash
 # Assess complexity and get recommendations
@@ -565,29 +819,71 @@ neurolint assess ./src --verbose
 neurolint simplify ./src --target=react
 ```
 
-**Result:** 15 Next.js files converted to React components, 40% reduction in dependencies, simpler development workflow
+**Result:** 15 Next.js files → React components, 40% fewer dependencies
 
 ---
 
 ### 6. Next.js 15.5 Migration
+
 **Scenario:** Upgrading from Next.js 13 to Next.js 15.5
 
 ```bash
 # Fix entire project with all layers
 neurolint fix ./src --all-layers --backup --verbose
 
-# Add Node runtime to middleware (now stable in 15.5)
+# Add Node runtime to middleware (now stable)
 neurolint fix middleware.ts --layers=5 --verbose
 
-# Migrate from ESLint to Biome (15.5 recommendation)
+# Migrate to Biome (15.5 recommendation)
 neurolint migrate-biome ./src --verbose
 ```
 
-**Result:** 396 files processed, 31 files updated, 0 breaking changes, full Next.js 15.5 compatibility with Biome integration
+**Result:** 396 files processed, 31 files updated, 0 breaking changes
 
 ---
 
-## **BUILD** Commands Reference
+### 7. React 19 Upgrade
+
+**Scenario:** Migrating production app from React 18 to React 19
+
+```bash
+# Check dependency compatibility
+neurolint check-deps . --fix
+
+# Preview React 19 migration
+neurolint migrate-react19 . --dry-run --verbose
+
+# Apply migration
+neurolint migrate-react19 . --verbose
+
+# Update dependencies
+npm install react@19 react-dom@19
+```
+
+**Result:** All breaking changes handled automatically, smooth upgrade
+
+---
+
+### 8. Next.js 16 Upgrade
+
+**Scenario:** Upgrading to Next.js 16 with new caching model
+
+```bash
+# Preview migration
+neurolint migrate-nextjs-16 . --dry-run --verbose
+
+# Apply migration
+neurolint migrate-nextjs-16 . --verbose
+
+# Update Next.js
+npm install next@16
+```
+
+**Result:** Middleware renamed, PPR migrated, async APIs updated, caching modernized
+
+---
+
+## Command Reference
 
 ### Core Commands
 
@@ -595,7 +891,7 @@ neurolint migrate-biome ./src --verbose
 neurolint analyze [path]        # Scan for issues and recommend fixes
 neurolint fix [path]             # Apply automatic fixes
 neurolint validate [path]        # Validate code without changes
-neurolint layers                 # List all available transformation layers
+neurolint layers                 # List all transformation layers
 ```
 
 ### Layer-Specific Commands
@@ -607,115 +903,286 @@ neurolint components scan|fix    # Layer 3: Component fixes
 neurolint hydration scan|fix     # Layer 4: Hydration fixes
 neurolint nextjs scan|fix        # Layer 5: Next.js fixes
 neurolint testing scan|fix       # Layer 6: Testing fixes
-neurolint adaptive scan|fix      # Layer 7: Adaptive pattern learning
-```
-
-### Advanced Commands
-
-```bash
-neurolint rules                  # Manage learned patterns and rules
-neurolint stats                  # Get project statistics and insights
-neurolint clean                  # Clean up old backup and state files
-neurolint backups                # Manage centralized backups
-neurolint init-config            # Generate or display configuration
-neurolint init-tests [path]      # Generate test files for components
-neurolint health                 # Run a health check to verify configuration
+neurolint adaptive scan|fix      # Layer 7: Adaptive learning
 ```
 
 ### Migration Commands
 
 ```bash
-neurolint migrate-nextjs-16 [path]      # Migrate to Next.js 16 compatibility (NEW!)
-neurolint migrate-react19 [path]        # Migrate to React 19 compatibility
-neurolint migrate-nextjs-15.5 [path]    # Migrate to Next.js 15.5 compatibility
-neurolint migrate-biome [path]          # Migrate from ESLint to Biome
-neurolint fix-deprecations [path]       # Fix Next.js 15.5 deprecations
+neurolint migrate-nextjs-16 [path]      # Migrate to Next.js 16
+neurolint migrate-react19 [path]        # Migrate to React 19
+neurolint migrate-nextjs-15.5 [path]    # Migrate to Next.js 15.5
+neurolint migrate-biome [path]          # Migrate to Biome
+neurolint fix-deprecations [path]       # Fix deprecations
+```
+
+### Analysis Commands (v1.4.0)
+
+```bash
+neurolint check-deps [path]             # Check React 19 dependencies
+neurolint check-deps [path] --fix       # Auto-fix dependencies
+neurolint check-turbopack [path]        # Check Turbopack readiness
+neurolint check-compiler [path]         # Find React Compiler opportunities
+neurolint assess-router [path]          # Assess router complexity
+neurolint detect-react192 [path]        # Detect React 19.2 opportunities
 neurolint assess [path]                 # Assess project complexity
-neurolint simplify [path]               # Simplify project (convert to React/minimal Next.js)
+neurolint simplify [path]               # Simplify project structure
 ```
 
-### Analysis Commands (NEW in v1.4.0!)
+### Utility Commands
 
 ```bash
-neurolint check-deps [path]             # Check React 19 dependency compatibility
-neurolint check-deps [path] --fix       # Auto-fix incompatible dependencies
-neurolint check-turbopack [path]        # Analyze Turbopack migration readiness
-neurolint check-compiler [path]         # Detect React Compiler opportunities
-neurolint assess-router [path]          # Assess Next.js router complexity and recommend optimal setup
-neurolint detect-react192 [path]        # Detect React 19.2 feature opportunities
+neurolint stats                  # Project statistics and insights
+neurolint rules                  # Manage learned patterns
+neurolint backups                # Manage centralized backups
+neurolint clean                  # Clean up old backups
+neurolint init-config            # Generate configuration
+neurolint init-tests [path]      # Generate test files
+neurolint health                 # System health check
 ```
 
-### Flags & Options
+### Command Flags
 
 ```bash
---all-layers                     # Apply all 7 layers (FREE!)
---layers=1,2,3                   # Specify which layers to apply
---dry-run                        # Preview changes without applying
---verbose                        # Show detailed output
---backup                         # Create backup before changes
---format=json                    # Output in JSON format
---output=file.json               # Save output to file
+--all-layers                     # Apply all 7 layers
+--layers=1,2,3                   # Specify layers
+--dry-run                        # Preview without applying
+--verbose                        # Detailed output
+--backup                         # Create backup (default)
+--no-backup                      # Skip backup
+--production                     # Production-grade backups
+--format=json                    # JSON output
+--output=file.json               # Save to file
+--include="**/*.tsx"             # Include pattern
+--exclude="**/*.test.*"          # Exclude pattern
+--fix                            # Auto-fix (check-deps)
+--target=react                   # Simplify target
 ```
 
 ---
 
-## **TOOL** Troubleshooting
+## Integration
 
-### Common Issues
+### GitHub Actions
 
-**Issue:** Changes not visible after running fix
-```bash
-# Solution: Use --verbose to see what's happening
-neurolint fix src/ --all-layers --verbose
+`.github/workflows/neurolint.yml`:
+
+```yaml
+name: NeuroLint Code Quality
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install NeuroLint
+        run: npm install -g @neurolint/cli
+      
+      - name: Analyze codebase
+        run: neurolint analyze src/ --format=json --output=analysis.json
+      
+      - name: Check dependencies
+        run: neurolint check-deps . --format=json --output=deps.json
+        continue-on-error: true
+      
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: neurolint-reports
+          path: |
+            analysis.json
+            deps.json
 ```
 
-**Issue:** Too many changes at once
-```bash
-# Solution: Apply layers incrementally
-neurolint fix src/ --layers=1,2 --verbose
-neurolint fix src/ --layers=3,4 --verbose
+### GitLab CI
+
+`.gitlab-ci.yml`:
+
+```yaml
+neurolint:
+  stage: test
+  image: node:20-alpine
+  
+  before_script:
+    - npm install -g @neurolint/cli
+  
+  script:
+    - neurolint analyze src/ --format=json --output=analysis.json
+    - neurolint check-deps . --format=json --output=deps.json
+  
+  artifacts:
+    paths:
+      - analysis.json
+      - deps.json
+    expire_in: 1 week
 ```
 
-**Issue:** Need to undo changes
+### Pre-commit Hook (Husky)
+
 ```bash
-# Solution: Use the backup system
-neurolint backups list
-neurolint backups restore [backup-id]
+# Install Husky
+npm install -D husky
+npx husky init
+
+# Add pre-commit hook
+npx husky add .husky/pre-commit "neurolint fix src/ --layers=2,3 --dry-run || exit 1"
 ```
 
-### Getting Help
+### NPM Scripts
 
-```bash
-neurolint --help              # Show all commands
-neurolint layers --verbose    # Show layer details
-neurolint health              # Check system status
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "analyze": "neurolint analyze src/ --verbose",
+    "fix": "neurolint fix src/ --all-layers --verbose",
+    "fix:dry": "neurolint fix src/ --all-layers --dry-run --verbose",
+    "migrate:react19": "neurolint migrate-react19 . --dry-run --verbose",
+    "migrate:nextjs16": "neurolint migrate-nextjs-16 . --dry-run --verbose",
+    "check:deps": "neurolint check-deps .",
+    "stats": "neurolint stats ."
+  }
+}
+```
+
+### VSCode Tasks
+
+`.vscode/tasks.json`:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "NeuroLint: Analyze",
+      "type": "shell",
+      "command": "neurolint analyze ${file} --verbose",
+      "problemMatcher": []
+    },
+    {
+      "label": "NeuroLint: Fix All",
+      "type": "shell",
+      "command": "neurolint fix ${file} --all-layers --verbose",
+      "problemMatcher": []
+    }
+  ]
+}
 ```
 
 ---
 
-## **CODE** Tech Stack
+## Architecture
+
+### Technology Stack
 
 - **AST Parsing:** `@babel/parser`, `@babel/traverse`, `@babel/types`
-- **Pattern Matching:** Custom rule engine (1,901 lines)
+- **Pattern Engine:** Custom rule-based engine (1,901 lines)
 - **Safety:** Built-in backup system with automatic rollback
-- **Testing:** Comprehensive Jest test suite (170 tests, all passing)
+- **Testing:** Jest test suite (297 tests, all passing)
+- **Node.js:** v18.0.0+ required
+- **TypeScript:** 5.0+ support
 
-### Architecture
+### Project Structure
 
 ```
-cli.js (4,731 lines)           → Main CLI entry point
-fix-master.js (1,901 lines)    → Layer orchestrator
-ast-transformer.js (862 lines) → AST-based code analysis
-backup-manager.js              → Safe backup system
-validator.js                   → Code validation
-scripts/                       → 7 layer implementations
-shared-core/                   → Core utilities
-__tests__/                     → 170 automated tests
+neurolint/
+├── cli.js                    # Main CLI entry (4,731 lines)
+├── fix-master.js             # Layer orchestrator (1,901 lines)
+├── ast-transformer.js        # AST analysis (862 lines)
+├── backup-manager.js         # Backup system
+├── validator.js              # Code validation
+├── scripts/                  # Layer implementations
+│   ├── fix-layer-1-config.js
+│   ├── fix-layer-2-patterns.js
+│   ├── fix-layer-3-components.js
+│   ├── fix-layer-4-hydration.js
+│   ├── fix-layer-5-nextjs.js
+│   ├── fix-layer-6-testing.js
+│   ├── fix-layer-7-adaptive.js
+│   ├── migrate-nextjs-16.js
+│   ├── react19-dependency-checker.js
+│   ├── turbopack-migration-assistant.js
+│   ├── react-compiler-detector.js
+│   ├── router-complexity-assessor.js
+│   └── react192-feature-detector.js
+├── shared-core/              # Utilities
+└── __tests__/                # 297 automated tests
 ```
+
+### Design Principles
+
+1. **Determinism First** - Same input always produces same output
+2. **Safety by Default** - Automatic backups, dry-run mode, validation
+3. **Transparency** - Every transformation is documented and auditable
+4. **Zero Configuration** - Works out of the box
+5. **Progressive Enhancement** - Apply layers incrementally
+6. **Community Driven** - Open source, MIT licensed
 
 ---
 
-## **DOCS** Documentation
+## Contributing
+
+We welcome contributions from the community! NeuroLint is open source and community-driven.
+
+### How to Contribute
+
+1. **Fork the repository** - [github.com/Alcatecablee/Neurolint](https://github.com/Alcatecablee/Neurolint)
+2. **Create a feature branch** - `git checkout -b feature/your-feature`
+3. **Make your changes** - Follow our coding standards
+4. **Write tests** - Ensure all tests pass
+5. **Submit a pull request** - Describe your changes
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Alcatecablee/Neurolint.git
+cd neurolint
+
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Test CLI locally
+node cli.js --help
+```
+
+### Contribution Guidelines
+
+- Read [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines
+- Follow our [Code of Conduct](./CODE_OF_CONDUCT.md)
+- Write tests for new features
+- Update documentation
+- Keep commits focused and descriptive
+
+### Areas for Contribution
+
+- **New transformation rules** - Add rules for common code patterns
+- **Framework support** - Extend to Vue, Svelte, Angular
+- **Documentation** - Improve guides and examples
+- **Testing** - Add more test coverage
+- **Bug fixes** - Fix reported issues
+
+---
+
+## Documentation
 
 - **[CLI Usage Guide](./CLI_USAGE.md)** - Complete command reference
 - **[Contributing Guidelines](./CONTRIBUTING.md)** - How to contribute
@@ -723,56 +1190,64 @@ __tests__/                     → 170 automated tests
 
 ---
 
-## **CONTRIBUTE** Contributing
+## Support
 
-We welcome contributions! NeuroLint is open source and community-driven.
-
-- **Found a bug?** [Open an issue](https://github.com/Alcatecablee/Neurolint/issues)
-- **Want to contribute?** Check out [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **Have questions?** Start a discussion
-
-See our [Code of Conduct](./CODE_OF_CONDUCT.md) for community guidelines.
+- **GitHub Issues:** [Report bugs or request features](https://github.com/Alcatecablee/Neurolint/issues)
+- **Discussions:** [Ask questions and share ideas](https://github.com/Alcatecablee/Neurolint/discussions)
+- **NPM Package:** [@neurolint/cli](https://www.npmjs.com/package/@neurolint/cli)
 
 ---
 
-## **STAR** Why Open Source?
+## Why Open Source?
 
 NeuroLint is open source because:
-- **Transparency:** See exactly what transformations are applied
-- **Trust:** No hidden behavior, telemetry, or data collection
-- **Community:** Better rules through collaborative development
-- **Innovation:** Faster evolution with contributions
-- **No AI Black Box:** Deterministic, auditable transformations
+
+- **Transparency** - See exactly what transformations are applied
+- **Trust** - No hidden behavior, telemetry, or data collection
+- **Community** - Better rules through collaborative development
+- **Innovation** - Faster evolution with contributions
+- **No AI Black Box** - Deterministic, auditable transformations
+- **Free Forever** - No paywalls, authentication, or usage limits
 
 ---
 
-## **LINK** Links
-
-- **NPM Package:** [@neurolint/cli](https://www.npmjs.com/package/@neurolint/cli)
-- **GitHub Repository:** [Alcatecablee/Neurolint](https://github.com/Alcatecablee/Neurolint)
-- **Issues:** [GitHub Issues](https://github.com/Alcatecablee/Neurolint/issues)
-- **Origin Story:** Built for [Taxfy.co.za](https://taxfy.co.za)
-
----
-
-## **FILE** License
+## License
 
 MIT License - see [LICENSE](./LICENSE) file for details.
 
----
+Copyright (c) 2025 NeuroLint Contributors
 
-## **GOAL** Key Features Summary
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-*****50+ automatic code fixes** across 7 intelligent layers  
-*****Deterministic transformations** - no AI, no surprises  
-*****170 passing tests** - enterprise-grade reliability  
-*****Built-in backup system** - safe, reversible changes  
-*****Zero configuration** - works out of the box  
-*****100% free and open source** - no authentication required  
-*****Battle-tested** - reduced 700+ errors to 70 in production  
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---
 
-**Built with ❤️ for the React and Next.js community**
+## Acknowledgments
 
-**NeuroLint: Deterministic code fixing. No AI. No surprises. Completely free.**
+- **Origin:** Built for [Taxfy.co.za](https://taxfy.co.za) to solve real-world code quality challenges
+- **Inspiration:** Frustration with 700+ ESLint errors and manual migration overhead
+- **Community:** Thanks to all contributors and early adopters
+
+---
+
+## Key Features Summary
+
+- **50+ automatic code fixes** across 7 intelligent layers
+- **Deterministic transformations** - no AI, no surprises
+- **297 passing tests** - enterprise-grade reliability
+- **Built-in backup system** - safe, reversible changes
+- **Zero configuration** - works out of the box
+- **100% free and open source** - no authentication required
+- **Battle-tested** - reduced 700+ errors to 70 in production
+- **Active development** - regular updates and new features
+
+---
+
+**Built for the React and Next.js community**
+
+**NeuroLint: Deterministic code transformation. No AI. No surprises. Completely free.**
+
+**[Get Started](https://www.npmjs.com/package/@neurolint/cli) | [View on GitHub](https://github.com/Alcatecablee/Neurolint) | [Read the Docs](./CLI_USAGE.md)**
