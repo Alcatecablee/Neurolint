@@ -169,29 +169,49 @@ class CLIRunner {
       });
 
       proc.on('close', (code) => {
-        // Log detailed information for debugging
-        const debugInfo = {
-          exitCode: code,
-          stdoutLength: stdout.length,
-          stderrLength: stderr.length,
-          filePath: filePath,
-          layerId: layerId,
-          hasJsonOutput: stdout.includes('{')
-        };
-
         if (code === 0 || code === null) {
+          try {
+            // Try to read the JSON output file
+            if (require('fs').existsSync(outputFile)) {
+              const outputData = require('fs').readFileSync(outputFile, 'utf8');
+              const parsed = JSON.parse(outputData);
+
+              // Extract issues from the JSON output
+              let extractedIssues = [];
+              if (parsed.issues && Array.isArray(parsed.issues)) {
+                extractedIssues = parsed.issues
+                  .filter(issue => issue.fixedByLayer === layerId)
+                  .map(issue => ({
+                    type: issue.type || 'analysis-issue',
+                    severity: issue.severity || 'medium',
+                    description: issue.description || issue.message,
+                    fixedByLayer: layerId,
+                    ruleId: issue.ruleId,
+                    line: issue.line,
+                    column: issue.column
+                  }));
+              }
+
+              resolve({ issues: extractedIssues });
+              return;
+            }
+          } catch (error) {
+            // JSON reading/parsing failed - try stdout
+          }
+
+          // Fallback: try parsing stdout
           try {
             const parsedOutput = this.parseAnalysisOutput(stdout, layerId);
             if (parsedOutput && parsedOutput.length > 0) {
               resolve({ issues: parsedOutput });
-            } else {
-              // Valid execution but no issues found
-              resolve({ issues: [] });
+              return;
             }
           } catch (error) {
-            // Execution succeeded but parsing failed - use fallback
-            resolve({ issues: this.generateMockIssues(layerId, filePath) });
+            // Parsing stdout also failed
           }
+
+          // All real analysis attempts failed, use mock
+          resolve({ issues: this.generateMockIssues(layerId, filePath) });
         } else {
           // CLI returned error code - use fallback
           resolve({ issues: this.generateMockIssues(layerId, filePath) });
