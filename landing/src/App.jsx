@@ -35,14 +35,12 @@ function App() {
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-slate-300 hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="text-slate-300 hover:text-white transition-colors">How It Works</a>
-              <a href="#faq" className="text-slate-300 hover:text-white transition-colors">FAQ</a>
+              <a href="#faq" className="text-slate-300 hover:text-white transition-colors">Help</a>
               <a 
                 href="#install" 
                 className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
-                Get Started
+                Install
               </a>
             </div>
           </div>
