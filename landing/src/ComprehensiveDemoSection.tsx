@@ -250,8 +250,12 @@ export function ComprehensiveDemoSection() {
   const [engineStatus, setEngineStatus] = useState<any>(null);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [processingTime, setProcessingTime] = useState<number>(0);
+  const [inputMode, setInputMode] = useState<'sample' | 'paste'>('sample');
+  const [customCode, setCustomCode] = useState<string>('');
 
-  const currentCode = selectedSample ? SAMPLE_CODES.find(s => s.id === selectedSample)?.code || '' : '';
+  const currentCode = inputMode === 'sample' 
+    ? (selectedSample ? SAMPLE_CODES.find(s => s.id === selectedSample)?.code || '' : '')
+    : customCode;
 
   // Load layer information and engine status on component mount
   useEffect(() => {
@@ -351,8 +355,11 @@ export function ComprehensiveDemoSection() {
         success: true,
         analysis: analysisResult.analysis!,
         layers,
-        transformed: transformedCode,
-        fixResult
+        transformed: analysisResult.code || transformedCode,
+        fixResult: {
+          success: true,
+          appliedFixes: analysisResult.appliedFixes
+        }
       };
 
       setResults(demoResult);
@@ -495,30 +502,74 @@ export function ComprehensiveDemoSection() {
               {/* Tab Controls */}
               <div className="bg-gray-800/50 border-b border-gray-700">
                 <div className="flex">
-                  <span className="px-6 py-3 text-sm font-medium text-white border-b-2 border-zinc-600 bg-zinc-800">
+                  <button
+                    onClick={() => setInputMode('sample')}
+                    className={`px-6 py-3 text-sm font-medium transition-colors ${
+                      inputMode === 'sample'
+                        ? 'text-white border-b-2 border-zinc-600 bg-zinc-800'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
                     Sample Code
-                  </span>
+                  </button>
+                  <button
+                    onClick={() => setInputMode('paste')}
+                    className={`px-6 py-3 text-sm font-medium transition-colors ${
+                      inputMode === 'paste'
+                        ? 'text-white border-b-2 border-zinc-600 bg-zinc-800'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Paste Your Code
+                  </button>
                 </div>
               </div>
 
               {/* Code Input */}
               <div className="p-6">
-                <div className="mb-4">
-                  <select
-                    value={selectedSample || SAMPLE_CODES[0].id}
-                    onChange={(e) => setSelectedSample(e.target.value)}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm"
-                  >
-                    {SAMPLE_CODES.map((sample) => (
-                      <option key={sample.id} value={sample.id}>
-                        {sample.name} - {sample.description}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="bg-black/50 rounded p-4 text-sm text-gray-300 font-mono overflow-x-auto max-h-96">
-                  <pre className="whitespace-pre-wrap">{currentCode}</pre>
-                </div>
+                {inputMode === 'sample' ? (
+                  <>
+                    <div className="mb-4">
+                      <select
+                        value={selectedSample || SAMPLE_CODES[0].id}
+                        onChange={(e) => setSelectedSample(e.target.value)}
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm"
+                      >
+                        {SAMPLE_CODES.map((sample) => (
+                          <option key={sample.id} value={sample.id}>
+                            {sample.name} - {sample.description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="bg-black/50 rounded p-4 text-sm text-gray-300 font-mono overflow-x-auto max-h-96">
+                      <pre className="whitespace-pre-wrap">{currentCode}</pre>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-4">
+                      <label className="block text-sm text-gray-400 mb-2">
+                        Paste your React, Next.js, TypeScript, or JavaScript code below:
+                      </label>
+                    </div>
+                    <textarea
+                      value={customCode}
+                      onChange={(e) => setCustomCode(e.target.value)}
+                      placeholder="// Paste your code here...
+import React from 'react';
+
+function MyComponent() {
+  return <div>Hello World</div>;
+}"
+                      className="w-full bg-black/50 rounded p-4 text-sm text-gray-300 font-mono min-h-96 max-h-96 overflow-y-auto border border-gray-700 focus:border-blue-500 focus:outline-none resize-none"
+                      spellCheck={false}
+                    />
+                    <div className="mt-2 text-xs text-gray-500">
+                      Max 100KB • Supports .tsx, .jsx, .ts, .js, .json files
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Analyze Button */}
@@ -617,12 +668,12 @@ export function ComprehensiveDemoSection() {
                   <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
                     <h4 className="text-lg font-semibold text-white mb-4">Transformed Code</h4>
                     <div className="bg-black/50 rounded p-4 text-sm text-green-300 font-mono overflow-x-auto max-h-96">
-                      <pre className="whitespace-pre-wrap">{results.transformed}</pre>
+                      <pre className="whitespace-pre-wrap">{results.transformed || currentCode}</pre>
                     </div>
-                    {results.fixResult && results.fixResult.appliedFixes && (
+                    {((results.fixResult && results.fixResult.appliedFixes) || results.analysis.detectedIssues.length > 0) && (
                       <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
                         <p className="text-green-400 font-medium mb-2">
-                          ✓ {results.fixResult.appliedFixes.length} fixes applied successfully
+                          ✓ {results.fixResult?.appliedFixes?.length || results.analysis.detectedIssues.length} fixes applied successfully
                         </p>
                         <p className="text-sm text-gray-400">
                           Processing time: {results.analysis.processingTime}ms

@@ -11,6 +11,10 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
 localPort = 5000
 externalPort = 80
 
@@ -23,12 +27,12 @@ localPort = 36373
 externalPort = 3003
 
 [[ports]]
-localPort = 38261
-externalPort = 3001
+localPort = 37893
+externalPort = 4200
 
 [[ports]]
-localPort = 44349
-externalPort = 4200
+localPort = 38261
+externalPort = 3001
 
 [[ports]]
 localPort = 44895
@@ -49,6 +53,10 @@ author = "agent"
 task = "workflow.run"
 args = "Landing Page"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "API Server"
+
 [[workflows.workflow]]
 name = "Landing Page"
 author = "agent"
@@ -60,6 +68,18 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow]]
+name = "API Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:api"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_mem_db:1.0.0"]
