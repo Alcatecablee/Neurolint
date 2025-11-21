@@ -9,7 +9,16 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
+  console.log(`[SERVER] ${req.method} ${req.path}`);
+
+  // Log body parsing for POST/PUT requests
+  if ((req.method === 'POST' || req.method === 'PUT') && req.path.includes('/api/')) {
+    console.log('[SERVER] Body type:', typeof req.body, 'is object:', typeof req.body === 'object');
+    if (req.body && typeof req.body === 'object') {
+      console.log('[SERVER] Body keys:', Object.keys(req.body));
+    }
+  }
+
   next();
 });
 
