@@ -6,12 +6,11 @@ const TypewriterHeadline: React.FC = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const words = [
-    "Transform Your Code",
-    "Analyze Performance",
-    "Fix Bugs Instantly",
-    "Optimize Everything",
-    "Write Better Code",
-    "Modernize Legacy Code",
+    "Stop React Hydration Crashes",
+    "Ship React Fixes Automatically",
+    "Deterministic Bug Fixes, On Demand",
+    "Prevent Next.js Bugs Before Deploy",
+    "Kill Missing Key Errors",
   ];
 
   const typingSpeed = 100;
