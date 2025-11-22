@@ -71,139 +71,64 @@ async function transform(code, options = {}) {
     // Phase 3: Enhanced Hydration Fixes (Layer 4)
     const hydrationFixes = [
       // Phase 3: Enhanced LocalStorage SSR Guard
+      // Only apply if not already wrapped
       {
         name: 'LocalStorage SSR Guard',
-        pattern: /localStorage\.(getItem|setItem|removeItem)\(([^)]+)\)/g,
-        replacement: (match, method, args) => `typeof window !== "undefined" ? localStorage.${method}(${args}) : null`,
+        pattern: /(?<!typeof window !== "undefined" \? )localStorage\.(getItem|setItem|removeItem)\(([^)]+)\)/g,
+        replacement: (match, method, args) => {
+          // Check if already wrapped
+          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
+            return match;
+          }
+          return `(typeof window !== "undefined" ? localStorage.${method}(${args}) : null)`;
+        },
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
       
-      // Phase 3: Enhanced Window SSR Guard
+      // Phase 3: Enhanced Window SSR Guard (only window.matchMedia, not window.addEventListener)
       {
         name: 'Window SSR Guard',
-        pattern: /window\.matchMedia\(([^)]+)\)/g,
-        replacement: (match, args) => `typeof window !== "undefined" ? window.matchMedia(${args}) : null`,
+        pattern: /(?<!typeof window !== "undefined" \? )window\.matchMedia\s*\(\s*(['"`])([^'"`]+)\1\s*\)/g,
+        replacement: (match, quote, query) => {
+          // Check if already wrapped
+          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
+            return match;
+          }
+          return `(typeof window !== "undefined" ? window.matchMedia(${quote}${query}${quote}) : null)`;
+        },
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
       
-      // Phase 3: Enhanced Document SSR Guard
+      // Phase 3: Enhanced Document SSR Guard  
       {
         name: 'Document SSR Guard',
-        pattern: /document\.(documentElement|body|querySelector)\b(\([^)]*\))?/g,
-        replacement: (match, method, call = '') => `typeof document !== "undefined" ? document.${method}${call} : null`,
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add mounted state patterns
-      {
-        name: 'Mounted State Pattern',
-        pattern: /const\s+\[([^,]+),\s*set([^\]]+)\]\s*=\s*useState\s*\(\s*localStorage\.getItem\s*\([^)]+\)\s*\)\s*;?\s*$/gm,
-        replacement: (match, stateName, setterName) => {
-          return `const [${stateName}, set${setterName}] = useState('light');
-const [mounted, setMounted] = useState(false);
-
-useEffect(() => {
-  setMounted(true);
-  set${setterName}(localStorage.getItem('theme') || 'light');
-}, []);`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add hydration mismatch prevention
-      {
-        name: 'Hydration Mismatch Prevention',
-        pattern: /return\s+<[^>]*>\s*\{([^}]+)\}\s*<\/[^>]*>\s*;?\s*$/gm,
-        replacement: (match, content) => {
-          if (content.includes('localStorage') || content.includes('window.') || content.includes('document.')) {
-            return `return (
-  <div>
-    {mounted ? ${content} : <div>Loading...</div>}
-  </div>
-);`;
+        pattern: /(?<!typeof document !== "undefined" \? )document\.(documentElement|body|querySelector|querySelectorAll|getElementById)\b(\([^)]*\))?/g,
+        replacement: (match, method, call = '') => {
+          // Check if already wrapped
+          if (updatedCode.includes(`typeof document !== "undefined" ? ${match}`)) {
+            return match;
           }
-          return match;
+          return `(typeof document !== "undefined" ? document.${method}${call} : null)`;
         },
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
       
-      // Phase 3: Add proper useEffect cleanup
+      // Phase 3: Add proper useEffect cleanup for event listeners
       {
         name: 'useEffect Cleanup',
-        pattern: /useEffect\s*\(\s*\(\)\s*=>\s*\{[\s\S]*?addEventListener\s*\([^)]+\)\s*;?\s*\}\s*,\s*\[[^\]]*\]\s*\)\s*;?\s*$/gm,
-        replacement: (match) => {
-          return match.replace(/addEventListener\s*\(([^)]+)\)\s*;?\s*/, (addMatch, args) => {
-            const [event, handler] = args.split(',').map(s => s.trim());
-            return `addEventListener(${event}, ${handler});
-    return () => removeEventListener(${event}, ${handler});`;
-          });
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add proper error boundaries for hydration
-      {
-        name: 'Hydration Error Boundary',
-        pattern: /export\s+default\s+function\s+(\w+)\s*\(\s*\)\s*\{[\s\S]*?return\s+<[^>]*>[\s\S]*<\/[^>]*>\s*;?\s*\}\s*$/gm,
-        replacement: (match, componentName) => {
-          if (match.includes('localStorage') || match.includes('window.') || match.includes('document.')) {
-            return `import { ErrorBoundary } from 'react-error-boundary';
-
-export default function ${componentName}() {
-  return (
-    <ErrorBoundary fallback={<div>Something went wrong</div>}>
-      {/* Your component content */}
-    </ErrorBoundary>
-  );
-}`;
+        pattern: /(useEffect\s*\(\s*\(\)\s*=>\s*\{[\s\S]*?)(window\.)?addEventListener\s*\(\s*(['"][\w-]+['"])\s*,\s*(\w+)\s*\)\s*;?\s*([\s\S]*?\}\s*,\s*\[[^\]]*\]\s*\))/gm,
+        replacement: (match, beforeAdd, windowPrefix, event, handler, afterAdd) => {
+          // Check if cleanup already exists
+          if (match.includes(`removeEventListener(${event}, ${handler})`)) {
+            return match;
           }
-          return match;
+          // Add cleanup return statement
+          const prefix = windowPrefix || '';
+          return `${beforeAdd}${prefix}addEventListener(${event}, ${handler});
+    return () => ${prefix}removeEventListener(${event}, ${handler});${afterAdd}`;
         },
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
-      
-      // Phase 3: Add proper loading states for async operations
-      {
-        name: 'Async Loading State',
-        pattern: /const\s+\[([^,]+),\s*set([^\]]+)\]\s*=\s*useState\s*\(\s*null\s*\)\s*;?\s*$/gm,
-        replacement: (match, stateName, setterName) => {
-          return `const [${stateName}, set${setterName}] = useState(null);
-const [loading, setLoading] = useState(true);`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add proper error states
-      {
-        name: 'Error State Management',
-        pattern: /const\s+\[([^,]+),\s*set([^\]]+)\]\s*=\s*useState\s*\(\s*null\s*\)\s*;?\s*$/gm,
-        replacement: (match, stateName, setterName) => {
-          return `const [${stateName}, set${setterName}] = useState(null);
-const [error, setError] = useState(null);`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add proper suspense boundaries
-      {
-        name: 'Suspense Boundary',
-        pattern: /export\s+default\s+function\s+(\w+)\s*\(\s*\)\s*\{[\s\S]*?return\s+<[^>]*>[\s\S]*<\/[^>]*>\s*;?\s*\}\s*$/gm,
-        replacement: (match, componentName) => {
-          if (match.includes('dynamic') || match.includes('lazy')) {
-            return `import { Suspense } from 'react';
-
-export default function ${componentName}() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {/* Your component content */}
-    </Suspense>
-  );
-}`;
-          }
-          return match;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      }
     ];
 
     // Phase 3: Enhanced hydration pattern detection
@@ -273,24 +198,6 @@ export default function ${componentName}() {
     // Enhanced SSR Guards and Hydration Safety Patterns (Next.js 15.5 + Community patterns)
     const enhancedHydrationFixes = [
       {
-        name: 'Mounted State Pattern',
-        pattern: /const\s+\[([^,]+),\s*set([^\]]+)\]\s*=\s*useState\s*\(\s*([^)]+)\s*\)/g,
-        replacement: (match, stateVar, setterVar, initialValue) => {
-          // Check if this is a theme or browser-dependent state
-          if (stateVar.includes('theme') || stateVar.includes('mounted') || 
-              initialValue.includes('localStorage') || initialValue.includes('window')) {
-            return `const [${stateVar}, set${setterVar}] = useState(${initialValue});
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);`;
-          }
-          return match;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      {
         name: 'Theme Provider SSR Guard',
         pattern: /document\.documentElement\.classList\.(add|remove|toggle)\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g,
         replacement: (match, method, className) => 
@@ -298,32 +205,15 @@ export default function ${componentName}() {
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
       {
-        name: 'Hydration Mismatch Prevention',
-        pattern: /return\s+<([^>]+)>([^<]*)<\/\1>/g,
-        replacement: (match, tag, content) => {
-          // Only apply if content contains actual browser API usage (not in comments/strings)
-          const hasBrowserUsage = /(?<!\/\/.*)(?<!\/\*.*\*\/)(?<!".*")(?<!'.*')(?<!`.*`)window|document|localStorage/.test(content);
-          
-          // Check if this is a simple text content that might cause hydration mismatch
-          const hasDynamicContent = hasBrowserUsage && (
-            content.includes('window') || 
-            content.includes('document') || 
-            content.includes('localStorage') ||
-            content.includes('sessionStorage')
-          );
-          
-          if (hasDynamicContent) {
-            return `return mounted ? <${tag}>${content}</${tag}> : null`;
-          }
-          return match;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      {
         name: 'Event Listener SSR Guard',
-        pattern: /(addEventListener|removeEventListener)\s*\(\s*([^,]+),\s*([^)]+)\s*\)/g,
-        replacement: (match, method, event, handler) => 
-          `typeof window !== "undefined" ? ${method}(${event}, ${handler}) : null`,
+        pattern: /(?<!window\.)(?<!typeof window !== "undefined" \? )(addEventListener|removeEventListener)\s*\(\s*([^,]+),\s*([^)]+)\s*\)/g,
+        replacement: (match, method, event, handler) => {
+          // Don't wrap if it's already inside a guard or if window. prefix exists
+          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
+            return match;
+          }
+          return `(typeof window !== "undefined" ? ${method}(${event}, ${handler}) : null)`;
+        },
         fileTypes: ['ts', 'tsx', 'js', 'jsx']
       },
       {
