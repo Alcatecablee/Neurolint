@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FAQSection } from "./FAQSection";
-import { ComprehensiveDemoSection } from "./ComprehensiveDemoSection";
+import { ModalDemo } from "./components/ModalDemo";
 
 import {
   Target,
@@ -288,13 +288,13 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Comprehensive Demo Section - MOVED UP for immediate engagement */}
-      <div ref={demoSectionRef} className={`transition-all duration-1000 transform ${
+      {/* Interactive Demo Section */}
+      <div ref={demoSectionRef} id="comprehensive-demo" className={`transition-all duration-1000 transform ${
         demoSectionInView
           ? 'opacity-100 translate-y-0'
           : 'opacity-0 translate-y-20'
       }`}>
-        <ComprehensiveDemoSection />
+        <ModalDemo />
       </div>
 
       {/* Features Section - Moved after demo for context */}

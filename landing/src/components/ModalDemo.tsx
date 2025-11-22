@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play } from 'lucide-react';
 import { demoScenarios, type DemoScenario } from '../data/staticDemoData';
 
@@ -6,7 +6,7 @@ export function ModalDemo() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedScenario, setSelectedScenario] = useState<DemoScenario | null>(null);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
-  const [expandedLayers, setExpandedLayers] = useState<Set<number>>(new Set());
+  const [expandedLayers, setExpandedLayers] = useState(new Set<number>());
 
   const handleOpenDemo = (scenario: DemoScenario) => {
     setSelectedScenario(scenario);
