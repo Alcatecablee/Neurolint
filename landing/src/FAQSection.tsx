@@ -197,7 +197,7 @@ export const FAQSection: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="mailto:support@neurolint.com"
+                  href="mailto:clievemakazhu@gmail.com"
                   className="inline-flex items-center px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   Contact Support

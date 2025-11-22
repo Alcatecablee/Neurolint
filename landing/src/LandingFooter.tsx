@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 export function LandingFooter() {
   return (
     <footer className="w-full py-8 px-6 bg-zinc-900 border-t border-zinc-800">
@@ -17,16 +15,18 @@ export function LandingFooter() {
             <h4 className="text-white font-medium mb-4">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  to="/app"
+                <a
+                  href="https://www.npmjs.com/package/@neurolint/cli"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Try Now
-                </Link>
+                </a>
               </li>
               <li>
                 <a
-                  href="#cli"
+                  href="#comprehensive-demo"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   CLI Tool
@@ -34,7 +34,9 @@ export function LandingFooter() {
               </li>
               <li>
                 <a
-                  href="#vscode"
+                  href="https://www.npmjs.com/package/@neurolint/cli"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   VS Code Extension
@@ -42,7 +44,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <a
-                  href="#api"
+                  href="#comprehensive-demo"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   REST API
@@ -55,16 +57,16 @@ export function LandingFooter() {
             <h4 className="text-white font-medium mb-4">Resources</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  to="/test"
+                <a
+                  href="#comprehensive-demo"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Test Suite
-                </Link>
+                </a>
               </li>
               <li>
                 <a
-                  href="mailto:founder@neurolint.com"
+                  href="mailto:clievemakazhu@gmail.com"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Support
@@ -78,7 +80,7 @@ export function LandingFooter() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="mailto:founder@neurolint.com"
+                  href="mailto:clievemakazhu@gmail.com"
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Contact

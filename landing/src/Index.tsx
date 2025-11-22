@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FAQSection } from "./FAQSection";
 import { ModalDemo } from "./components/ModalDemo";
+import { LandingFooter } from "./LandingFooter";
 
 import {
   Target,
@@ -17,7 +18,7 @@ import {
 // Lazy Loading Hook
 const useInView = (threshold = 0.1) => {
   const [isInView, setIsInView] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -601,6 +602,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <LandingFooter />
     </div>
   );
 }
