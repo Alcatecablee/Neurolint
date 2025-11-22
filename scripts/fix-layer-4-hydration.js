@@ -11,13 +11,17 @@
 const fs = require('fs').promises;
 const path = require('path');
 const BackupManager = require('../backup-manager');
+const ASTTransformer = require('../ast-transformer');
+const t = require('@babel/types');
 
 /**
- * Layer 4: Hydration and SSR Fixes
- * - Add window/document guards
+ * Layer 4: Hydration and SSR Fixes (AST-based)
+ * - Add window/document guards using proper code parsing
  * - Add mounted state for theme providers
  * - Fix hydration mismatches in useEffect
+ * - Handles nested parentheses correctly via AST
  */
+
 async function isRegularFile(filePath) {
   try {
     const stat = await fs.stat(filePath);
@@ -27,6 +31,52 @@ async function isRegularFile(filePath) {
   }
 }
 
+/**
+ * Check if a node is already wrapped in SSR guard
+ */
+function isAlreadyGuarded(path, guardType = 'window') {
+  let parent = path.parentPath;
+  
+  // Traverse up to find conditional expression
+  while (parent) {
+    if (t.isConditionalExpression(parent.node)) {
+      const test = parent.node.test;
+      // Check if it's a typeof guard
+      if (t.isBinaryExpression(test) && 
+          t.isUnaryExpression(test.left) && 
+          test.left.operator === 'typeof') {
+        
+        const arg = test.left.argument;
+        if (t.isIdentifier(arg)) {
+          if (guardType === 'window' && arg.name === 'window') return true;
+          if (guardType === 'document' && arg.name === 'document') return true;
+        }
+      }
+    }
+    parent = parent.parentPath;
+  }
+  return false;
+}
+
+/**
+ * Wrap an expression with SSR guard
+ */
+function wrapWithSSRGuard(expression, guardType = 'window') {
+  // Create: typeof window !== "undefined" ? expression : null
+  return t.conditionalExpression(
+    t.binaryExpression(
+      '!==',
+      t.unaryExpression('typeof', t.identifier(guardType)),
+      t.stringLiteral('undefined')
+    ),
+    expression,
+    t.nullLiteral()
+  );
+}
+
+/**
+ * Main AST-based hydration transform
+ */
 async function transform(code, options = {}) {
   const { dryRun = false, verbose = false, filePath = process.cwd() } = options;
   const results = [];
@@ -34,7 +84,7 @@ async function transform(code, options = {}) {
   let updatedCode = code;
 
   try {
-    // Create centralized backup if it exists and is regular file
+    // Create centralized backup
     const existsAsFile = await isRegularFile(filePath);
     if (existsAsFile && !dryRun) {
       try {
@@ -68,215 +118,273 @@ async function transform(code, options = {}) {
       };
     }
 
-    // Phase 3: Enhanced Hydration Fixes (Layer 4)
-    const hydrationFixes = [
-      // Phase 3: Enhanced LocalStorage SSR Guard
-      // Only apply if not already wrapped
-      {
-        name: 'LocalStorage SSR Guard',
-        pattern: /(?<!typeof window !== "undefined" \? )localStorage\.(getItem|setItem|removeItem)\(([^)]+)\)/g,
-        replacement: (match, method, args) => {
-          // Check if already wrapped
-          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
-            return match;
-          }
-          return `(typeof window !== "undefined" ? localStorage.${method}(${args}) : null)`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Enhanced Window SSR Guard (only window.matchMedia, not window.addEventListener)
-      {
-        name: 'Window SSR Guard',
-        pattern: /(?<!typeof window !== "undefined" \? )window\.matchMedia\s*\(\s*(['"`])([^'"`]+)\1\s*\)/g,
-        replacement: (match, quote, query) => {
-          // Check if already wrapped
-          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
-            return match;
-          }
-          return `(typeof window !== "undefined" ? window.matchMedia(${quote}${query}${quote}) : null)`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Enhanced Document SSR Guard  
-      {
-        name: 'Document SSR Guard',
-        pattern: /(?<!typeof document !== "undefined" \? )document\.(documentElement|body|querySelector|querySelectorAll|getElementById)\b(\([^)]*\))?/g,
-        replacement: (match, method, call = '') => {
-          // Check if already wrapped
-          if (updatedCode.includes(`typeof document !== "undefined" ? ${match}`)) {
-            return match;
-          }
-          return `(typeof document !== "undefined" ? document.${method}${call} : null)`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      
-      // Phase 3: Add proper useEffect cleanup for event listeners
-      {
-        name: 'useEffect Cleanup',
-        pattern: /(useEffect\s*\(\s*\(\)\s*=>\s*\{[\s\S]*?)(window\.)?addEventListener\s*\(\s*(['"][\w-]+['"])\s*,\s*(\w+)\s*\)\s*;?\s*([\s\S]*?\}\s*,\s*\[[^\]]*\]\s*\))/gm,
-        replacement: (match, beforeAdd, windowPrefix, event, handler, afterAdd) => {
-          // Check if cleanup already exists
-          if (match.includes(`removeEventListener(${event}, ${handler})`)) {
-            return match;
-          }
-          // Add cleanup return statement
-          const prefix = windowPrefix || '';
-          return `${beforeAdd}${prefix}addEventListener(${event}, ${handler});
-    return () => ${prefix}removeEventListener(${event}, ${handler});${afterAdd}`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-    ];
-
-    // Phase 3: Enhanced hydration pattern detection
-    const hydrationPatterns = [
-      // Phase 3: Detect hydration mismatches
-      {
-        pattern: /useState\s*\(\s*localStorage\.getItem\s*\([^)]+\)\s*\)/g,
-        description: 'Direct localStorage usage in useState can cause hydration mismatches'
-      },
-      {
-        pattern: /window\./g,
-        description: 'Direct window usage without SSR guards'
-      },
-      {
-        pattern: /document\./g,
-        description: 'Direct document usage without SSR guards'
-      },
-      {
-        pattern: /addEventListener\s*\([^)]+\)/g,
-        description: 'Event listeners without cleanup can cause memory leaks'
-      }
-    ];
-
-    // Phase 3: Apply enhanced hydration fixes
+    // File type check
     const fileExt = path.extname(filePath).slice(1);
-    let hydrationChanges = 0;
-    
-    hydrationFixes.forEach(fix => {
-      if (fix.fileTypes.includes(fileExt)) {
-        const matches = updatedCode.match(fix.pattern) || [];
-        if (matches.length) {
-          updatedCode = updatedCode.replace(fix.pattern, fix.replacement);
-          hydrationChanges += matches.length;
-          results.push({
-            type: 'hydration',
-            file: filePath,
-            success: true,
-            changes: matches.length,
-            details: `Applied ${fix.name}`
-          });
-          if (verbose) {
-            process.stdout.write(`[INFO] Applied Phase 3 hydration fix: ${fix.name}\n`);
-          }
-        }
-      }
-    });
-
-    // Phase 3: Detect and warn about hydration issues
-    hydrationPatterns.forEach(pattern => {
-      const matches = updatedCode.match(pattern.pattern) || [];
-      if (matches.length > 0) {
-        results.push({
-          type: 'hydration-warning',
-          file: filePath,
-          success: true,
-          changes: 0,
-          details: `Detected ${matches.length} potential hydration issues: ${pattern.description}`
-        });
-        if (verbose) {
-          process.stdout.write(`[WARNING] Potential hydration issue: ${pattern.description}\n`);
-        }
-      }
-    });
-
-    changeCount += hydrationChanges;
-
-    // Enhanced SSR Guards and Hydration Safety Patterns (Next.js 15.5 + Community patterns)
-    const enhancedHydrationFixes = [
-      {
-        name: 'Theme Provider SSR Guard',
-        pattern: /document\.documentElement\.classList\.(add|remove|toggle)\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g,
-        replacement: (match, method, className) => 
-          `typeof document !== "undefined" ? document.documentElement.classList.${method}('${className}') : null`,
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      {
-        name: 'Event Listener SSR Guard',
-        pattern: /(?<!window\.)(?<!typeof window !== "undefined" \? )(addEventListener|removeEventListener)\s*\(\s*([^,]+),\s*([^)]+)\s*\)/g,
-        replacement: (match, method, event, handler) => {
-          // Don't wrap if it's already inside a guard or if window. prefix exists
-          if (updatedCode.includes(`typeof window !== "undefined" ? ${match}`)) {
-            return match;
-          }
-          return `(typeof window !== "undefined" ? ${method}(${event}, ${handler}) : null)`;
-        },
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      },
-      {
-        name: 'Timeout/Interval SSR Guard',
-        pattern: /(setTimeout|setInterval)\s*\(\s*([^,]+)(?:,\s*([^)]+))?\s*\)/g,
-        replacement: (match, method, callback, delay) => 
-          `typeof window !== "undefined" ? ${method}(${callback}${delay ? `, ${delay}` : ''}) : null`,
-        fileTypes: ['ts', 'tsx', 'js', 'jsx']
-      }
-    ];
-
-    enhancedHydrationFixes.forEach(fix => {
-      if (fix.fileTypes.includes(fileExt)) {
-        const matches = updatedCode.match(fix.pattern) || [];
-        if (matches.length) {
-          updatedCode = updatedCode.replace(fix.pattern, fix.replacement);
-          changeCount += matches.length;
-          results.push({
-            type: 'enhanced-hydration',
-            file: filePath,
-            success: true,
-            changes: matches.length,
-            details: `Applied ${fix.name}`
-          });
-        }
-      }
-    });
-
-    // Theme Provider Hydration
-    if (fileExt === 'tsx' && updatedCode.includes('ThemeProvider') && !updatedCode.includes('mounted')) {
-      const mountedStatePattern = /const \[theme, setTheme\] = useState<Theme>\('light'\);/;
-      if (mountedStatePattern.test(updatedCode)) {
-        updatedCode = updatedCode.replace(
-          mountedStatePattern,
-          `const [theme, setTheme] = useState<Theme>('light');\n  const [mounted, setMounted] = useState(false);\n\n  useEffect(() => {\n    setMounted(true);\n  }, []);`
-        ).replace(
-          /return \(\s*<ThemeContext\.Provider/,
-          `if (!mounted) {\n    return <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>{children}</ThemeContext.Provider>;\n  }\n\n  return (\n    <ThemeContext.Provider`
-        );
-        changeCount++;
-        results.push({
-          type: 'theme_provider',
-          file: filePath,
-          success: true,
-          changes: 1,
-          details: 'Added mounted state to ThemeProvider'
-        });
-      }
+    if (!['ts', 'tsx', 'js', 'jsx'].includes(fileExt)) {
+      return {
+        success: true,
+        code,
+        originalCode: code,
+        changeCount: 0,
+        results
+      };
     }
 
-    // Add 'use client' directive for client-only components
-    if (fileExt === 'tsx' && updatedCode.includes('useTheme') && !updatedCode.includes("'use client'")) {
-      updatedCode = "'use client';\n\n" + updatedCode;
-      changeCount++;
-      results.push({
-        type: 'client_directive',
+    // Create AST transformer
+    const transformer = new ASTTransformer();
+    const changes = [];
+
+    // Define AST visitors for Layer 4 hydration fixes
+    const visitors = {
+      // Handle localStorage, sessionStorage calls
+      MemberExpression(path) {
+        // Check for localStorage/sessionStorage method calls
+        if (t.isIdentifier(path.node.object)) {
+          const objName = path.node.object.name;
+          const propName = path.node.property.name;
+          
+          // localStorage.getItem, setItem, removeItem, etc.
+          if ((objName === 'localStorage' || objName === 'sessionStorage') &&
+              ['getItem', 'setItem', 'removeItem', 'clear'].includes(propName)) {
+            
+            // Only wrap if it's part of a call expression
+            if (t.isCallExpression(path.parent) && path.parent.callee === path.node) {
+              // Check if already guarded
+              if (!isAlreadyGuarded(path.parentPath, 'window')) {
+                // Wrap the entire CallExpression
+                const callExpr = path.parentPath.node;
+                const guarded = wrapWithSSRGuard(callExpr, 'window');
+                path.parentPath.replaceWith(guarded);
+                
+                changes.push({
+                  type: 'storage-guard',
+                  description: `Added SSR guard for ${objName}.${propName}()`,
+                  location: path.node.loc
+                });
+                changeCount++;
+                
+                if (verbose) {
+                  process.stdout.write(`[INFO] Added SSR guard for ${objName}.${propName}()\n`);
+                }
+              }
+            }
+          }
+          
+          // window.matchMedia, window.location, etc.
+          if (objName === 'window' && 
+              ['matchMedia', 'location', 'navigator', 'innerWidth', 'innerHeight', 'scrollY', 'scrollX'].includes(propName)) {
+            
+            // Don't guard addEventListener/removeEventListener here (handled separately)
+            if (['addEventListener', 'removeEventListener'].includes(propName)) {
+              return;
+            }
+            
+            if (!isAlreadyGuarded(path, 'window')) {
+              // Check if this is part of an assignment's left-hand side
+              let currentPath = path;
+              let isAssignmentLHS = false;
+              
+              while (currentPath.parentPath) {
+                if (t.isAssignmentExpression(currentPath.parent) && 
+                    currentPath.node === currentPath.parent.left) {
+                  isAssignmentLHS = true;
+                  break;
+                }
+                if (t.isMemberExpression(currentPath.parent) || 
+                    (t.isCallExpression(currentPath.parent) && currentPath.parent.callee === currentPath.node)) {
+                  currentPath = currentPath.parentPath;
+                } else {
+                  break;
+                }
+              }
+              
+              if (isAssignmentLHS) {
+                // Skip: Cannot guard assignment LHS as it produces invalid code
+                // The assignment will fail gracefully on SSR
+                return;
+              }
+              
+              // Find the outermost expression in the chain to wrap
+              let topPath = path;
+              while (topPath.parentPath && 
+                     (t.isMemberExpression(topPath.parent) || 
+                      (t.isCallExpression(topPath.parent) && topPath.parent.callee === topPath.node))) {
+                topPath = topPath.parentPath;
+              }
+              
+              // Wrap the entire chain
+              const guarded = wrapWithSSRGuard(topPath.node, 'window');
+              topPath.replaceWith(guarded);
+              
+              changes.push({
+                type: 'window-guard',
+                description: `Added SSR guard for window.${propName} chain`,
+                location: path.node.loc
+              });
+              changeCount++;
+              
+              if (verbose) {
+                process.stdout.write(`[INFO] Added SSR guard for window.${propName} chain\n`);
+              }
+            }
+          }
+          
+          // document.querySelector, document.getElementById, etc.
+          if (objName === 'document' && 
+              ['querySelector', 'querySelectorAll', 'getElementById', 'getElementsByClassName', 
+               'getElementsByTagName', 'body', 'documentElement', 'head'].includes(propName)) {
+            
+            if (!isAlreadyGuarded(path, 'document')) {
+              // Check if this is part of an assignment's left-hand side
+              let currentPath = path;
+              let isAssignmentLHS = false;
+              
+              while (currentPath.parentPath) {
+                if (t.isAssignmentExpression(currentPath.parent) && 
+                    currentPath.node === currentPath.parent.left) {
+                  isAssignmentLHS = true;
+                  break;
+                }
+                if (t.isMemberExpression(currentPath.parent) || 
+                    (t.isCallExpression(currentPath.parent) && currentPath.parent.callee === currentPath.node)) {
+                  currentPath = currentPath.parentPath;
+                } else {
+                  break;
+                }
+              }
+              
+              if (isAssignmentLHS) {
+                // Skip: Cannot guard assignment LHS as it produces invalid code
+                // The assignment will fail gracefully on SSR
+                return;
+              }
+              
+              // Find the outermost expression in the chain to wrap
+              let topPath = path;
+              while (topPath.parentPath && 
+                     (t.isMemberExpression(topPath.parent) || 
+                      (t.isCallExpression(topPath.parent) && topPath.parent.callee === topPath.node))) {
+                topPath = topPath.parentPath;
+              }
+              
+              // Wrap the entire chain
+              const guarded = wrapWithSSRGuard(topPath.node, 'document');
+              topPath.replaceWith(guarded);
+              
+              changes.push({
+                type: 'document-guard',
+                description: `Added SSR guard for document.${propName} chain`,
+                location: path.node.loc
+              });
+              changeCount++;
+              
+              if (verbose) {
+                process.stdout.write(`[INFO] Added SSR guard for document.${propName} chain\n`);
+              }
+            }
+          }
+        }
+      },
+      
+      // Handle useEffect with addEventListener that needs cleanup
+      CallExpression(path) {
+        // Look for useEffect calls
+        if (t.isIdentifier(path.node.callee, { name: 'useEffect' })) {
+          const effectCallback = path.node.arguments[0];
+          
+          if (t.isArrowFunctionExpression(effectCallback) || t.isFunctionExpression(effectCallback)) {
+            const body = effectCallback.body;
+            
+            // Track if we found addEventListener without cleanup
+            let hasAddEventListener = false;
+            let hasRemoveEventListener = false;
+            let hasReturnCleanup = false;
+            
+            // Check body for addEventListener
+            const checkBody = (node) => {
+              if (t.isBlockStatement(node)) {
+                node.body.forEach(statement => {
+                  // Check for addEventListener
+                  if (t.isExpressionStatement(statement) && 
+                      t.isCallExpression(statement.expression)) {
+                    const call = statement.expression;
+                    if (t.isMemberExpression(call.callee)) {
+                      const method = call.callee.property;
+                      if (t.isIdentifier(method, { name: 'addEventListener' })) {
+                        hasAddEventListener = true;
+                      }
+                    }
+                  }
+                  
+                  // Check for return cleanup function
+                  if (t.isReturnStatement(statement) && 
+                      (t.isArrowFunctionExpression(statement.argument) || 
+                       t.isFunctionExpression(statement.argument))) {
+                    hasReturnCleanup = true;
+                    
+                    // Check if cleanup has removeEventListener
+                    const cleanupBody = statement.argument.body;
+                    if (t.isBlockStatement(cleanupBody)) {
+                      cleanupBody.body.forEach(cleanupStmt => {
+                        if (t.isExpressionStatement(cleanupStmt) && 
+                            t.isCallExpression(cleanupStmt.expression)) {
+                          const call = cleanupStmt.expression;
+                          if (t.isMemberExpression(call.callee) && 
+                              t.isIdentifier(call.callee.property, { name: 'removeEventListener' })) {
+                            hasRemoveEventListener = true;
+                          }
+                        }
+                      });
+                    }
+                  }
+                });
+              }
+            };
+            
+            checkBody(body);
+            
+            // If we have addEventListener but no cleanup, add warning
+            if (hasAddEventListener && !hasReturnCleanup) {
+              changes.push({
+                type: 'event-listener-warning',
+                description: 'useEffect with addEventListener should return cleanup function',
+                location: path.node.loc
+              });
+              
+              if (verbose) {
+                process.stdout.write('[WARNING] useEffect with addEventListener missing cleanup\n');
+              }
+            }
+          }
+        }
+      }
+    };
+
+    // Apply AST transformations
+    try {
+      const result = transformer.transform(code, visitors, { filename: filePath });
+      updatedCode = result.code;
+      
+      results.push(...changes.map(c => ({
+        type: 'hydration',
         file: filePath,
         success: true,
         changes: 1,
-        details: "Added 'use client' directive"
-      });
+        details: c.description
+      })));
+    } catch (error) {
+      if (verbose) process.stderr.write(`AST transformation error: ${error.message}\n`);
+      // Fall back to original code if AST fails
+      return {
+        success: false,
+        code,
+        originalCode: code,
+        changeCount: 0,
+        results: [{ type: 'error', file: filePath, success: false, error: error.message }]
+      };
     }
 
+    // Write changes if not dry-run
     if (dryRun) {
       return {
         success: true,
@@ -287,7 +395,6 @@ async function transform(code, options = {}) {
       };
     }
 
-    // Write changes if not dry-run
     if (changeCount > 0 && existsAsFile) {
       await fs.writeFile(filePath, updatedCode);
       results.push({ type: 'write', file: filePath, success: true, changes: changeCount });
@@ -317,4 +424,4 @@ async function transform(code, options = {}) {
   }
 }
 
-module.exports = { transform }; 
+module.exports = { transform };

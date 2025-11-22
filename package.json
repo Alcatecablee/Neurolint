@@ -31,7 +31,9 @@
     "dev": "vite",
     "dev:api": "node server.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "build:analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@babel/generator": "^7.28.5",

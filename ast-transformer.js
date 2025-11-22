@@ -870,6 +870,274 @@ class ASTTransformer {
 
     return issues;
   }
+
+  /**
+   * Layer 5: React 19 DOM API Transformations (AST-based)
+   * Handles ReactDOM.render → createRoot and ReactDOM.hydrate → hydrateRoot
+   */
+  transformReact19DOM(code, options = {}) {
+    const changes = [];
+    let needsCreateRoot = false;
+    let needsHydrateRoot = false;
+    let rootCounter = 0; // Counter for generating unique root identifiers
+
+    try {
+      const visitors = {
+        // Convert ReactDOM.render to createRoot().render()
+        CallExpression(path) {
+          // Check for ReactDOM.render calls
+          if (t.isMemberExpression(path.node.callee) &&
+              t.isIdentifier(path.node.callee.object, { name: 'ReactDOM' }) &&
+              t.isIdentifier(path.node.callee.property, { name: 'render' })) {
+            
+            const [jsxElement, container] = path.node.arguments;
+            
+            if (jsxElement && container) {
+              // Generate unique root identifier to avoid redeclaration errors
+              const rootId = `root${rootCounter > 0 ? rootCounter : ''}`;
+              rootCounter++;
+              
+              // Only convert if it's in a statement context
+              if (t.isExpressionStatement(path.parent)) {
+                // Create: const root = createRoot(container);
+                const rootDeclaration = t.variableDeclaration('const', [
+                  t.variableDeclarator(
+                    t.identifier(rootId),
+                    t.callExpression(
+                      t.identifier('createRoot'),
+                      [container]
+                    )
+                  )
+                ]);
+                
+                // Create: root.render(jsxElement);
+                const renderCall = t.expressionStatement(
+                  t.callExpression(
+                    t.memberExpression(
+                      t.identifier(rootId),
+                      t.identifier('render')
+                    ),
+                    [jsxElement]
+                  )
+                );
+                
+                // Replace the ReactDOM.render call with both statements
+                path.parentPath.replaceWithMultiple([rootDeclaration, renderCall]);
+                
+                needsCreateRoot = true;
+                changes.push({
+                  type: 'react19-render',
+                  description: 'Converted ReactDOM.render to createRoot().render()',
+                  location: path.node.loc
+                });
+                
+                path.node._changed = true;
+                path.node._changeDescription = 'Converted ReactDOM.render to createRoot().render()';
+              } else {
+                // Skip: ReactDOM.render used in non-statement context (e.g., assignment or return)
+                // Cannot safely convert without breaking semantics
+                changes.push({
+                  type: 'react19-render-warning',
+                  description: 'ReactDOM.render in non-statement context - manual migration required',
+                  location: path.node.loc
+                });
+              }
+            }
+          }
+          
+          // Check for ReactDOM.hydrate calls
+          if (t.isMemberExpression(path.node.callee) &&
+              t.isIdentifier(path.node.callee.object, { name: 'ReactDOM' }) &&
+              t.isIdentifier(path.node.callee.property, { name: 'hydrate' })) {
+            
+            const [jsxElement, container] = path.node.arguments;
+            
+            if (jsxElement && container) {
+              // Create: hydrateRoot(container, jsxElement);
+              // NOTE: hydrateRoot parameters are swapped compared to ReactDOM.hydrate!
+              const hydrateCall = t.callExpression(
+                t.identifier('hydrateRoot'),
+                [container, jsxElement]
+              );
+              
+              path.replaceWith(hydrateCall);
+              
+              needsHydrateRoot = true;
+              changes.push({
+                type: 'react19-hydrate',
+                description: 'Converted ReactDOM.hydrate to hydrateRoot()',
+                location: path.node.loc
+              });
+              
+              path.node._changed = true;
+              path.node._changeDescription = 'Converted ReactDOM.hydrate to hydrateRoot()';
+            }
+          }
+        }
+      };
+
+      const result = this.transform(code, visitors, options);
+      let transformedCode = result.code;
+      
+      // Add imports if needed
+      if (needsCreateRoot || needsHydrateRoot) {
+        const ast = this.parseCode(transformedCode, options.filename);
+        let hasReactDomClientImport = false;
+        let reactDomClientImportPath = null;
+        
+        // Check for existing react-dom/client import
+        traverse(ast, {
+          ImportDeclaration(path) {
+            if (path.node.source.value === 'react-dom/client') {
+              hasReactDomClientImport = true;
+              reactDomClientImportPath = path;
+            }
+          }
+        });
+        
+        if (!hasReactDomClientImport) {
+          // Add new import at the top
+          const imports = [];
+          if (needsCreateRoot) imports.push(t.importSpecifier(t.identifier('createRoot'), t.identifier('createRoot')));
+          if (needsHydrateRoot) imports.push(t.importSpecifier(t.identifier('hydrateRoot'), t.identifier('hydrateRoot')));
+          
+          const importDecl = t.importDeclaration(
+            imports,
+            t.stringLiteral('react-dom/client')
+          );
+          
+          ast.program.body.unshift(importDecl);
+          transformedCode = this.generateCode(ast).code;
+        } else {
+          // Add to existing import
+          if (reactDomClientImportPath) {
+            const existingSpecifiers = reactDomClientImportPath.node.specifiers;
+            const existingNames = existingSpecifiers.map(s => s.imported?.name || s.local.name);
+            
+            if (needsCreateRoot && !existingNames.includes('createRoot')) {
+              existingSpecifiers.push(t.importSpecifier(t.identifier('createRoot'), t.identifier('createRoot')));
+            }
+            if (needsHydrateRoot && !existingNames.includes('hydrateRoot')) {
+              existingSpecifiers.push(t.importSpecifier(t.identifier('hydrateRoot'), t.identifier('hydrateRoot')));
+            }
+            
+            transformedCode = this.generateCode(ast).code;
+          }
+        }
+      }
+      
+      return {
+        code: transformedCode,
+        changes: changes,
+        success: true
+      };
+      
+    } catch (error) {
+      return {
+        code: code,
+        changes: [],
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Layer 5: 'use client' Directive Management (AST-based)
+   * Adds or ensures 'use client' directive at top of file when needed
+   */
+  transformUseClient(code, options = {}) {
+    const changes = [];
+    
+    try {
+      const ast = this.parseCode(code, options.filename);
+      let needsUseClient = false;
+      let hasUseClient = false;
+      
+      // Check if 'use client' already exists
+      if (ast.program.body.length > 0) {
+        const firstNode = ast.program.body[0];
+        if (t.isExpressionStatement(firstNode) && 
+            (t.isStringLiteral(firstNode.expression, { value: 'use client' }) ||
+             (t.isDirectiveLiteral(firstNode.expression) && firstNode.expression.value === 'use client'))) {
+          hasUseClient = true;
+        }
+        
+        // Check for directive
+        if (ast.program.directives && ast.program.directives.length > 0) {
+          hasUseClient = ast.program.directives.some(d => d.value.value === 'use client');
+        }
+      }
+      
+      // Check if file needs 'use client' by scanning for hooks and event handlers
+      traverse(ast, {
+        // Detect React hooks
+        CallExpression(path) {
+          const callee = path.node.callee;
+          if (t.isIdentifier(callee)) {
+            const hookNames = [
+              'useState', 'useEffect', 'useRef', 'useCallback', 'useMemo', 
+              'useContext', 'useReducer', 'useImperativeHandle', 'useLayoutEffect',
+              'useDebugValue', 'useId', 'useTransition', 'useDeferredValue',
+              'useSyncExternalStore', 'useInsertionEffect'
+            ];
+            if (hookNames.includes(callee.name)) {
+              needsUseClient = true;
+            }
+          }
+        },
+        
+        // Detect event handlers (onClick, onChange, etc.)
+        JSXAttribute(path) {
+          if (t.isJSXIdentifier(path.node.name)) {
+            const attrName = path.node.name.name;
+            if (/^on[A-Z]/.test(attrName)) {
+              needsUseClient = true;
+            }
+          }
+        }
+      });
+      
+      // Add 'use client' if needed and not present
+      if (needsUseClient && !hasUseClient) {
+        // Add as directive at the beginning
+        const useClientDirective = t.directive(t.directiveLiteral('use client'));
+        
+        if (!ast.program.directives) {
+          ast.program.directives = [];
+        }
+        ast.program.directives.unshift(useClientDirective);
+        
+        changes.push({
+          type: 'use-client-directive',
+          description: "Added 'use client' directive",
+          location: { line: 1 }
+        });
+        
+        const transformedCode = this.generateCode(ast).code;
+        
+        return {
+          code: transformedCode,
+          changes: changes,
+          success: true
+        };
+      }
+      
+      return {
+        code: code,
+        changes: changes,
+        success: true
+      };
+      
+    } catch (error) {
+      return {
+        code: code,
+        changes: [],
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
 
 module.exports = ASTTransformer; 

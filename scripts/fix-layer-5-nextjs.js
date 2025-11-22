@@ -1529,12 +1529,17 @@ async function transform(code, options = {}) {
       }
     }
 
-    // Step 1: Apply Type Safe Routing for Next.js 15.5
-    const typeSafeRoutingTransformer = new TypeSafeRoutingTransformer();
-    const typeSafeRoutingResult = typeSafeRoutingTransformer.transformRouteComponent(updatedCode, filePath);
-    updatedCode = typeSafeRoutingResult.code;
-    typeSafeRoutingResult.changes.forEach(c => changes.push(c));
-    typeSafeRoutingResult.warnings?.forEach(w => warnings.push(w));
+    // Step 1: Apply Type Safe Routing for Next.js 15.5 (only for actual route files)
+    const fileName = path.basename(filePath);
+    const isRouteFile = fileName.match(/^(page|layout|loading|error|not-found)\.(tsx|ts|jsx|js)$/);
+    
+    if (isRouteFile) {
+      const typeSafeRoutingTransformer = new TypeSafeRoutingTransformer();
+      const typeSafeRoutingResult = typeSafeRoutingTransformer.transformRouteComponent(updatedCode, filePath);
+      updatedCode = typeSafeRoutingResult.code;
+      typeSafeRoutingResult.changes.forEach(c => changes.push(c));
+      typeSafeRoutingResult.warnings?.forEach(w => warnings.push(w));
+    }
 
     // Step 2: Apply Next.js 15.5 specific enhancements
     const serverActionsResult = enhanceServerActions(updatedCode);
@@ -1587,44 +1592,53 @@ async function transform(code, options = {}) {
       } catch {}
     }
 
-    // Step 4: Apply React 19 DOM API fixes
-    const react19DOMFixes = applyReact19DOMFixes(updatedCode, { verbose });
-    updatedCode = react19DOMFixes.code;
-    react19DOMFixes.fixes.forEach(c => changes.push(c));
-    react19DOMFixes.warnings.forEach(w => warnings.push(w));
-
-    // Use AST-based transformation for existing patterns
+    // Step 4: Apply React 19 DOM API fixes using AST (replaces buggy regex approach)
     try {
       const transformer = new ASTTransformer();
-      const transformResult = transformer.transformNextJS(updatedCode, {
-        filename: filePath
-      });
-
-      if (transformResult && transformResult.success) {
-        updatedCode = transformResult.code;
-        (transformResult.changes || []).forEach(change => {
-          changes.push(change);
-          results.push({
-            type: 'nextjs_fix',
-            file: filePath,
-            success: true,
-            changes: 1,
-            details: change.description,
-            location: change.location
-          });
+      
+      // Convert ReactDOM.render and ReactDOM.hydrate using AST
+      const react19DOMResult = transformer.transformReact19DOM(updatedCode, { filename: filePath });
+      if (react19DOMResult.success) {
+        updatedCode = react19DOMResult.code;
+        react19DOMResult.changes.forEach(c => {
+          changes.push(c);
+          if (verbose) {
+            process.stdout.write(`[INFO] ${c.description}\n`);
+          }
         });
       }
-    } catch (error) {
-      // AST parsing failed, using fallback analysis
-      if (verbose) {
-        process.stdout.write(`[INFO] AST parsing failed, using fallback analysis: ${error.message}\n`);
+      
+      // Add 'use client' directive using AST
+      const useClientResult = transformer.transformUseClient(updatedCode, { filename: filePath });
+      if (useClientResult.success) {
+        updatedCode = useClientResult.code;
+        useClientResult.changes.forEach(c => {
+          changes.push(c);
+          if (verbose) {
+            process.stdout.write(`[INFO] ${c.description}\n`);
+          }
+        });
       }
+      
+      // Note: transformNextJS is NOT called here because it has duplicate/conflicting logic
+      // The new dedicated AST methods (transformReact19DOM, transformUseClient) replace it
+    } catch (error) {
+      // AST parsing failed, fallback to old methods with warnings
+      if (verbose) {
+        process.stdout.write(`[WARNING] AST parsing failed: ${error.message}\n`);
+        process.stdout.write(`[WARNING] Falling back to regex-based approach (may have issues)\n`);
+      }
+      
+      // Fallback to old methods only if AST completely fails
+      const react19DOMFixes = applyReact19DOMFixes(updatedCode, { verbose });
+      updatedCode = react19DOMFixes.code;
+      react19DOMFixes.fixes.forEach(c => changes.push(c));
+      react19DOMFixes.warnings.forEach(w => warnings.push(w));
+      
+      const fallback = applyRegexFallbacks(updatedCode, filePath);
+      updatedCode = fallback.code;
+      fallback.changes.forEach(c => changes.push(c));
     }
-
-    // Apply regex fallbacks to satisfy tests for directive/imports/metadata
-    const fallback = applyRegexFallbacks(updatedCode, filePath);
-    updatedCode = fallback.code;
-    fallback.changes.forEach(c => changes.push(c));
 
     updatedCode = updatedCode.trim().replace(/\r\n/g, '\n');
     if (updatedCode !== code) states.push(updatedCode);
