@@ -38,6 +38,25 @@ class CLIRunner {
     
     await fs.writeFile(filePath, code, 'utf8');
 
+    // Create a minimal package.json for fix-master context
+    const packageJson = {
+      name: 'neurolint-demo-temp',
+      version: '1.0.0',
+      private: true,
+      dependencies: {
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "next": "^14.0.0"
+      },
+      devDependencies: {
+        "@types/react": "^18.0.0",
+        "typescript": "^5.0.0"
+      }
+    };
+    
+    const packageJsonPath = path.join(tmpDir, 'package.json');
+    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
+
     return { tmpDir, filePath };
   }
 
@@ -117,7 +136,35 @@ class CLIRunner {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      const transformedCode = await fs.readFile(filePath, 'utf8');
+      // Apply transformations using demo-transformer if issues were found
+      let transformedCode = code;
+      if (detectedIssues.length > 0) {
+        const affectedLayers = [...new Set(detectedIssues.map(i => i.fixedByLayer).filter(Boolean))];
+        
+        if (affectedLayers.length > 0 && progressCallback) {
+          progressCallback({
+            type: 'applying_fixes',
+            message: 'Applying transformations',
+            layers: affectedLayers
+          });
+        }
+        
+        try {
+          // Use demo-specific transformer for isolated code snippets
+          const demoTransformer = require('./demo-transformer');
+          const transformResult = await demoTransformer.transform(code, affectedLayers);
+          
+          if (transformResult.code && transformResult.code !== code) {
+            transformedCode = transformResult.code;
+            console.log('[CLI-RUNNER] Transformations applied via demo-transformer');
+            console.log('[CLI-RUNNER] Applied fixes:', transformResult.appliedFixes.length);
+          } else {
+            console.log('[CLI-RUNNER] No transformations applied, code unchanged');
+          }
+        } catch (fixError) {
+          console.error('[CLI-RUNNER] Error applying demo transforms:', fixError.message);
+        }
+      }
 
       return {
         success: true,
@@ -341,6 +388,88 @@ class CLIRunner {
     }
 
     return issues;
+  }
+
+  async applyFixes(filePath, layers, workDir) {
+    return new Promise(async (resolve, reject) => {
+      const cliPath = path.join(__dirname, '../../cli.js');
+      
+      // Build args for cli.js fix command
+      const args = [
+        cliPath,
+        'fix',
+        path.dirname(filePath),
+        '--layers', layers.join(','),
+        '--apply',
+        '--no-backup'
+      ];
+
+      console.log('[CLI-RUNNER] Running fix command:', 'node', args.join(' '));
+
+      const proc = spawn('node', args, {
+        cwd: path.join(__dirname, '../..'),
+        timeout: this.TIMEOUT,
+        env: {
+          ...process.env,
+          NODE_ENV: 'production'
+        }
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.on('data', (data) => {
+        const output = data.toString();
+        stdout += output;
+        if (output.trim()) {
+          console.log('[CLI-FIX]', output.trim());
+        }
+      });
+
+      proc.stderr.on('data', (data) => {
+        const output = data.toString();
+        stderr += output;
+        if (output.trim()) {
+          console.error('[CLI-FIX ERROR]', output.trim());
+        }
+      });
+
+      proc.on('close', async (exitCode) => {
+        console.log('[CLI-RUNNER] Fix process exited with code:', exitCode);
+        
+        // Read the file to check if it was actually transformed
+        try {
+          const transformedContent = await fs.readFile(filePath, 'utf8');
+          const wasTransformed = transformedContent.length > 0;
+          
+          console.log('[CLI-RUNNER] File was transformed:', wasTransformed);
+          console.log('[CLI-RUNNER] Transformed content length:', transformedContent.length);
+          
+          if (exitCode === 0 || exitCode === null) {
+            resolve({ success: true, transformed: wasTransformed, stdout, stderr });
+          } else {
+            console.error('[CLI-RUNNER] Fix command failed with exit code:', exitCode);
+            console.error('[CLI-RUNNER] stderr:', stderr);
+            resolve({ success: false, transformed: false, error: stderr });
+          }
+        } catch (readError) {
+          console.error('[CLI-RUNNER] Error reading transformed file:', readError.message);
+          resolve({ success: false, transformed: false, error: readError.message });
+        }
+      });
+
+      proc.on('error', (error) => {
+        console.error('[CLI-RUNNER] Fix process error:', error.message);
+        resolve({ success: false, transformed: false, error: error.message });
+      });
+
+      setTimeout(() => {
+        if (proc && !proc.killed) {
+          proc.kill();
+          resolve({ success: false, transformed: false, error: 'Fix timeout' });
+        }
+      }, this.TIMEOUT);
+    });
   }
 
   async fixCode(code, issues, options = {}, progressCallback) {
