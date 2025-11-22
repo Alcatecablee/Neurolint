@@ -442,14 +442,54 @@ class ASTTransformer {
   }
 
   /**
+   * Helper: Check if an expression is already protected by SSR guard
+   */
+  isAlreadySSRGuarded(path) {
+    // Check parent nodes for typeof guards
+    let current = path;
+    let depth = 0;
+    
+    while (current && depth < 5) { // Check up to 5 levels
+      // Check for typeof !== "undefined" pattern
+      if (t.isConditionalExpression(current.node) || t.isIfStatement(current.node)) {
+        const test = current.node.test;
+        
+        // typeof window !== "undefined" pattern
+        if (t.isBinaryExpression(test) &&
+            test.operator === '!==' &&
+            t.isUnaryExpression(test.left) &&
+            test.left.operator === 'typeof') {
+          return true;
+        }
+        
+        // window !== undefined pattern
+        if (t.isBinaryExpression(test) &&
+            (test.operator === '!==' || test.operator === '!==') &&
+            t.isIdentifier(test.left, { name: 'window' })) {
+          return true;
+        }
+      }
+      
+      current = current.parentPath;
+      depth++;
+    }
+    
+    return false;
+  }
+
+  /**
    * Layer 5: Next.js App Router Fixes (AST-based)
-   * Implements 'use client' directives, ReactDOM.render/hydrate migrations, and Next.js optimizations
+   * Production-ready implementation with robust hook detection, AST-based import management, and smart SSR guards
    */
   transformNextJS(code, options = {}) {
     const changes = [];
     let needsCreateRootImport = false;
     let needsHydrateRootImport = false;
-    let hasReactDOMClientImport = false;
+    let reactDOMClientImportPath = null;
+    
+    // Track imported hooks and their local bindings (handles aliases and destructuring)
+    const importedHooks = new Set();
+    const reactDefaultImport = { name: null }; // Track default React import
     
     try {
       const visitors = {
@@ -467,29 +507,85 @@ class ASTTransformer {
             }
           });
           
-          // Check for existing React import
+          // Build map of imported hooks and track existing imports
           path.node.body.forEach(node => {
             if (t.isImportDeclaration(node)) {
-              if (t.isStringLiteral(node.source, { value: 'react' })) {
+              const source = node.source.value;
+              
+              // Track React imports
+              if (source === 'react') {
                 hasReactImport = true;
+                
+                node.specifiers.forEach(spec => {
+                  // Default import: import React from 'react'
+                  if (t.isImportDefaultSpecifier(spec)) {
+                    reactDefaultImport.name = spec.local.name;
+                  }
+                  
+                  // Named imports: import { useState, useEffect as useMyEffect } from 'react'
+                  if (t.isImportSpecifier(spec)) {
+                    const importedName = spec.imported.name;
+                    const localName = spec.local.name;
+                    
+                    const hookNames = ['useState', 'useEffect', 'useCallback', 'useMemo', 'useRef', 'useContext', 'useReducer', 'useLayoutEffect'];
+                    if (hookNames.includes(importedName)) {
+                      importedHooks.add(localName); // Track local binding (handles aliases)
+                    }
+                  }
+                });
               }
-              if (node.source.value === 'react-dom/client') {
-                hasReactDOMClientImport = true;
+              
+              // Track react-dom/client imports
+              if (source === 'react-dom/client') {
+                reactDOMClientImportPath = path.node.body.indexOf(node);
               }
             }
           });
           
           // Check for client-side hooks and React usage
           path.traverse({
+            // Detect variable declarations with destructuring: const { useState: useCount } = React
+            VariableDeclarator(varPath) {
+              if (t.isObjectPattern(varPath.node.id) && 
+                  t.isIdentifier(varPath.node.init) &&
+                  varPath.node.init.name === reactDefaultImport.name) {
+                
+                varPath.node.id.properties.forEach(prop => {
+                  if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+                    const hookNames = ['useState', 'useEffect', 'useCallback', 'useMemo', 'useRef', 'useContext', 'useReducer', 'useLayoutEffect'];
+                    if (hookNames.includes(prop.key.name)) {
+                      // Handle aliasing: { useState: useCount }
+                      const localName = t.isIdentifier(prop.value) ? prop.value.name : prop.key.name;
+                      importedHooks.add(localName);
+                    }
+                  }
+                });
+              }
+            },
+            
             CallExpression(callPath) {
+              // Direct hook calls: useState()
               if (t.isIdentifier(callPath.node.callee)) {
+                if (importedHooks.has(callPath.node.callee.name)) {
+                  hasClientHooks = true;
+                  hasReactHooks = true;
+                }
+              }
+              
+              // React.useState() calls
+              if (t.isMemberExpression(callPath.node.callee) &&
+                  t.isIdentifier(callPath.node.callee.object) &&
+                  callPath.node.callee.object.name === reactDefaultImport.name &&
+                  t.isIdentifier(callPath.node.callee.property)) {
+                
                 const hookNames = ['useState', 'useEffect', 'useCallback', 'useMemo', 'useRef', 'useContext', 'useReducer', 'useLayoutEffect'];
-                if (hookNames.includes(callPath.node.callee.name)) {
+                if (hookNames.includes(callPath.node.callee.property.name)) {
                   hasClientHooks = true;
                   hasReactHooks = true;
                 }
               }
             },
+            
             MemberExpression(memberPath) {
               // Detect browser-only APIs that require 'use client'
               if (t.isIdentifier(memberPath.node.object)) {
@@ -681,24 +777,59 @@ class ASTTransformer {
       const result = this.transform(code, visitors, options);
       let transformedCode = result.code;
       
-      // Add react-dom/client imports if needed
+      // Add react-dom/client imports using AST manipulation (production-ready approach)
       if (needsCreateRootImport || needsHydrateRootImport) {
-        const importsToAdd = [];
-        if (needsCreateRootImport) importsToAdd.push('createRoot');
-        if (needsHydrateRootImport) importsToAdd.push('hydrateRoot');
-        
-        if (!hasReactDOMClientImport) {
-          // Add new import at the top
+        try {
+          const ast = this.parse(transformedCode);
+          const importsToAdd = [];
+          if (needsCreateRootImport) importsToAdd.push('createRoot');
+          if (needsHydrateRootImport) importsToAdd.push('hydrateRoot');
+          
+          let reactDOMClientImport = null;
+          let insertIndex = 0;
+          
+          // Find existing react-dom/client import
+          for (let i = 0; i < ast.program.body.length; i++) {
+            const node = ast.program.body[i];
+            if (t.isImportDeclaration(node) && node.source.value === 'react-dom/client') {
+              reactDOMClientImport = node;
+              break;
+            }
+            // Track insert position (after last import)
+            if (t.isImportDeclaration(node)) {
+              insertIndex = i + 1;
+            }
+          }
+          
+          if (reactDOMClientImport) {
+            // Add to existing import (deduplicate)
+            const existingImports = new Set(
+              reactDOMClientImport.specifiers
+                .filter(s => t.isImportSpecifier(s))
+                .map(s => s.imported.name)
+            );
+            
+            importsToAdd.forEach(importName => {
+              if (!existingImports.has(importName)) {
+                reactDOMClientImport.specifiers.push(
+                  t.importSpecifier(t.identifier(importName), t.identifier(importName))
+                );
+              }
+            });
+          } else {
+            // Create new import declaration
+            const newImport = t.importDeclaration(
+              importsToAdd.map(name => t.importSpecifier(t.identifier(name), t.identifier(name))),
+              t.stringLiteral('react-dom/client')
+            );
+            ast.program.body.splice(insertIndex, 0, newImport);
+          }
+          
+          transformedCode = this.generateCode(ast, options).code;
+        } catch (error) {
+          // Fallback to string-based if AST manipulation fails
           const importStatement = `import { ${importsToAdd.join(', ')} } from 'react-dom/client';\n`;
           transformedCode = importStatement + transformedCode;
-        } else {
-          // Add to existing import
-          const importRegex = /import\s*{\s*([^}]+)\s*}\s*from\s*['"]react-dom\/client['"]/;
-          transformedCode = transformedCode.replace(importRegex, (match, imports) => {
-            const existingImports = imports.split(',').map(s => s.trim()).filter(Boolean);
-            const newImports = [...new Set([...existingImports, ...importsToAdd])];
-            return `import { ${newImports.join(', ')} } from 'react-dom/client'`;
-          });
         }
       }
       
