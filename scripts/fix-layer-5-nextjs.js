@@ -38,81 +38,87 @@ function convertReactDOMRender(code) {
   // Pattern: ReactDOM.render(<App />, container)
   // Convert to: createRoot(container).render(<App />)
   
-  // Use a more precise approach to handle nested parentheses
-  const lines = transformedCode.split('\n');
+  // Manual parsing to handle nested parentheses correctly
+  const renderRegex = /ReactDOM\.render\s*\(/g;
+  let match;
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const renderMatch = line.match(/ReactDOM\.render\s*\(/);
+  while ((match = renderRegex.exec(code)) !== null) {
+    const startPos = match.index + match[0].length;
+    let depth = 1;
+    let commaPos = -1;
+    let pos = startPos;
     
-    if (renderMatch) {
-      // Find the complete ReactDOM.render call
-      const startIndex = renderMatch.index + renderMatch[0].length - 1; // Position of opening (
-      let parenCount = 0;
-      let commaIndex = -1;
-      let endIndex = -1;
+    // Find the matching closing paren and the comma separator
+    while (pos < code.length && depth > 0) {
+      const char = code[pos];
+      if (char === '(') depth++;
+      else if (char === ')') depth--;
+      else if (char === ',' && depth === 1 && commaPos === -1) commaPos = pos;
       
-      for (let j = startIndex; j < line.length; j++) {
-        if (line[j] === '(') parenCount++;
-        else if (line[j] === ')') parenCount--;
-        else if (line[j] === ',' && parenCount === 1 && commaIndex === -1) {
-          commaIndex = j;
-        }
-        
-        if (parenCount === 0) {
-          endIndex = j;
-          break;
-        }
-      }
-      
-      if (commaIndex !== -1 && endIndex !== -1) {
-        const jsxElement = line.substring(startIndex + 1, commaIndex).trim();
-        const container = line.substring(commaIndex + 1, endIndex).trim();
-        const fullMatch = line.substring(renderMatch.index, endIndex + 1);
-        
-        // Replace the render call with createRoot pattern
-        const replacement = `createRoot(${container}).render(${jsxElement})`;
-        lines[i] = line.replace(fullMatch, replacement);
-        
-        changes.push({
-          type: 'react19-render',
-          description: 'Converted ReactDOM.render to createRoot().render()',
-          oldPattern: fullMatch,
-          newPattern: replacement
-        });
-      }
+      if (depth === 0) break;
+      pos++;
     }
+    
+    if (commaPos === -1 || depth !== 0) continue; // Invalid pattern, skip
+    
+    const jsxElement = code.substring(startPos, commaPos).trim();
+    const container = code.substring(commaPos + 1, pos).trim();
+    const fullMatch = code.substring(match.index, pos + 1);
+    
+    // Check for trailing semicolon
+    const hasSemicolon = code[pos + 1] === ';';
+    const matchWithSemicolon = hasSemicolon ? fullMatch + ';' : fullMatch;
+    
+    // Replace the render call with createRoot pattern
+    const replacement = `const root = createRoot(${container});\nroot.render(${jsxElement});`;
+    transformedCode = transformedCode.replace(matchWithSemicolon, replacement);
+    
+    changes.push({
+      type: 'react19-render',
+      description: 'Converted ReactDOM.render to createRoot().render()',
+      oldPattern: matchWithSemicolon,
+      newPattern: replacement
+    });
+    
+    // Adjust regex lastIndex to continue after replacement
+    renderRegex.lastIndex = match.index + replacement.length;
   }
   
-  transformedCode = lines.join('\n');
-  
   // Update imports if ReactDOM.render was converted and createRoot import doesn't exist
-  if (changes.length > 0 && !transformedCode.includes('createRoot') && !transformedCode.includes('from \'react-dom/client\'')) {
-    // Check existing react-dom imports and enhance them
-    if (transformedCode.includes('import ReactDOM from \'react-dom\'')) {
-      transformedCode = transformedCode.replace(
-        'import ReactDOM from \'react-dom\';',
-        'import ReactDOM from \'react-dom\';\nimport { createRoot } from \'react-dom/client\';'
-      );
-    } else if (transformedCode.includes('import { ') && transformedCode.includes('} from \'react-dom\'')) {
-      // Add createRoot to existing named imports from react-dom
-      transformedCode = transformedCode.replace(
-        /import\s*{\s*([^}]+)\s*}\s*from\s*['"]react-dom['"]/g,
-        'import { $1 } from \'react-dom\';\nimport { createRoot } from \'react-dom/client\';'
-      );
-    } else {
-      // Add new import line at the top after other imports
-      const importLines = transformedCode.match(/^import\s+.*$/gm) || [];
-      const lastImportIndex = transformedCode.lastIndexOf(importLines[importLines.length - 1] || '');
-      
-      if (lastImportIndex > -1) {
-        const insertPosition = lastImportIndex + (importLines[importLines.length - 1] || '').length;
-        transformedCode = transformedCode.slice(0, insertPosition) + 
-          '\nimport { createRoot } from \'react-dom/client\';' + 
-          transformedCode.slice(insertPosition);
+  if (changes.length > 0) {
+    // Only add import if not already present
+    const hasCreateRootImport = /import\s+{\s*[^}]*\bcreateRoot\b[^}]*}\s*from\s+['"]react-dom\/client['"]/.test(transformedCode);
+    
+    if (!hasCreateRootImport) {
+      // Check if react-dom/client is already imported
+      if (/import\s+{\s*([^}]+)\s*}\s*from\s+['"]react-dom\/client['"]/.test(transformedCode)) {
+        // Add createRoot to existing react-dom/client imports
+        transformedCode = transformedCode.replace(
+          /import\s+{\s*([^}]+)\s*}\s*from\s+['"]react-dom\/client['"]/,
+          (match, imports) => `import { ${imports.trim()}, createRoot } from 'react-dom/client'`
+        );
       } else {
-        // No existing imports, add at the beginning
-        transformedCode = 'import { createRoot } from \'react-dom/client\';\n' + transformedCode;
+        // Add new import line at the top after react-dom imports
+        const reactDomImportMatch = transformedCode.match(/import\s+ReactDOM\s+from\s+['"]react-dom['"];?/);
+        if (reactDomImportMatch) {
+          const insertPosition = transformedCode.indexOf(reactDomImportMatch[0]) + reactDomImportMatch[0].length;
+          transformedCode = transformedCode.slice(0, insertPosition) + 
+            '\nimport { createRoot } from \'react-dom/client\';' + 
+            transformedCode.slice(insertPosition);
+        } else {
+          // No react-dom import, add at beginning after other imports
+          const importLines = transformedCode.match(/^import\s+.*$/gm) || [];
+          if (importLines.length > 0) {
+            const lastImportIndex = transformedCode.lastIndexOf(importLines[importLines.length - 1]);
+            const insertPosition = lastImportIndex + importLines[importLines.length - 1].length;
+            transformedCode = transformedCode.slice(0, insertPosition) + 
+              '\nimport { createRoot } from \'react-dom/client\';' + 
+              transformedCode.slice(insertPosition);
+          } else {
+            // No existing imports, add at the beginning
+            transformedCode = 'import { createRoot } from \'react-dom/client\';\n' + transformedCode;
+          }
+        }
       }
     }
   }
@@ -131,52 +137,88 @@ function convertReactDOMHydrate(code) {
   // Pattern: ReactDOM.hydrate(<App />, container)
   // Convert to: hydrateRoot(container, <App />)
   
-  const hydratePattern = /ReactDOM\.hydrate\s*\(\s*([^,]+),\s*([^)]+)\s*\)/g;
-  
+  // Manual parsing to handle nested parentheses correctly
+  const hydrateRegex = /ReactDOM\.hydrate\s*\(/g;
   let match;
-  while ((match = hydratePattern.exec(code)) !== null) {
-    const jsxElement = match[1].trim();
-    const container = match[2].trim();
+  
+  while ((match = hydrateRegex.exec(code)) !== null) {
+    const startPos = match.index + match[0].length;
+    let depth = 1;
+    let commaPos = -1;
+    let pos = startPos;
+    
+    // Find the matching closing paren and the comma separator
+    while (pos < code.length && depth > 0) {
+      const char = code[pos];
+      if (char === '(') depth++;
+      else if (char === ')') depth--;
+      else if (char === ',' && depth === 1 && commaPos === -1) commaPos = pos;
+      
+      if (depth === 0) break;
+      pos++;
+    }
+    
+    if (commaPos === -1 || depth !== 0) continue; // Invalid pattern, skip
+    
+    const jsxElement = code.substring(startPos, commaPos).trim();
+    const container = code.substring(commaPos + 1, pos).trim();
+    const fullMatch = code.substring(match.index, pos + 1);
+    
+    // Check for trailing semicolon
+    const hasSemicolon = code[pos + 1] === ';';
+    const matchWithSemicolon = hasSemicolon ? fullMatch + ';' : fullMatch;
     
     // Replace the hydrate call with hydrateRoot pattern
-    const replacement = `hydrateRoot(${container}, ${jsxElement})`;
-    transformedCode = transformedCode.replace(match[0], replacement);
+    // NOTE: hydrateRoot takes (container, element) - order is swapped from hydrate!
+    const replacement = `hydrateRoot(${container}, ${jsxElement});`;
+    transformedCode = transformedCode.replace(matchWithSemicolon, replacement);
     
     changes.push({
       type: 'react19-hydrate',
       description: 'Converted ReactDOM.hydrate to hydrateRoot()',
-      oldPattern: match[0],
+      oldPattern: matchWithSemicolon,
       newPattern: replacement
     });
+    
+    // Adjust regex lastIndex to continue after replacement
+    hydrateRegex.lastIndex = match.index + replacement.length;
   }
   
   // Update imports if ReactDOM.hydrate was converted and hydrateRoot import doesn't exist
-  if (changes.length > 0 && !transformedCode.includes('hydrateRoot') && !transformedCode.includes('from \'react-dom/client\'')) {
-    // Check existing react-dom imports and enhance them
-    if (transformedCode.includes('import ReactDOM from \'react-dom\'')) {
-      transformedCode = transformedCode.replace(
-        'import ReactDOM from \'react-dom\';',
-        'import ReactDOM from \'react-dom\';\nimport { hydrateRoot } from \'react-dom/client\';'
-      );
-    } else if (transformedCode.includes('import { ') && transformedCode.includes('} from \'react-dom\'')) {
-      // Add hydrateRoot to existing named imports from react-dom
-      transformedCode = transformedCode.replace(
-        /import\s*{\s*([^}]+)\s*}\s*from\s*['"]react-dom['"]/g,
-        'import { $1 } from \'react-dom\';\nimport { hydrateRoot } from \'react-dom/client\';'
-      );
-    } else {
-      // Add new import line at the top after other imports
-      const importLines = transformedCode.match(/^import\s+.*$/gm) || [];
-      const lastImportIndex = transformedCode.lastIndexOf(importLines[importLines.length - 1] || '');
-      
-      if (lastImportIndex > -1) {
-        const insertPosition = lastImportIndex + (importLines[importLines.length - 1] || '').length;
-        transformedCode = transformedCode.slice(0, insertPosition) + 
-          '\nimport { hydrateRoot } from \'react-dom/client\';' + 
-          transformedCode.slice(insertPosition);
+  if (changes.length > 0) {
+    // Only add import if not already present
+    const hasHydrateRootImport = /import\s+{\s*[^}]*\bhydrateRoot\b[^}]*}\s*from\s+['"]react-dom\/client['"]/.test(transformedCode);
+    
+    if (!hasHydrateRootImport) {
+      // Check if react-dom/client is already imported
+      if (/import\s+{\s*([^}]+)\s*}\s*from\s+['"]react-dom\/client['"]/.test(transformedCode)) {
+        // Add hydrateRoot to existing react-dom/client imports
+        transformedCode = transformedCode.replace(
+          /import\s+{\s*([^}]+)\s*}\s*from\s+['"]react-dom\/client['"]/,
+          (match, imports) => `import { ${imports.trim()}, hydrateRoot } from 'react-dom/client'`
+        );
       } else {
-        // No existing imports, add at the beginning
-        transformedCode = 'import { hydrateRoot } from \'react-dom/client\';\n' + transformedCode;
+        // Add new import line at the top after react-dom imports
+        const reactDomImportMatch = transformedCode.match(/import\s+ReactDOM\s+from\s+['"]react-dom['"];?/);
+        if (reactDomImportMatch) {
+          const insertPosition = transformedCode.indexOf(reactDomImportMatch[0]) + reactDomImportMatch[0].length;
+          transformedCode = transformedCode.slice(0, insertPosition) + 
+            '\nimport { hydrateRoot } from \'react-dom/client\';' + 
+            transformedCode.slice(insertPosition);
+        } else {
+          // No react-dom import, add at beginning after other imports
+          const importLines = transformedCode.match(/^import\s+.*$/gm) || [];
+          if (importLines.length > 0) {
+            const lastImportIndex = transformedCode.lastIndexOf(importLines[importLines.length - 1]);
+            const insertPosition = lastImportIndex + importLines[importLines.length - 1].length;
+            transformedCode = transformedCode.slice(0, insertPosition) + 
+              '\nimport { hydrateRoot } from \'react-dom/client\';' + 
+              transformedCode.slice(insertPosition);
+          } else {
+            // No existing imports, add at the beginning
+            transformedCode = 'import { hydrateRoot } from \'react-dom/client\';\n' + transformedCode;
+          }
+        }
       }
     }
   }
@@ -1383,9 +1425,11 @@ function applyRegexFallbacks(input, filePath) {
     return `import {  ${flat}  } from ${quote}${src}${quote};`;
   });
 
-  // Ensure 'use client' at very top for TSX files with useState/useEffect or JSX
-  const isTSX = filePath && /\.tsx?$/.test(filePath);
-  const needsUseClient = isTSX && /\buse(State|Effect)\b/.test(code);
+  // Ensure 'use client' at very top for TSX/JSX files with useState/useEffect or interactive hooks
+  const isReactFile = filePath && /\.(tsx?|jsx?)$/.test(filePath);
+  const hasClientHooks = /\buse(State|Effect|Ref|Callback|Memo|Context|Reducer|ImperativeHandle|LayoutEffect|DebugValue|Id|Transition|DeferredValue|SyncExternalStore|InsertionEffect)\b/.test(code);
+  const hasEventHandlers = /\bon[A-Z]\w+\s*=/.test(code); // onClick, onChange, etc.
+  const needsUseClient = isReactFile && (hasClientHooks || hasEventHandlers);
   if (needsUseClient) {
     const hasUseClient = /['"]use client['"];?/.test(code);
     let withoutDirectives = code.replace(/^['"]use client['"];?\s*/m, '');
