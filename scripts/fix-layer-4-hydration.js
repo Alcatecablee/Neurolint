@@ -96,6 +96,21 @@ function wrapWithSSRGuard(expression, guardType = 'window') {
 }
 
 /**
+ * Extract the root global identifier from a member expression tree
+ * Walks the full tree regardless of depth
+ * Returns 'window', 'document', or null
+ */
+function getRootGlobalName(node) {
+  if (t.isIdentifier(node)) {
+    return (node.name === 'window' || node.name === 'document') ? node.name : null;
+  }
+  if (t.isMemberExpression(node)) {
+    return getRootGlobalName(node.object);
+  }
+  return null;
+}
+
+/**
  * Main AST-based hydration transform
  */
 async function transform(code, options = {}) {
@@ -465,10 +480,8 @@ async function transform(code, options = {}) {
           if (verbose) {
             console.log('[DEBUG] Assignment starts with global');
           }
-          const globalName = t.isIdentifier(left) ? left.name : 
-                            t.isMemberExpression(left) && t.isIdentifier(left.object) ? left.object.name :
-                            left.object && left.object.object && t.isIdentifier(left.object.object) ? left.object.object.name :
-                            null;
+          // Use helper to extract root global name regardless of depth
+          const globalName = getRootGlobalName(left);
           
           if (globalName && !isAlreadyGuarded(path, globalName)) {
             // Find the enclosing statement
@@ -553,10 +566,8 @@ async function transform(code, options = {}) {
         };
         
         if (startsWithGlobal(argument)) {
-          const globalName = t.isIdentifier(argument) ? argument.name : 
-                            t.isMemberExpression(argument) && t.isIdentifier(argument.object) ? argument.object.name :
-                            argument.object && argument.object.object && t.isIdentifier(argument.object.object) ? argument.object.object.name :
-                            null;
+          // Use helper to extract root global name regardless of depth
+          const globalName = getRootGlobalName(argument);
           
           if (globalName && !isAlreadyGuarded(path, globalName)) {
             // Find the enclosing statement
