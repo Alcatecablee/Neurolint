@@ -48,11 +48,11 @@ const TypewriterHeadline = () => {
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
 
   const words = [
-    "Stop React Hydration Crashes",
-    "Ship React Fixes Automatically",
-    "Deterministic Bug Fixes, On Demand",
-    "Prevent Next.js Bugs Before Deploy",
-    "Kill Missing Key Errors",
+    "Stop Hydration Crashes",
+    "Kill Missing Keys",
+    "Fix ESLint Errors",
+    "Prevent Deploy Bugs",
+    "Ship Clean Code",
   ];
 
   React.useEffect(() => {
