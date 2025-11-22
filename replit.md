@@ -19,7 +19,14 @@ NeuroLint employs a 7-layer progressive and safe architecture for code transform
     2.  **Patterns:** Handles HTML entities, `console.log` removal, unused imports.
     3.  **Components:** Addresses React keys, accessibility, prop types.
     4.  **Hydration:** Implements SSR/hydration guards for global objects (`localStorage`, `window`, `document`).
-    5.  **Next.js:** Optimizes App Router and `"use client"` directives.
+    5.  **Next.js (Production-Ready):** 
+        - Detects React hooks (including aliased/destructured imports like `const { useState: useCount } = React` and namespace calls like `React.useEffect()`)
+        - Adds `"use client"` directive when hooks detected
+        - Converts `ReactDOM.render()` → `createRoot().render()`
+        - Converts `ReactDOM.hydrate()` → `hydrateRoot()` with correct parameter order
+        - Uses AST-based import management with deduplication for `react-dom/client` imports
+        - Includes smart SSR guard detection (`isAlreadySSRGuarded()` helper)
+        - All transformations preserve existing AST mutations through proper AST reuse
     6.  **Testing:** Enhances testing with error boundaries and test generation.
     7.  **Adaptive:** Supports pattern learning and custom rule generation.
 - **Next.js 16 Migration Tools:** Includes auto-conversion for directives like `'use cache'`, async parameter conversion, `await` for `cookies()`/`headers()`, smart `cacheLife` integration, and `updateTag()` suggestions.
