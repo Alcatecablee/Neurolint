@@ -263,7 +263,7 @@ export function CLISection() {
                   View on NPM
                 </button>
                 <a
-                  href="https://app.neurolint.dev/docs#cli"
+                  href="https://github.com/Alcatecablee/Neurolint-CLI/blob/main/CLI_USAGE.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="border-2 border-zinc-800 text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-zinc-600 transition-all duration-300 flex items-center gap-3"

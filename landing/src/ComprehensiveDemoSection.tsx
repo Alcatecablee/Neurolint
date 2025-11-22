@@ -786,20 +786,20 @@ function MyComponent() {
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <a
-                href="https://app.neurolint.dev/dashboard"
+                href="https://www.npmjs.com/package/@neurolint/cli"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-gray-100 transition-all duration-300 text-lg shadow-2xl hover:scale-105"
               >
-                Start Free Scan
+                Install Free CLI
               </a>
               <a
-                href="https://app.neurolint.dev"
+                href="https://github.com/Alcatecablee/Neurolint-CLI/blob/main/CLI_USAGE.md"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-10 py-5 bg-black/60 text-white font-black rounded-2xl border-2 border-black hover:bg-black/80 transition-all duration-300 text-lg backdrop-blur-xl hover:scale-105 shadow-lg"
               >
-                View Demo
+                View Documentation
               </a>
             </div>
           </div>

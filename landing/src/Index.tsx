@@ -591,12 +591,10 @@ export default function Index() {
                 Install Free CLI
               </a>
               <a
-                href="https://app.neurolint.dev"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="#comprehensive-demo"
                 className="px-10 py-5 bg-black/60 text-white font-black rounded-2xl border-2 border-black hover:bg-black/80 transition-all duration-300 text-lg backdrop-blur-xl hover:scale-105 shadow-lg"
               >
-                View Demo
+                Try Interactive Demo
               </a>
             </div>
           </div>
