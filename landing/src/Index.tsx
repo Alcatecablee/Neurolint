@@ -288,6 +288,36 @@ export default function Index() {
         </div>
       </section>
 
+      {/* CLI Demo Video Section */}
+      <section className="py-16 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">
+              See It In Action
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
+              Watch NeuroLint automatically fix your code in seconds
+            </p>
+          </div>
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-black/40 backdrop-blur-xl">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-auto"
+              poster="/logo.png"
+            >
+              <source src="/demo-video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <p className="text-center text-sm text-gray-400 mt-6">
+            Placeholder demo - Replace with actual CLI recording
+          </p>
+        </div>
+      </section>
+
       {/* Interactive Demo Section */}
       <div ref={demoSectionRef} id="comprehensive-demo" className={`transition-all duration-1000 transform ${
         demoSectionInView
