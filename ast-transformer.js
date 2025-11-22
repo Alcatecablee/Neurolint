@@ -54,8 +54,10 @@ class ASTTransformer {
   generateCode(ast, options = {}) {
     try {
       return generate(ast, {
-        retainLines: true,
+        retainLines: false,
         retainFunctionParens: true,
+        compact: false,
+        comments: true,
         ...options
       });
     } catch (error) {

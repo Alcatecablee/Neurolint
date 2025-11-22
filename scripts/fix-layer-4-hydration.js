@@ -37,11 +37,11 @@ async function isRegularFile(filePath) {
 function isAlreadyGuarded(path, guardType = 'window') {
   let parent = path.parentPath;
   
-  // Traverse up to find conditional expression
+  // Traverse up to find conditional expression or if statement
   while (parent) {
+    // Check for ternary operator: typeof window !== "undefined" ? ... : null
     if (t.isConditionalExpression(parent.node)) {
       const test = parent.node.test;
-      // Check if it's a typeof guard
       if (t.isBinaryExpression(test) && 
           t.isUnaryExpression(test.left) && 
           test.left.operator === 'typeof') {
@@ -53,6 +53,22 @@ function isAlreadyGuarded(path, guardType = 'window') {
         }
       }
     }
+    
+    // Check for if statement: if (typeof window !== "undefined") { ... }
+    if (t.isIfStatement(parent.node)) {
+      const test = parent.node.test;
+      if (t.isBinaryExpression(test) && 
+          t.isUnaryExpression(test.left) && 
+          test.left.operator === 'typeof') {
+        
+        const arg = test.left.argument;
+        if (t.isIdentifier(arg)) {
+          if (guardType === 'window' && arg.name === 'window') return true;
+          if (guardType === 'document' && arg.name === 'document') return true;
+        }
+      }
+    }
+    
     parent = parent.parentPath;
   }
   return false;
@@ -222,6 +238,12 @@ async function transform(code, options = {}) {
                 }
                 
                 if (statementPath && t.isExpressionStatement(statementPath.node)) {
+                  // Clone and clean the statement
+                  const clonedStatement = t.cloneNode(statementPath.node, /*deep*/ true, /*withoutLoc*/ false);
+                  delete clonedStatement.leadingComments;
+                  delete clonedStatement.trailingComments;
+                  delete clonedStatement.innerComments;
+                  
                   // Wrap the entire statement in if (typeof window !== "undefined")
                   const ifStatement = t.ifStatement(
                     t.binaryExpression(
@@ -229,7 +251,7 @@ async function transform(code, options = {}) {
                       t.unaryExpression('typeof', t.identifier('window'), true),
                       t.stringLiteral('undefined')
                     ),
-                    t.blockStatement([statementPath.node])
+                    t.blockStatement([clonedStatement])
                   );
                   
                   statementPath.replaceWith(ifStatement);
@@ -313,6 +335,12 @@ async function transform(code, options = {}) {
                 }
                 
                 if (statementPath && t.isExpressionStatement(statementPath.node)) {
+                  // Clone and clean the statement
+                  const clonedStatement = t.cloneNode(statementPath.node, /*deep*/ true, /*withoutLoc*/ false);
+                  delete clonedStatement.leadingComments;
+                  delete clonedStatement.trailingComments;
+                  delete clonedStatement.innerComments;
+                  
                   // Wrap the entire statement in if (typeof document !== "undefined")
                   const ifStatement = t.ifStatement(
                     t.binaryExpression(
@@ -320,7 +348,7 @@ async function transform(code, options = {}) {
                       t.unaryExpression('typeof', t.identifier('document'), true),
                       t.stringLiteral('undefined')
                     ),
-                    t.blockStatement([statementPath.node])
+                    t.blockStatement([clonedStatement])
                   );
                   
                   statementPath.replaceWith(ifStatement);
@@ -396,7 +424,12 @@ async function transform(code, options = {}) {
             
             if (statementPath && t.isExpressionStatement(statementPath.node)) {
               // Clone the statement to avoid mutation issues
-              const clonedStatement = t.cloneNode(statementPath.node);
+              const clonedStatement = t.cloneNode(statementPath.node, /*deep*/ true, /*withoutLoc*/ false);
+              
+              // Remove comments from cloned statement to avoid duplication
+              delete clonedStatement.leadingComments;
+              delete clonedStatement.trailingComments;
+              delete clonedStatement.innerComments;
               
               // Wrap in if (typeof global !== "undefined")
               const ifStatement = t.ifStatement(
@@ -456,7 +489,12 @@ async function transform(code, options = {}) {
             
             if (statementPath && t.isExpressionStatement(statementPath.node)) {
               // Clone the statement
-              const clonedStatement = t.cloneNode(statementPath.node);
+              const clonedStatement = t.cloneNode(statementPath.node, /*deep*/ true, /*withoutLoc*/ false);
+              
+              // Remove comments from cloned statement to avoid duplication
+              delete clonedStatement.leadingComments;
+              delete clonedStatement.trailingComments;
+              delete clonedStatement.innerComments;
               
               // Wrap in if (typeof global !== "undefined")
               const ifStatement = t.ifStatement(
