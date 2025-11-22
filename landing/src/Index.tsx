@@ -198,9 +198,9 @@ export default function Index() {
       >
 
         <div className="max-w-6xl mx-auto z-10 animate-fade-in-blur">
-          <div className="mb-8 md:mb-12 animate-slide-in-down animate-delay-200">
+          <div className="mb-6 md:mb-8 animate-slide-in-down animate-delay-200">
             <span
-              className="px-4 md:px-6 py-2 md:py-3 bg-white text-black rounded-xl md:rounded-2xl text-sm md:text-base font-bold backdrop-blur-xl border-2 border-black transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) hover:scale-105 hover:-translate-y-1 cursor-default interactive shadow-lg"
+              className="inline-block px-4 md:px-5 py-1.5 md:py-2 bg-white text-black rounded-full text-xs md:text-sm font-bold shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default"
               role="banner"
               aria-label="Product category"
             >
@@ -210,14 +210,14 @@ export default function Index() {
 
           <TypewriterHeadline />
 
-          <div className="relative mb-12 md:mb-16 animate-slide-in-up animate-delay-500">
-            <p className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-zinc-200 mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 bg-white/5 backdrop-blur-xl rounded-xl md:rounded-2xl lg:rounded-3xl border-2 border-black font-medium transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) hover:bg-white/8 interactive shadow-lg">
+          <div className="mb-8 md:mb-10 animate-slide-in-up animate-delay-500">
+            <p className="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
               While other tools tell you what's wrong, we{" "}
-              <span className="text-white font-black">
+              <span className="text-white font-bold">
                 actually fix your code
               </span>
               . Rule-based transformations (not AI) with{" "}
-              <span className="text-white font-black">
+              <span className="text-white font-bold">
                 deterministic fixes in seconds
               </span>
               .
@@ -225,31 +225,32 @@ export default function Index() {
           </div>
 
           {/* Install Command */}
-          <div className="mb-8 animate-slide-in-up animate-delay-700">
-            <div className="max-w-2xl mx-auto bg-black/60 border-2 border-white/20 rounded-2xl p-6 backdrop-blur-xl relative group">
-              <code className="text-green-400 font-mono text-lg md:text-xl block text-center pr-12">
+          <div className="mb-6 md:mb-8 animate-slide-in-up animate-delay-700">
+            <div className="max-w-2xl mx-auto bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-4 md:p-5 backdrop-blur-sm relative group hover:border-zinc-600/50 transition-colors duration-300">
+              <code className="text-green-400 font-mono text-sm md:text-base lg:text-lg block text-center pr-10">
                 $ npm install -g @neurolint/cli
               </code>
               <button
                 onClick={copyToClipboard}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-md transition-colors"
                 aria-label="Copy install command"
               >
                 {copied ? (
-                  <Check className="w-5 h-5 text-green-400" />
+                  <Check className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
                 ) : (
-                  <Copy className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                  <Copy className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-white" />
                 )}
               </button>
             </div>
           </div>
 
           {/* Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-slide-in-up animate-delay-800">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 md:gap-3 mb-10 md:mb-12 animate-slide-in-up animate-delay-800">
             <a 
               href="https://github.com/Alcatecablee/Neurolint-CLI" 
               target="_blank"
               rel="noopener noreferrer"
+              className="opacity-90 hover:opacity-100 transition-opacity"
             >
               <img 
                 src="https://img.shields.io/github/stars/Alcatecablee/Neurolint-CLI?style=social" 
@@ -261,6 +262,7 @@ export default function Index() {
               href="https://www.npmjs.com/package/@neurolint/cli" 
               target="_blank"
               rel="noopener noreferrer"
+              className="opacity-90 hover:opacity-100 transition-opacity"
             >
               <img 
                 src="https://img.shields.io/npm/v/@neurolint/cli.svg?style=flat-square&color=blue" 
@@ -272,6 +274,7 @@ export default function Index() {
               href="https://www.npmjs.com/package/@neurolint/cli" 
               target="_blank"
               rel="noopener noreferrer"
+              className="opacity-90 hover:opacity-100 transition-opacity"
             >
               <img 
                 src="https://img.shields.io/npm/dm/@neurolint/cli.svg?style=flat-square&color=green" 
@@ -279,22 +282,29 @@ export default function Index() {
                 className="h-5"
               />
             </a>
-            <img 
-              src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" 
-              alt="MIT License"
-              className="h-5"
-            />
+            <a 
+              href="./LICENSE" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="opacity-90 hover:opacity-100 transition-opacity"
+            >
+              <img 
+                src="https://img.shields.io/badge/license-BSL%201.1-blue.svg?style=flat-square" 
+                alt="BSL 1.1 License"
+                className="h-5"
+              />
+            </a>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 lg:gap-8 justify-center animate-slide-in-up animate-delay-900">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in-up animate-delay-900">
             <a
               href="#comprehensive-demo"
-              className="group relative px-6 md:px-8 lg:px-10 py-3 md:py-4 lg:py-5 bg-white text-black font-black rounded-lg md:rounded-xl lg:rounded-2xl hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) flex items-center justify-center gap-2 md:gap-3 text-base md:text-lg lg:text-xl shadow-2xl hover:shadow-white/30 hover:scale-105 active:scale-95 focus-visible:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:ring-offset-4 focus-visible:ring-offset-black touch-manipulation interactive min-h-[48px] md:min-h-[56px]"
+              className="group relative px-8 md:px-10 py-3.5 md:py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2 md:gap-3 text-base md:text-lg shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black touch-manipulation min-h-[48px]"
               aria-label="Try interactive demo"
             >
               Try Interactive Demo
               <svg
-                className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 group-hover:translate-y-1 group-focus-visible:translate-y-1 transition-transform duration-300"
+                className="w-5 h-5 group-hover:translate-y-0.5 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -303,7 +313,7 @@ export default function Index() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={3}
+                  strokeWidth={2.5}
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
