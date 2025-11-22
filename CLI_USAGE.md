@@ -1422,119 +1422,21 @@ neurolint init-config
 
 ## Release Notes
 
-### Version 1.4.0 (November 21, 2025)
+For complete version history and detailed release notes, see [CHANGELOG.md](./CHANGELOG.md).
 
-**Major Features:**
+### Latest Release
 
-**Next.js 16 Support**
-- NEW: `migrate-nextjs-16` command
-- Auto-rename `middleware.ts` → `proxy.ts`
-- Migrate `experimental.ppr` to Cache Components
-- Auto-convert sync params to async with `await props.params`
-- Add `await` to `cookies()` and `headers()` calls
-- Ensure functions using `await` are marked `async`
-- Auto-add `'use cache'` directives to Server Components
-- Integrate `cacheLife` and `updateTag()` for cache management
+**Version 1.4.0** - Next.js 16 migration, React 19 dependency checker, Turbopack assistant, and more.
 
-**React 19 Dependency Checker**
-- NEW: `check-deps` command with `--fix` flag
-- Scans `package.json` for incompatible dependencies
-- Auto-creates `.npmrc` with `legacy-peer-deps`
-- Adds `overrides` to `package.json` for stubborn dependencies
-- Detects issues with Radix UI, Ant Design, next-auth, react-is
+Key features:
+- Next.js 16 migration tooling
+- React 19 dependency compatibility checker with auto-fix
+- Turbopack migration readiness analysis
+- React Compiler opportunity detection
+- Router complexity assessment
+- React 19.2 feature detection
 
-**Turbopack Migration Assistant**
-- NEW: `check-turbopack` command
-- Detects Webpack-specific configurations
-- Identifies incompatible loaders and plugins
-- Checks for Babel configurations
-- Suggests SWC migration path
-- Recommends Turbopack filesystem caching
-
-**React Compiler Detector**
-- NEW: `check-compiler` command
-- Detects manual `useMemo`, `useCallback`, `React.memo` patterns
-- Identifies `useRef` for previous value tracking
-- Calculates potential bundle size savings
-- Recommends React Compiler when beneficial
-
-**Router Complexity Assessor**
-- NEW: `assess-router` command
-- Complexity scoring (0-100)
-- Detects App Router, Pages Router, middleware, API routes
-- Identifies Server/Client Components
-- Recommends optimal setup (plain React vs Next.js)
-
-**React 19.2 Feature Detector**
-- NEW: `detect-react192` command
-- Detects View Transitions opportunities
-- Identifies `useEffectEvent` candidates
-- Finds Activity component opportunities
-- Provides migration examples
-
-**Testing Enhancements**
-- 100+ new tests added (297 total, all passing)
-- Comprehensive coverage for all migration tools
-- Integration tests with real fixtures
-
-**Bug Fixes**
-- Fixed critical bug in `findLineNumber` regex handling
-- Improved error messages across all commands
-- Enhanced AST parsing error handling
-
----
-
-### Version 1.3.4 (November 20, 2025)
-
-**Professional Appearance Update**
-- Removed all emojis from output
-- Professional bracket notation: `[SUCCESS]`, `[ERROR]`, `[INFO]`
-- Enterprise-friendly output
-- Created comprehensive NPM publishing guide
-
----
-
-### Version 1.3.3 (November 19, 2025)
-
-**Open Source Release**
-- Added MIT License
-- Comprehensive README rewrite
-- Contributing guidelines
-- Code of Conduct
-- Removed all authentication requirements
-- All 7 layers now completely free
-
----
-
-### Migration Guide from 1.3.x to 1.4.0
-
-**No Breaking Changes!**
-
-All existing commands continue to work. New commands added:
-- `migrate-nextjs-16`
-- `check-deps`
-- `check-turbopack`
-- `check-compiler`
-- `assess-router`
-- `detect-react192`
-
-**Recommended Update Steps:**
-
-```bash
-# Update NeuroLint
-npm install -g @neurolint/cli@1.4.0
-
-# Verify installation
-neurolint --version
-
-# Check new features
-neurolint --help
-
-# Try new analysis commands
-neurolint check-deps .
-neurolint assess-router .
-neurolint detect-react192 .
-```
+See [CHANGELOG.md](./CHANGELOG.md) for full details.
 
 ---
 
@@ -1578,4 +1480,4 @@ New to NeuroLint? Follow this checklist:
 
 **Built for developers who want deterministic, rule-based code quality - not AI-driven unpredictability.**
 
-**Version 1.4.0** | MIT License | Built with love for the React and Next.js community
+**Version 1.4.0** | Business Source License 1.1 | Built for the React and Next.js community
