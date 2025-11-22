@@ -180,39 +180,75 @@ async function transform(code, options = {}) {
             }
             
             if (!isAlreadyGuarded(path, 'window')) {
-              // Check if this is part of an assignment's left-hand side
-              let currentPath = path;
-              let isAssignmentLHS = false;
-              
-              while (currentPath.parentPath) {
-                if (t.isAssignmentExpression(currentPath.parent) && 
-                    currentPath.node === currentPath.parent.left) {
-                  isAssignmentLHS = true;
-                  break;
+              // Find the top of the member/call chain
+              let topPath = path;
+              while (topPath.parentPath) {
+                const parent = topPath.parent;
+                // Continue climbing if parent is MemberExpression and we're the object
+                if (t.isMemberExpression(parent) && parent.object === topPath.node) {
+                  topPath = topPath.parentPath;
+                  continue;
                 }
-                if (t.isMemberExpression(currentPath.parent) || 
-                    (t.isCallExpression(currentPath.parent) && currentPath.parent.callee === currentPath.node)) {
-                  currentPath = currentPath.parentPath;
-                } else {
-                  break;
+                // Continue climbing if parent is CallExpression and we're the callee
+                if (t.isCallExpression(parent) && parent.callee === topPath.node) {
+                  topPath = topPath.parentPath;
+                  continue;
                 }
+                // Otherwise stop climbing
+                break;
               }
               
-              if (isAssignmentLHS) {
-                // Skip: Cannot guard assignment LHS as it produces invalid code
-                // The assignment will fail gracefully on SSR
+              // Check if this chain is the LHS of an assignment or part of an update expression
+              let currentPath = topPath;
+              let needsStatementGuard = false;
+              
+              // Check for assignment LHS using parentKey (not object identity)
+              if (currentPath.parentPath && currentPath.parentPath.isAssignmentExpression() && 
+                  currentPath.key === 'left') {
+                needsStatementGuard = true;
+              }
+              
+              // Check for update expression (++, --) using parentKey
+              if (currentPath.parentPath && currentPath.parentPath.isUpdateExpression() &&
+                  currentPath.key === 'argument') {
+                needsStatementGuard = true;
+              }
+              
+              if (needsStatementGuard) {
+                // Find the enclosing statement
+                let statementPath = currentPath;
+                while (statementPath && !t.isStatement(statementPath.node)) {
+                  statementPath = statementPath.parentPath;
+                }
+                
+                if (statementPath && t.isExpressionStatement(statementPath.node)) {
+                  // Wrap the entire statement in if (typeof window !== "undefined")
+                  const ifStatement = t.ifStatement(
+                    t.binaryExpression(
+                      '!==',
+                      t.unaryExpression('typeof', t.identifier('window'), true),
+                      t.stringLiteral('undefined')
+                    ),
+                    t.blockStatement([statementPath.node])
+                  );
+                  
+                  statementPath.replaceWith(ifStatement);
+                  
+                  changes.push({
+                    type: 'window-guard-statement',
+                    description: `Wrapped window.${propName} assignment/update in SSR guard`,
+                    location: path.node.loc
+                  });
+                  changeCount++;
+                  
+                  if (verbose) {
+                    process.stdout.write(`[INFO] Wrapped window.${propName} assignment/update in SSR guard\n`);
+                  }
+                }
                 return;
               }
               
-              // Find the outermost expression in the chain to wrap
-              let topPath = path;
-              while (topPath.parentPath && 
-                     (t.isMemberExpression(topPath.parent) || 
-                      (t.isCallExpression(topPath.parent) && topPath.parent.callee === topPath.node))) {
-                topPath = topPath.parentPath;
-              }
-              
-              // Wrap the entire chain
+              // For read operations, wrap the entire chain
               const guarded = wrapWithSSRGuard(topPath.node, 'window');
               topPath.replaceWith(guarded);
               
@@ -235,39 +271,75 @@ async function transform(code, options = {}) {
                'getElementsByTagName', 'body', 'documentElement', 'head'].includes(propName)) {
             
             if (!isAlreadyGuarded(path, 'document')) {
-              // Check if this is part of an assignment's left-hand side
-              let currentPath = path;
-              let isAssignmentLHS = false;
-              
-              while (currentPath.parentPath) {
-                if (t.isAssignmentExpression(currentPath.parent) && 
-                    currentPath.node === currentPath.parent.left) {
-                  isAssignmentLHS = true;
-                  break;
+              // Find the top of the member/call chain
+              let topPath = path;
+              while (topPath.parentPath) {
+                const parent = topPath.parent;
+                // Continue climbing if parent is MemberExpression and we're the object
+                if (t.isMemberExpression(parent) && parent.object === topPath.node) {
+                  topPath = topPath.parentPath;
+                  continue;
                 }
-                if (t.isMemberExpression(currentPath.parent) || 
-                    (t.isCallExpression(currentPath.parent) && currentPath.parent.callee === currentPath.node)) {
-                  currentPath = currentPath.parentPath;
-                } else {
-                  break;
+                // Continue climbing if parent is CallExpression and we're the callee
+                if (t.isCallExpression(parent) && parent.callee === topPath.node) {
+                  topPath = topPath.parentPath;
+                  continue;
                 }
+                // Otherwise stop climbing
+                break;
               }
               
-              if (isAssignmentLHS) {
-                // Skip: Cannot guard assignment LHS as it produces invalid code
-                // The assignment will fail gracefully on SSR
+              // Check if this chain is the LHS of an assignment or part of an update expression
+              let currentPath = topPath;
+              let needsStatementGuard = false;
+              
+              // Check for assignment LHS using parentKey (not object identity)
+              if (currentPath.parentPath && currentPath.parentPath.isAssignmentExpression() && 
+                  currentPath.key === 'left') {
+                needsStatementGuard = true;
+              }
+              
+              // Check for update expression (++, --) using parentKey
+              if (currentPath.parentPath && currentPath.parentPath.isUpdateExpression() &&
+                  currentPath.key === 'argument') {
+                needsStatementGuard = true;
+              }
+              
+              if (needsStatementGuard) {
+                // Find the enclosing statement
+                let statementPath = currentPath;
+                while (statementPath && !t.isStatement(statementPath.node)) {
+                  statementPath = statementPath.parentPath;
+                }
+                
+                if (statementPath && t.isExpressionStatement(statementPath.node)) {
+                  // Wrap the entire statement in if (typeof document !== "undefined")
+                  const ifStatement = t.ifStatement(
+                    t.binaryExpression(
+                      '!==',
+                      t.unaryExpression('typeof', t.identifier('document'), true),
+                      t.stringLiteral('undefined')
+                    ),
+                    t.blockStatement([statementPath.node])
+                  );
+                  
+                  statementPath.replaceWith(ifStatement);
+                  
+                  changes.push({
+                    type: 'document-guard-statement',
+                    description: `Wrapped document.${propName} assignment/update in SSR guard`,
+                    location: path.node.loc
+                  });
+                  changeCount++;
+                  
+                  if (verbose) {
+                    process.stdout.write(`[INFO] Wrapped document.${propName} assignment/update in SSR guard\n`);
+                  }
+                }
                 return;
               }
               
-              // Find the outermost expression in the chain to wrap
-              let topPath = path;
-              while (topPath.parentPath && 
-                     (t.isMemberExpression(topPath.parent) || 
-                      (t.isCallExpression(topPath.parent) && topPath.parent.callee === topPath.node))) {
-                topPath = topPath.parentPath;
-              }
-              
-              // Wrap the entire chain
+              // For read operations, wrap the entire chain
               const guarded = wrapWithSSRGuard(topPath.node, 'document');
               topPath.replaceWith(guarded);
               
@@ -281,6 +353,136 @@ async function transform(code, options = {}) {
               if (verbose) {
                 process.stdout.write(`[INFO] Added SSR guard for document.${propName} chain\n`);
               }
+            }
+          }
+        }
+      },
+      
+      // Handle assignments and updates to window/document properties
+      AssignmentExpression(path) {
+        const left = path.node.left;
+        
+        // Debug: log all assignments
+        if (verbose) {
+          console.log('[DEBUG] Found AssignmentExpression');
+        }
+        
+        // Check if LHS starts with window or document
+        const startsWithGlobal = (node) => {
+          if (t.isIdentifier(node)) {
+            return node.name === 'window' || node.name === 'document';
+          }
+          if (t.isMemberExpression(node)) {
+            return startsWithGlobal(node.object);
+          }
+          return false;
+        };
+        
+        if (startsWithGlobal(left)) {
+          if (verbose) {
+            console.log('[DEBUG] Assignment starts with global');
+          }
+          const globalName = t.isIdentifier(left) ? left.name : 
+                            t.isMemberExpression(left) && t.isIdentifier(left.object) ? left.object.name :
+                            left.object && left.object.object && t.isIdentifier(left.object.object) ? left.object.object.name :
+                            null;
+          
+          if (globalName && !isAlreadyGuarded(path, globalName)) {
+            // Find the enclosing statement
+            let statementPath = path;
+            while (statementPath && !t.isStatement(statementPath.node)) {
+              statementPath = statementPath.parentPath;
+            }
+            
+            if (statementPath && t.isExpressionStatement(statementPath.node)) {
+              // Clone the statement to avoid mutation issues
+              const clonedStatement = t.cloneNode(statementPath.node);
+              
+              // Wrap in if (typeof global !== "undefined")
+              const ifStatement = t.ifStatement(
+                t.binaryExpression(
+                  '!==',
+                  t.unaryExpression('typeof', t.identifier(globalName), true),
+                  t.stringLiteral('undefined')
+                ),
+                t.blockStatement([clonedStatement])
+              );
+              
+              statementPath.replaceWith(ifStatement);
+              statementPath.skip(); // Skip the newly created if statement to prevent re-visiting
+              
+              changes.push({
+                type: `${globalName}-guard-assignment`,
+                description: `Wrapped ${globalName} assignment in SSR guard`,
+                location: path.node.loc
+              });
+              changeCount++;
+              
+              if (verbose) {
+                process.stdout.write(`[INFO] Wrapped ${globalName} assignment in SSR guard\n`);
+              }
+            }
+          }
+        }
+      },
+      
+      // Handle update expressions (++, --) on window/document properties
+      UpdateExpression(path) {
+        const argument = path.node.argument;
+        
+        // Check if argument starts with window or document
+        const startsWithGlobal = (node) => {
+          if (t.isIdentifier(node)) {
+            return node.name === 'window' || node.name === 'document';
+          }
+          if (t.isMemberExpression(node)) {
+            return startsWithGlobal(node.object);
+          }
+          return false;
+        };
+        
+        if (startsWithGlobal(argument)) {
+          const globalName = t.isIdentifier(argument) ? argument.name : 
+                            t.isMemberExpression(argument) && t.isIdentifier(argument.object) ? argument.object.name :
+                            argument.object && argument.object.object && t.isIdentifier(argument.object.object) ? argument.object.object.name :
+                            null;
+          
+          if (globalName && !isAlreadyGuarded(path, globalName)) {
+            // Find the enclosing statement
+            let statementPath = path;
+            while (statementPath && !t.isStatement(statementPath.node)) {
+              statementPath = statementPath.parentPath;
+            }
+            
+            if (statementPath && t.isExpressionStatement(statementPath.node)) {
+              // Clone the statement
+              const clonedStatement = t.cloneNode(statementPath.node);
+              
+              // Wrap in if (typeof global !== "undefined")
+              const ifStatement = t.ifStatement(
+                t.binaryExpression(
+                  '!==',
+                  t.unaryExpression('typeof', t.identifier(globalName), true),
+                  t.stringLiteral('undefined')
+                ),
+                t.blockStatement([clonedStatement])
+              );
+              
+              statementPath.replaceWith(ifStatement);
+              
+              changes.push({
+                type: `${globalName}-guard-update`,
+                description: `Wrapped ${globalName} update in SSR guard`,
+                location: path.node.loc
+              });
+              changeCount++;
+              
+              if (verbose) {
+                process.stdout.write(`[INFO] Wrapped ${globalName} update in SSR guard\n`);
+              }
+              
+              // Skip further processing
+              path.skip();
             }
           }
         }
