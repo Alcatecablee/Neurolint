@@ -487,14 +487,20 @@ async function transform(code, options = {}) {
                 t.cloneNode(statementPath.node.expression, /*deep*/ true, /*withoutLoc*/ false)
               );
               
-              // Preserve same-line trailing comments only
-              if (originalTrailing && originalTrailing.length > 0 && statementPath.node.loc) {
-                const statementEndLine = statementPath.node.loc.end.line;
-                const sameLineComments = originalTrailing.filter(comment => 
-                  comment.loc && comment.loc.start.line === statementEndLine
-                );
-                if (sameLineComments.length > 0) {
-                  newStatement.trailingComments = sameLineComments;
+              // Preserve trailing comments intelligently
+              if (originalTrailing && originalTrailing.length > 0) {
+                if (statementPath.node.loc) {
+                  // With location data, preserve same-line comments
+                  const statementEndLine = statementPath.node.loc.end.line;
+                  const sameLineComments = originalTrailing.filter(comment => 
+                    comment.loc && comment.loc.start.line === statementEndLine
+                  );
+                  if (sameLineComments.length > 0) {
+                    newStatement.trailingComments = sameLineComments;
+                  }
+                } else {
+                  // Without location data, preserve all trailing comments (safe fallback)
+                  newStatement.trailingComments = originalTrailing;
                 }
               }
               
@@ -569,14 +575,20 @@ async function transform(code, options = {}) {
                 t.cloneNode(statementPath.node.expression, /*deep*/ true, /*withoutLoc*/ false)
               );
               
-              // Preserve same-line trailing comments only
-              if (originalTrailing && originalTrailing.length > 0 && statementPath.node.loc) {
-                const statementEndLine = statementPath.node.loc.end.line;
-                const sameLineComments = originalTrailing.filter(comment => 
-                  comment.loc && comment.loc.start.line === statementEndLine
-                );
-                if (sameLineComments.length > 0) {
-                  newStatement.trailingComments = sameLineComments;
+              // Preserve trailing comments intelligently
+              if (originalTrailing && originalTrailing.length > 0) {
+                if (statementPath.node.loc) {
+                  // With location data, preserve same-line comments
+                  const statementEndLine = statementPath.node.loc.end.line;
+                  const sameLineComments = originalTrailing.filter(comment => 
+                    comment.loc && comment.loc.start.line === statementEndLine
+                  );
+                  if (sameLineComments.length > 0) {
+                    newStatement.trailingComments = sameLineComments;
+                  }
+                } else {
+                  // Without location data, preserve all trailing comments (safe fallback)
+                  newStatement.trailingComments = originalTrailing;
                 }
               }
               
