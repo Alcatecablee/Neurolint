@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { jobId } = req.query;
+    const { jobId } = req.params;
 
     console.log('[RESULT] Fetching job:', jobId);
 
