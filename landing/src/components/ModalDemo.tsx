@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play, Copy, Check } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play, Copy, Check } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { demoScenarios, type DemoScenario } from '../data/staticDemoData';
 
 export function ModalDemo() {
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedScenario, setSelectedScenario] = useState<DemoScenario | null>(null);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [expandedLayers, setExpandedLayers] = useState<Set<number>>(new Set());
   const [copiedCode, setCopiedCode] = useState<'before' | 'after' | null>(null);
-
-  const handleOpenDemo = (scenario: DemoScenario) => {
-    setSelectedScenario(scenario);
-    setHasAnalyzed(false);
-    setExpandedLayers(new Set());
-    setCopiedCode(null);
-    setIsOpen(true);
-  };
 
   const handleAnalyze = () => {
     setHasAnalyzed(true);
@@ -52,104 +43,99 @@ export function ModalDemo() {
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center mb-12">
         <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white">
-          See NeuroLint in Action
+          Interactive Demo
         </h2>
         <p className="text-xl md:text-2xl text-zinc-300 max-w-4xl mx-auto font-medium">
-          Choose a scenario below to see how NeuroLint detects and fixes common React issues
+          Select a scenario to see how NeuroLint automatically detects and fixes common React issues
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {demoScenarios.map((scenario) => (
-          <div
-            key={scenario.id}
-            className="bg-white/5 backdrop-blur-xl p-10 rounded-3xl relative border-2 border-black transition-all duration-300 hover:bg-white/8 group cursor-pointer shadow-lg hover:shadow-xl"
-            onClick={() => handleOpenDemo(scenario)}
+      <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden">
+        {/* Scenario Selector Dropdown */}
+        <div className="bg-black/40 border-b border-white/20 p-6">
+          <label htmlFor="scenario-select" className="block text-sm font-bold text-zinc-400 mb-3">
+            Choose Demo Scenario
+          </label>
+          <select
+            id="scenario-select"
+            value={selectedScenario?.id || ''}
+            onChange={(e) => {
+              const scenario = demoScenarios.find(s => s.id === e.target.value);
+              if (scenario) {
+                setSelectedScenario(scenario);
+                setHasAnalyzed(false);
+                setExpandedLayers(new Set());
+                setCopiedCode(null);
+              }
+            }}
+            className="w-full bg-black/60 border-2 border-white/20 text-white rounded-xl px-4 py-3 font-medium text-lg focus:outline-none focus:border-white/40 transition-colors cursor-pointer"
           >
-            <h3 className="text-2xl font-black text-white mb-4">
-              {scenario.title}
-            </h3>
-            <p className="text-zinc-300 leading-relaxed font-medium mb-6">
-              {scenario.description}
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-400">
-                {scenario.issues.length} issues detected
-              </span>
-              <button className="px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm">
-                Try Demo
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            <option value="" disabled>Select a demo scenario...</option>
+            {demoScenarios.map((scenario) => (
+              <option key={scenario.id} value={scenario.id}>
+                {scenario.title} ({scenario.issues.length} issues)
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {isOpen && selectedScenario && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-black border-2 border-white/20 rounded-3xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col backdrop-blur-xl shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-white/20">
-              <div>
-                <h3 className="text-2xl font-black text-white">
-                  {selectedScenario.title}
-                </h3>
-                <p className="text-zinc-300 mt-1">
-                  {selectedScenario.description}
-                </p>
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X className="w-6 h-6 text-zinc-400" />
-              </button>
+        {/* Demo Content */}
+        {selectedScenario ? (
+          <div className="p-8">
+            <div className="mb-6">
+              <h3 className="text-2xl font-black text-white mb-2">
+                {selectedScenario.title}
+              </h3>
+              <p className="text-zinc-300 text-lg">
+                {selectedScenario.description}
+              </p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
-              {!hasAnalyzed ? (
-                <div className="space-y-6 animate-fade-in">
-                  <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border-2 border-black">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-black text-white">Sample Code</h4>
-                      <button
-                        onClick={() => copyToClipboard(selectedScenario.beforeCode, 'before')}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
-                        aria-label="Copy code"
-                      >
-                        {copiedCode === 'before' ? (
-                          <Check className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
-                    <div className="bg-black/60 rounded-2xl overflow-hidden border-2 border-white/20">
-                      <SyntaxHighlighter
-                        language="typescript"
-                        style={vscDarkPlus}
-                        customStyle={{
-                          margin: 0,
-                          padding: '1rem',
-                          background: 'transparent',
-                          fontSize: '0.875rem',
-                        }}
-                        showLineNumbers={true}
-                      >
-                        {selectedScenario.beforeCode}
-                      </SyntaxHighlighter>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center">
+            {!hasAnalyzed ? (
+              <div className="space-y-6 animate-fade-in">
+                <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border-2 border-black">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-black text-white">Sample Code</h4>
                     <button
-                      onClick={handleAnalyze}
-                      className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-gray-100 transition-all duration-300 text-lg shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-2"
+                      onClick={() => copyToClipboard(selectedScenario.beforeCode, 'before')}
+                      className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                      aria-label="Copy code"
                     >
-                      <Play className="w-5 h-5" />
-                      Analyze Code
+                      {copiedCode === 'before' ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-gray-400" />
+                      )}
                     </button>
                   </div>
+                  <div className="bg-black/60 rounded-2xl overflow-hidden border-2 border-white/20">
+                    <SyntaxHighlighter
+                      language="typescript"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: '1rem',
+                        background: 'transparent',
+                        fontSize: '0.875rem',
+                      }}
+                      showLineNumbers={true}
+                    >
+                      {selectedScenario.beforeCode}
+                    </SyntaxHighlighter>
+                  </div>
                 </div>
-              ) : (
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleAnalyze}
+                    className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-gray-100 transition-all duration-300 text-lg shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-2"
+                  >
+                    <Play className="w-5 h-5" />
+                    Analyze Code
+                  </button>
+                </div>
+              </div>
+            ) : (
                 <div className="space-y-6 animate-fade-in">
                   <div className="bg-white/5 border-2 border-white/20 rounded-2xl p-4 flex items-start gap-3 backdrop-blur-xl transform transition-all duration-300">
                     <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
@@ -311,9 +297,14 @@ export function ModalDemo() {
                 </div>
               )}
             </div>
-          </div>
+          ) : (
+            <div className="p-12 text-center">
+              <p className="text-zinc-400 text-lg">
+                Select a scenario from the dropdown above to begin
+              </p>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
   );
 }
