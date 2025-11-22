@@ -59,6 +59,7 @@ class CLIRunner {
 
     const detectedIssues = [];
     const layerResults = [];
+    const filename = options.filename || 'demo.tsx';
 
     try {
       const SmartLayerSelector = require('../../cli.js');
@@ -84,7 +85,7 @@ class CLIRunner {
         }
 
         try {
-          const result = await this.runLayerAnalysis(filePath, layerId, tmpDir);
+          const result = await this.runLayerAnalysis(filePath, layerId, tmpDir, code, filename);
           
           layerResults.push({
             layerId,
@@ -133,7 +134,7 @@ class CLIRunner {
     }
   }
 
-  async runLayerAnalysis(filePath, layerId, workDir) {
+  async runLayerAnalysis(filePath, layerId, workDir, code, filename) {
     return new Promise((resolve, reject) => {
       const issues = [];
       const outputFile = path.join(workDir, `analysis-layer-${layerId}.json`);
@@ -211,23 +212,23 @@ class CLIRunner {
           }
 
           // All real analysis attempts failed, use mock
-          resolve({ issues: this.generateMockIssues(layerId, filePath) });
+          resolve({ issues: this.generateMockIssues(layerId, code, filename) });
         } else {
           // CLI returned error code - use fallback
-          resolve({ issues: this.generateMockIssues(layerId, filePath) });
+          resolve({ issues: this.generateMockIssues(layerId, code, filename) });
         }
       });
 
       proc.on('error', (error) => {
         // Process spawn failed - use fallback
-        resolve({ issues: this.generateMockIssues(layerId, filePath) });
+        resolve({ issues: this.generateMockIssues(layerId, code, filename) });
       });
 
       // Handle timeout
       setTimeout(() => {
         if (proc && !proc.killed) {
           proc.kill();
-          resolve({ issues: this.generateMockIssues(layerId, filePath) });
+          resolve({ issues: this.generateMockIssues(layerId, code, filename) });
         }
       }, this.TIMEOUT);
     });
@@ -258,11 +259,10 @@ class CLIRunner {
     return issues;
   }
 
-  generateMockIssues(layerId, filePath) {
-    const code = require('fs').readFileSync(filePath, 'utf8');
+  generateMockIssues(layerId, code, filename) {
     const issues = [];
 
-    if (layerId === 1 && filePath.endsWith('.json')) {
+    if (layerId === 1 && filename.endsWith('.json')) {
       issues.push({
         type: 'config-issue',
         severity: 'medium',
@@ -293,7 +293,7 @@ class CLIRunner {
       }
     }
 
-    if (layerId === 3 && (filePath.endsWith('.tsx') || filePath.endsWith('.jsx'))) {
+    if (layerId === 3 && (filename.endsWith('.tsx') || filename.endsWith('.jsx'))) {
       if (code.includes('.map(') && !code.includes('key=')) {
         issues.push({
           type: 'missing-key',
@@ -314,7 +314,7 @@ class CLIRunner {
       }
     }
 
-    if (layerId === 4 && (filePath.endsWith('.tsx') || filePath.endsWith('.jsx'))) {
+    if (layerId === 4 && (filename.endsWith('.tsx') || filename.endsWith('.jsx'))) {
       if (code.includes('localStorage') || code.includes('window.')) {
         issues.push({
           type: 'hydration-risk',
