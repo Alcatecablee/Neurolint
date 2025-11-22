@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Master Automated Fixing Script
+ * NeuroLint - Master Automated Fixing Script
  * Comprehensive multi-layer fix strategy for React/Next.js codebases
  * 
  * Layer 1: Configuration fixes (TypeScript, Next.js, package.json)
@@ -10,6 +10,18 @@
  * Layer 4: Hydration and SSR fixes (client-side guards, theme providers)
  * Layer 5: Next.js App Router fixes
  * Layer 6: Testing and Validation Fixes
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * 
+ * Use Limitation: You may not use this software to provide a commercial
+ * SaaS offering that competes with NeuroLint's code transformation services.
+ * 
+ * Change Date: 2029-11-22
+ * Change License: GPL-3.0-or-later
+ * 
+ * For commercial licensing: contact@neurolint.dev
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
  */
 
 const fs = require('fs').promises;

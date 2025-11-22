@@ -1,3 +1,12 @@
+/**
+ * NeuroLint API - Stream Endpoint
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ */
+
 const jobManager = require('../lib/job-manager');
 
 module.exports = async (req, res) => {

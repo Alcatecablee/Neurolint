@@ -1,12 +1,24 @@
-const fs = require('fs').promises;
-const path = require('path');
-
 /**
- * Analytics and Metrics Engine for NeuroLint
+ * NeuroLint - Analytics and Metrics Engine
  * 
  * Tracks usage, performance, and provides insights across
  * CLI, VS Code, and Web App platforms.
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * 
+ * Use Limitation: You may not use this software to provide a commercial
+ * SaaS offering that competes with NeuroLint's code transformation services.
+ * 
+ * Change Date: 2029-11-22
+ * Change License: GPL-3.0-or-later
+ * 
+ * For commercial licensing: contact@neurolint.dev
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
  */
+
+const fs = require('fs').promises;
+const path = require('path');
 
 class Analytics {
   constructor() {

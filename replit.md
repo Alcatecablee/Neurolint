@@ -1,8 +1,8 @@
-# NeuroLint CLI - Open Source Repository
+# NeuroLint CLI - Official Repository
 
 ## What This Repository Is
 
-This is the **official open source repository** for NeuroLint CLI - a deterministic, rule-based code transformation tool for TypeScript, JavaScript, React, and Next.js projects. This repository is now prepared for public release and Y Combinator application.
+This is the **official repository** for NeuroLint CLI - a deterministic, rule-based code transformation tool for TypeScript, JavaScript, React, and Next.js projects. Licensed under Business Source License 1.1, prepared for public release and Y Combinator application.
 
 ## Project Status
 
@@ -156,9 +156,21 @@ This repository was created to:
   - All 249 tests still passing
   - Created NPM_PUBLISH_GUIDE.md with comprehensive publishing instructions
 
-**November 19, 2025 - Open Source Release Preparation:**
-- **Made repository fully open source with all standard files:**
-  - LICENSE - MIT License (was declared in package.json but file didn't exist)
+**November 22, 2025 - License Change to Business Source License 1.1:**
+- **Updated licensing from MIT to BSL 1.1 for business protection:**
+  - LICENSE - Business Source License 1.1 with 4-year change date (2029-11-22)
+  - Prevents competitors from cloning and selling NeuroLint as competing SaaS
+  - Allows internal company use, contributions, and modifications
+  - Automatically becomes GPL-3.0-or-later after November 22, 2029
+  - Added LICENSE_NOTICES.md documenting all third-party dependency licenses
+  - Updated package.json, README.md, CONTRIBUTING.md with BSL references
+  - Added BSL headers to all core files (cli.js, server.js, fix-master.js, etc.)
+  - Added BSL headers to shared-core modules and scripts directory
+  - Enables enterprise licensing model while maintaining transparency
+
+**November 19, 2025 - Repository Release Preparation:**
+- **Made repository fully accessible with all standard files:**
+  - LICENSE - Now Business Source License 1.1 (updated from MIT)
   - README.md - Comprehensive rewrite with detailed examples, use cases, troubleshooting, and command reference (matches npm version quality while removing auth)
   - CONTRIBUTING.md - Comprehensive contribution guidelines with accurate project structure
   - CODE_OF_CONDUCT.md - Standard Contributor Covenant v2.0
@@ -219,9 +231,10 @@ See `CLI_USAGE.md` for complete usage guide including:
 **GitHub:** https://github.com/Alcatecablee/Neurolint
 
 **Ready for:**
-- Public contributions
+- Public contributions (under BSL 1.1)
 - Y Combinator application
-- npm publishing (as neurolint-cli v1.3.4)
+- npm publishing (as @neurolint/cli v1.4.0 with BSL)
+- Enterprise licensing and commercial offerings
 - Community engagement
 - Reddit launch (r/nextjs, r/reactjs, r/SideProject)
 - Product Hunt campaign (40% ready, needs 4-6 weeks)
@@ -234,4 +247,4 @@ See `CLI_USAGE.md` for complete usage guide including:
 
 ---
 
-**NeuroLint: Deterministic code fixing. No AI. No surprises. Completely free.**
+**NeuroLint: Deterministic code fixing. No AI. No surprises. Protected by BSL, eventually open source.**

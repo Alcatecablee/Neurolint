@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
 /**
+ * NeuroLint - Licensed under Business Source License 1.1
+ * Copyright (c) 2025 NeuroLint
+ * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ */
+
+
+
+/**
  * React Compiler Integration Detector
  * 
  * Detects manual memoization patterns that React Compiler would handle automatically

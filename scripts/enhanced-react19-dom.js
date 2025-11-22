@@ -1,3 +1,11 @@
+/**
+ * NeuroLint - Licensed under Business Source License 1.1
+ * Copyright (c) 2025 NeuroLint
+ * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ */
+
+
 ﻿/**
  * Convert ReactDOM test-utils imports to react imports (React 19)
  * react-dom/test-utils is removed in React 19, act is moved to react package

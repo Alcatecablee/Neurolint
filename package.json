@@ -19,7 +19,9 @@
     "scripts/",
     "shared-core/",
     "README.md",
-    "CLI_USAGE.md"
+    "CLI_USAGE.md",
+    "LICENSE",
+    "LICENSE_NOTICES.md"
   ],
   "scripts": {
     "test": "jest",
@@ -129,6 +131,6 @@
     "url": "https://github.com/Alcatecablee/Neurolint/issues"
   },
   "homepage": "https://github.com/Alcatecablee/Neurolint#readme",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "author": "NeuroLint"
 }

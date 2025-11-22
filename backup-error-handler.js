@@ -1,7 +1,19 @@
 /**
- * Production-Grade Error Handling System for Backup Operations
+ * NeuroLint - Production-Grade Error Handling System for Backup Operations
  * Provides comprehensive error handling, retry mechanisms, circuit breakers,
  * fallback strategies, and automated recovery for production environments
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * 
+ * Use Limitation: You may not use this software to provide a commercial
+ * SaaS offering that competes with NeuroLint's code transformation services.
+ * 
+ * Change Date: 2029-11-22
+ * Change License: GPL-3.0-or-later
+ * 
+ * For commercial licensing: contact@neurolint.dev
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
  */
 
 const fs = require('fs').promises;

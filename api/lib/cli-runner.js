@@ -1,3 +1,12 @@
+/**
+ * NeuroLint API - CLI Runner
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ */
+
 const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');

@@ -3,7 +3,7 @@
 > **Deterministic code transformation tool for React, Next.js, and TypeScript projects**
 
 [![npm version](https://img.shields.io/npm/v/@neurolint/cli.svg)](https://www.npmjs.com/package/@neurolint/cli)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-297%20passing-brightgreen.svg)](./__tests__)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue)]()
@@ -1199,15 +1199,44 @@ NeuroLint is open source because:
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) file for details.
+**Business Source License 1.1** - see [LICENSE](./LICENSE) file for full details.
 
-Copyright (c) 2025 NeuroLint Contributors
+Copyright (c) 2025 NeuroLint
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+### What This Means
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+NeuroLint is available under the Business Source License (BSL) 1.1, which:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**You CAN:**
+- Use NeuroLint internally in your company for development and production
+- Modify and customize NeuroLint for your own needs
+- Contribute improvements back to the project
+- Evaluate and test NeuroLint freely
+
+**You CANNOT:**
+- Sell NeuroLint or modified versions as a competing commercial SaaS product
+- Offer NeuroLint's core functionality (automated code transformation/fixing) as a service to third parties
+
+**After November 22, 2029:**
+The software automatically becomes **GPL-3.0-or-later** (fully open source).
+
+### Why BSL?
+
+We chose BSL to:
+1. **Protect innovation** - Prevent competitors from simply copying our engine
+2. **Enable sustainability** - Allow us to build an enterprise offering
+3. **Stay transparent** - All code remains visible and auditable
+4. **Give back eventually** - Automatic conversion to open source after 4 years
+
+### Need a Commercial License?
+
+If your use case doesn't fit the BSL terms, or you need:
+- Enterprise support and SLA
+- Custom integrations
+- Priority feature development
+- Legal indemnification
+
+Contact us at: **contact@neurolint.dev**
 
 ---
 

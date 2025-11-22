@@ -247,9 +247,29 @@ Some ideas for first contributions:
 
 ---
 
-## 📝 License
+## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing to NeuroLint, you agree that:
+
+1. **Your contributions will be licensed** under the Business Source License 1.1 (BSL 1.1)
+2. **NeuroLint retains the right** to offer commercial licenses and enterprise versions
+3. **After the Change Date** (November 22, 2029), contributions become GPL-3.0-or-later
+
+### What This Means for Contributors
+
+- Your code remains visible and credited in the public repository
+- You're helping build a sustainable, protected open-source project
+- The code will eventually become fully open source (GPL) after 4 years
+- NeuroLint can build commercial offerings while keeping the core transparent
+
+### Contributor License Agreement
+
+By submitting a pull request, you grant NeuroLint:
+- The right to use your contribution under the BSL 1.1 license
+- The right to relicense your contribution for commercial purposes
+- The right to include your contribution in enterprise offerings
+
+All contributions remain attributed to their authors.
 
 ---
 

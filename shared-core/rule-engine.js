@@ -1,17 +1,29 @@
-const { parse } = require('@babel/parser');
-const traverse = require('@babel/traverse').default;
-const generate = require('@babel/generator').default;
-const t = require('@babel/types');
-
 /**
- * Shared Rule Engine for NeuroLint
+ * NeuroLint - Shared Rule Engine
  * 
  * This module provides the core analysis and transformation logic
  * that will be shared across CLI, VS Code, and Web App platforms.
  * 
  * Production-ready with comprehensive error handling, fallback mechanisms,
  * and input validation to avoid problematic AI behaviors.
+ * 
+ * Copyright (c) 2025 NeuroLint
+ * Licensed under the Business Source License 1.1
+ * 
+ * Use Limitation: You may not use this software to provide a commercial
+ * SaaS offering that competes with NeuroLint's code transformation services.
+ * 
+ * Change Date: 2029-11-22
+ * Change License: GPL-3.0-or-later
+ * 
+ * For commercial licensing: contact@neurolint.dev
+ * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
  */
+
+const { parse } = require('@babel/parser');
+const traverse = require('@babel/traverse').default;
+const generate = require('@babel/generator').default;
+const t = require('@babel/types');
 
 class RuleEngine {
   constructor() {
