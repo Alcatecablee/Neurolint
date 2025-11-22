@@ -271,5 +271,185 @@ export function Dashboard({ data }) {
         ]
       }
     ]
+  },
+  {
+    id: 'missing-keys',
+    title: 'Missing Key Props',
+    description: 'Automatically adds key props to mapped elements',
+    beforeCode: `export function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li>
+          <input type="checkbox" checked={todo.completed} />
+          <span>{todo.title}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function TagList({ tags }) {
+  return (
+    <div>
+      {tags.map(tag => <span className="tag">{tag}</span>)}
+    </div>
+  );
+}`,
+    afterCode: `export function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map((todo, index) => (
+        <li key={todo.id || index}>
+          <input type="checkbox" checked={todo.completed} />
+          <span>{todo.title}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function TagList({ tags }) {
+  return (
+    <div>
+      {tags.map((tag, index) => (
+        <span key={index} className="tag">
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}`,
+    issues: [
+      {
+        type: 'react-key',
+        severity: 'high',
+        description: 'Missing key prop in list item inside .map()',
+        fixedByLayer: 3,
+        ruleId: 'react-missing-key'
+      },
+      {
+        type: 'react-key',
+        severity: 'high',
+        description: 'Missing key prop in mapped span element',
+        fixedByLayer: 3,
+        ruleId: 'react-missing-key'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 3,
+        name: 'Components',
+        issuesFound: 2,
+        fixes: [
+          'Added key prop using unique ID when available',
+          'Fallback to index when no unique identifier exists',
+          'Added index parameter to map callback for key generation'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'nextjs-migration',
+    title: 'Next.js App Router Migration',
+    description: 'Migrates Pages Router code to App Router patterns',
+    beforeCode: `// pages/blog/[slug].js
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+
+export default function BlogPost({ post }) {
+  const router = useRouter();
+  
+  if (router.isFallback) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <>
+      <Head>
+        <title>{post.title}</title>
+        <meta name="description" content={post.excerpt} />
+      </Head>
+      <article>
+        <h1>{post.title}</h1>
+        <div>{post.content}</div>
+      </article>
+    </>
+  );
+}
+
+export async function getStaticProps({ params }) {
+  const post = await fetchPost(params.slug);
+  return { props: { post } };
+}`,
+    afterCode: `// app/blog/[slug]/page.tsx
+import { Metadata } from 'next';
+
+interface PageProps {
+  params: { slug: string };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const post = await fetchPost(params.slug);
+  
+  return {
+    title: post.title,
+    description: post.excerpt,
+  };
+}
+
+export default async function BlogPost({ params }: PageProps) {
+  const post = await fetchPost(params.slug);
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <div>{post.content}</div>
+    </article>
+  );
+}`,
+    issues: [
+      {
+        type: 'nextjs-migration',
+        severity: 'high',
+        description: 'Pages Router pattern needs migration to App Router',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-app-router-migration'
+      },
+      {
+        type: 'nextjs-migration',
+        severity: 'high',
+        description: 'getStaticProps replaced with Server Component data fetching',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-data-fetching'
+      },
+      {
+        type: 'nextjs-migration',
+        severity: 'medium',
+        description: 'Head component replaced with Metadata API',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-metadata-api'
+      },
+      {
+        type: 'nextjs-migration',
+        severity: 'medium',
+        description: 'useRouter hook removed (Server Component)',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-server-component'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 5,
+        name: 'Next.js Router',
+        issuesFound: 4,
+        fixes: [
+          'Converted Pages Router file to App Router structure',
+          'Replaced getStaticProps with async Server Component',
+          'Migrated Head component to generateMetadata API',
+          'Removed client-side router hooks from Server Component'
+        ]
+      }
+    ]
   }
 ];

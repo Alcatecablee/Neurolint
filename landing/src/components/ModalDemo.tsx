@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play } from 'lucide-react';
+import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play, Copy, Check } from 'lucide-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { demoScenarios, type DemoScenario } from '../data/staticDemoData';
 
 export function ModalDemo() {
@@ -7,11 +9,13 @@ export function ModalDemo() {
   const [selectedScenario, setSelectedScenario] = useState<DemoScenario | null>(null);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [expandedLayers, setExpandedLayers] = useState<Set<number>>(new Set());
+  const [copiedCode, setCopiedCode] = useState<'before' | 'after' | null>(null);
 
   const handleOpenDemo = (scenario: DemoScenario) => {
     setSelectedScenario(scenario);
     setHasAnalyzed(false);
     setExpandedLayers(new Set());
+    setCopiedCode(null);
     setIsOpen(true);
   };
 
@@ -27,6 +31,12 @@ export function ModalDemo() {
       newExpanded.add(layerId);
     }
     setExpandedLayers(newExpanded);
+  };
+
+  const copyToClipboard = (code: string, type: 'before' | 'after') => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(type);
+    setTimeout(() => setCopiedCode(null), 2000);
   };
 
   const getSeverityColor = (severity: string) => {
@@ -96,20 +106,43 @@ export function ModalDemo() {
 
             <div className="flex-1 overflow-y-auto p-6">
               {!hasAnalyzed ? (
-                <div className="space-y-6">
+                <div className="space-y-6 animate-fade-in">
                   <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border-2 border-black">
-                    <h4 className="text-lg font-black text-white mb-4">Sample Code</h4>
-                    <pre className="bg-black/60 rounded-2xl p-4 overflow-x-auto border-2 border-white/20">
-                      <code className="text-sm text-green-400 font-mono">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-black text-white">Sample Code</h4>
+                      <button
+                        onClick={() => copyToClipboard(selectedScenario.beforeCode, 'before')}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                        aria-label="Copy code"
+                      >
+                        {copiedCode === 'before' ? (
+                          <Check className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="bg-black/60 rounded-2xl overflow-hidden border-2 border-white/20">
+                      <SyntaxHighlighter
+                        language="typescript"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          margin: 0,
+                          padding: '1rem',
+                          background: 'transparent',
+                          fontSize: '0.875rem',
+                        }}
+                        showLineNumbers={true}
+                      >
                         {selectedScenario.beforeCode}
-                      </code>
-                    </pre>
+                      </SyntaxHighlighter>
+                    </div>
                   </div>
 
                   <div className="flex justify-center">
                     <button
                       onClick={handleAnalyze}
-                      className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-gray-100 transition-all duration-300 text-lg shadow-2xl hover:scale-105 flex items-center gap-2"
+                      className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-gray-100 transition-all duration-300 text-lg shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-2"
                     >
                       <Play className="w-5 h-5" />
                       Analyze Code
@@ -117,8 +150,8 @@ export function ModalDemo() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  <div className="bg-white/5 border-2 border-white/20 rounded-2xl p-4 flex items-start gap-3 backdrop-blur-xl">
+                <div className="space-y-6 animate-fade-in">
+                  <div className="bg-white/5 border-2 border-white/20 rounded-2xl p-4 flex items-start gap-3 backdrop-blur-xl transform transition-all duration-300">
                     <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-green-400 font-black mb-1">Analysis Complete</h4>
@@ -130,27 +163,77 @@ export function ModalDemo() {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="text-lg font-black text-white mb-3 flex items-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-white" />
-                        Before (Issues Detected)
-                      </h4>
-                      <div className="bg-black/60 border-2 border-white/20 rounded-2xl p-4 h-[400px] overflow-y-auto backdrop-blur-xl">
-                        <pre className="text-sm text-green-400 font-mono">
-                          <code>{selectedScenario.beforeCode}</code>
-                        </pre>
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-lg font-black text-white flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5 text-white" />
+                          Before (Issues Detected)
+                        </h4>
+                        <button
+                          onClick={() => copyToClipboard(selectedScenario.beforeCode, 'before')}
+                          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                          aria-label="Copy before code"
+                        >
+                          {copiedCode === 'before' ? (
+                            <Check className="w-4 h-4 text-green-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                      <div className="bg-black/60 border-2 border-white/20 rounded-2xl h-[400px] overflow-hidden backdrop-blur-xl">
+                        <div className="h-full overflow-y-auto">
+                          <SyntaxHighlighter
+                            language="typescript"
+                            style={vscDarkPlus}
+                            customStyle={{
+                              margin: 0,
+                              padding: '1rem',
+                              background: 'transparent',
+                              fontSize: '0.875rem',
+                            }}
+                            showLineNumbers={true}
+                          >
+                            {selectedScenario.beforeCode}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="text-lg font-black text-white mb-3 flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-400" />
-                        After (Fixed)
-                      </h4>
-                      <div className="bg-black/60 border-2 border-white/20 rounded-2xl p-4 h-[400px] overflow-y-auto backdrop-blur-xl">
-                        <pre className="text-sm text-green-400 font-mono">
-                          <code>{selectedScenario.afterCode}</code>
-                        </pre>
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-lg font-black text-white flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                          After (Fixed)
+                        </h4>
+                        <button
+                          onClick={() => copyToClipboard(selectedScenario.afterCode, 'after')}
+                          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                          aria-label="Copy after code"
+                        >
+                          {copiedCode === 'after' ? (
+                            <Check className="w-4 h-4 text-green-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                      <div className="bg-black/60 border-2 border-white/20 rounded-2xl h-[400px] overflow-hidden backdrop-blur-xl">
+                        <div className="h-full overflow-y-auto">
+                          <SyntaxHighlighter
+                            language="typescript"
+                            style={vscDarkPlus}
+                            customStyle={{
+                              margin: 0,
+                              padding: '1rem',
+                              background: 'transparent',
+                              fontSize: '0.875rem',
+                            }}
+                            showLineNumbers={true}
+                          >
+                            {selectedScenario.afterCode}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     </div>
                   </div>
