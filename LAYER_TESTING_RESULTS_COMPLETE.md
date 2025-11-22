@@ -5,7 +5,7 @@ Created isolated test files for each layer's claimed features and verified actua
 
 ---
 
-## Layer 4: Hydration ⚠️ WORKS BUT HAS BUGS
+## Layer 4: Hydration ✅ FULLY WORKING (Fixed November 22, 2025)
 
 ### Landing Page Claims
 - Adds typeof window !== 'undefined' guards
@@ -15,21 +15,31 @@ Created isolated test files for each layer's claimed features and verified actua
 - Fixes addEventListener without removeEventListener cleanup
 
 ### Actual Behavior
-**✅ Features Work** - All claimed features ARE implemented and transform code
+**✅ All Features Work** - All claimed features are implemented correctly with AST-based transformations
 
-**❌ Syntax Issues** - Regex replacements create malformed JavaScript:
+**✅ Recent Fixes Applied**:
+1. **Strict Guard Detection** - Only accepts exact `typeof <global> !== "undefined"` pattern (prevents false positives)
+2. **Comment Preservation** - Intelligent comment handling with safe fallback for production builds (all 4 wrapping locations)
+3. **Deep Nesting Support** - Handles arbitrarily deep member expressions via `getRootGlobalName()` helper:
+   - ✅ `window.navigator.geolocation.watchPosition = handler`
+   - ✅ `document.body.firstElementChild.textContent++`
+4. **Infinite Loop Prevention** - Strict pattern matching + `path.skip()` for new nodes
+5. **Valid JavaScript Output** - AST-based transformations guarantee syntactically correct code
+
+**Example Transformations**:
 ```javascript
-// Example: localStorage guard creates invalid code
-// BROKEN OUTPUT:
-const [theme, setTheme] = useState(typeof window !== "undefined" ? localStorage.getItem('theme');
-const [mounted, setMounted] = useState(false);
+// BEFORE
+const theme = localStorage.getItem('theme');
+window.navigator.geolocation.watchPosition = handler;
 
-useEffect(() => {
-  setMounted(true);
-}, []); : null || 'light');
+// AFTER (Valid JavaScript)
+const theme = typeof window !== "undefined" ? localStorage.getItem('theme') : null;
+if (typeof window !== "undefined") {
+  window.navigator.geolocation.watchPosition = handler;
+}
 ```
 
-**Verdict**: ⚠️ Layer 4 transforms code as claimed but produces **invalid JavaScript** due to regex bugs
+**Verdict**: ✅ Layer 4 fully works as claimed with robust AST-based transformations
 
 ---
 
@@ -168,7 +178,7 @@ function MyComponent() {
 
 | Layer | Feature Status | Landing Page Accuracy | Issues |
 |-------|---------------|----------------------|--------|
-| **Layer 4** | ⚠️ Partial | Mostly Accurate | Regex bugs create invalid JS |
+| **Layer 4** | ✅ Working | ✅ Accurate | **None** (Fixed Nov 22, 2025) |
 | **Layer 5** | ❌ Broken | **Inaccurate** | Main features don't work |
 | **Layer 6** | ✅ Working | ✅ Accurate | None |
 | **Layer 7** | ✅ Working | ✅ Accurate | None (requires prior layers) |
@@ -177,20 +187,24 @@ function MyComponent() {
 
 ## Recommendations
 
-### Option 1: Fix Broken Layers
-- Fix Layer 4 regex patterns to produce valid JavaScript
-- Fix Layer 5's use client detection, createRoot, and hydrateRoot conversions
-- Keep landing page claims as-is after fixes
+### ✅ Layer 4: COMPLETED (November 22, 2025)
+- **Fixed** all regex bugs with AST-based transformations
+- **Fixed** strict guard detection (prevents false positives)
+- **Fixed** comment preservation with safe fallback
+- **Fixed** deep nesting support for complex member expressions
+- Landing page claims are now 100% accurate
 
-### Option 2: Update Landing Page to Reflect Reality
-- Update Layer 4 description to note it's "experimental" or has known issues
-- Update Layer 5 to only claim features that actually work (findDOMNode detection)
-- Remove or mark non-working features as "planned" or "in development"
+### ⚠️ Layer 5: REQUIRES ATTENTION
+Fix Layer 5's broken features:
+- Fix 'use client' directive detection for hooks/client-side APIs
+- Fix ReactDOM.render to createRoot conversion
+- Fix ReactDOM.hydrate to hydrateRoot conversion (currently produces invalid syntax)
+- Or update landing page to only claim working features (findDOMNode detection)
 
-### Option 3: Hybrid Approach
-- Fix critical bugs in Layer 4 and 5
-- Update landing page with accurate "What It Actually Does" vs "Planned Features"
-- Add status badges (✅ Working, ⚠️  Beta, 🔧 In Progress)
+### Suggested Approach for Layer 5
+1. **Option A**: Implement missing features using AST transformations (like Layer 4 fix)
+2. **Option B**: Update landing page to mark features as "In Development" or "Planned"
+3. **Option C**: Remove non-working claims and focus on proven capabilities
 
 ---
 

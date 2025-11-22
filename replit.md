@@ -1,256 +1,39 @@
-# NeuroLint CLI - Official Repository
+# NeuroLint CLI
 
-## What This Repository Is
+## Overview
 
-This is the **official repository** for NeuroLint CLI - a deterministic, rule-based code transformation tool for TypeScript, JavaScript, React, and Next.js projects. Licensed under Business Source License 1.1, prepared for public release and Y Combinator application.
-
-## Project Status
-
-### ✅ What EXISTS in this repo:
-- `cli.js` - Main CLI entry point (copied from main repo)
-- `scripts/` - 7 fix layer implementations + 4 Next.js 16 migration tools
-- `fix-master.js` - Layer orchestrator (copied from main repo)
-- Supporting files: `ast-transformer.js`, `backup-manager.js`, `validator.js`, `selector.js`
-- `shared-core/` - Analytics, config, rule engine modules
-- `__tests__/` - Comprehensive Jest test suite with 297 automated tests:
-  - CLI command tests (18 tests)
-  - AST transformer tests (16 tests)
-  - Backup manager tests (17 tests)
-  - Validator tests (17 tests)
-  - Next.js 16 migration tests (10 tests)
-  - React 19 dependency checker tests (11 tests)
-  - Turbopack migration assistant tests (13 tests)
-  - React Compiler detector tests (12 tests)
-  - Test fixtures for integration testing
-- `jest.config.js` - Jest configuration for testing
-
-### ❌ What DOES NOT EXIST:
-- ❌ No `server/` directory (despite package.json expecting it)
-- ❌ No `client/src/` React frontend (only 2 backup hook files)
-- ❌ No `shared/schema.ts` for database models
-- ❌ No Express backend
-- ❌ No WebSocket implementation
-- ❌ No Fixwise web dashboard
-
-### The Real Product
-
-The **actual working product** is the npm package:
-- **Package:** `@neurolint/cli` (published on npm)
-- **Version:** 1.3.3
-- **Status:** Published and available
-- **Install:** `npm install -g @neurolint/cli`
-- **Repo:** This is NOT the main NeuroLint repo
-
-## Origin Story
-
-NeuroLint was born from frustration during development of Taxfy.co.za when over 700 ESLint errors, hydration bugs, and missing React keys appeared. Instead of manual fixes, an intelligent multi-layer fixing system was created that fixed 90% of them automatically, reducing the count to just 70.
-
-## The 7-Layer Architecture
-
-The layer system is **progressive and safe** - each layer builds upon the previous ones:
-
-### All Layers Are Now Free! (No Authentication Required)
-1. **Layer 1 - Configuration:** tsconfig.json, next.config.js, package.json optimization
-2. **Layer 2 - Patterns:** HTML entities, console.log removal, unused imports
-3. **Layer 3 - Components:** React keys, accessibility, prop types
-4. **Layer 4 - Hydration:** SSR/hydration guards for localStorage, window, document
-5. **Layer 5 - Next.js:** App Router optimizations, "use client" directives
-6. **Layer 6 - Testing:** Error boundaries, test generation, quality improvements
-7. **Layer 7 - Adaptive:** Pattern learning and custom rule generation
-
-**NOTE:** All authentication and paygate logic has been removed. The CLI is now completely free to use with all layers available without any API key.
-
-## How It Actually Works
-
-**Technology:**
-- Rule-based transformations (NOT AI/LLM)
-- AST (Abstract Syntax Tree) parsing
-- Pattern recognition
-- Deterministic, predictable fixes
-
-**Philosophy:**
-No LLM hallucinations. No unpredictable rewrites. Just intelligent, rule-based code fixes.
-
-## Current Repo Purpose
-
-This repository was created to:
-1. Experiment with building a web dashboard for NeuroLint
-2. Test integration ideas
-3. Explore Fixwise branding
-
-**Status:** Planning/experimental stage. Dashboard not yet built.
-
-## Recent Changes
-
-**November 21, 2025 PM - Version 1.5.0 Enhancement - Next.js 16 Auto-Migration & Community Features:**
-- **Enhanced Next.js 16 Migration (Auto-conversion, not just comments):**
-  - **Auto-add 'use cache' directive** to Server Components that fetch data or use database
-  - **Auto-convert sync params to async** - transforms `({ params })` to `async (props)` with `await props.params`
-  - **Auto-add await to cookies() and headers()** - no more manual async conversion needed
-  - **Ensure functions are async** when using await statements
-  - **Smart cacheLife integration** - automatically adds cacheLife import and updates revalidateTag calls
-  - **Detect and suggest updateTag()** for read-your-writes consistency patterns
-- **Enhanced Layer 6 (Testing) - RSC & Modern Testing Patterns:**
-  - **React Server Component testing guidance** - detects RSC tests and adds integration test recommendations
-  - **MSW compatibility warnings** - detects MSW usage with Next.js App Router and suggests alternatives (vi.mock, jest.mock, route handlers)
-  - **Untested Server Component detection** - identifies async Server Components without tests
-- **Router Complexity Assessor (neurolint assess-router):**
-  - **Complexity scoring (0-100)** - analyzes route count, middleware, API routes, Server/Client Components
-  - **Complexity levels** - Simple (0-30), Moderate (30-60), Complex (60-80), Enterprise (80+)
-  - **Smart recommendations** - suggests plain React for simple projects, App Router migration for mixed setups
-  - **Feature analysis** - detects SSR, SSG, middleware, API routes, Server Components
-- **React 19.2 Feature Detector (neurolint detect-react192):**
-  - **View Transitions detection** - finds manual animation code that could use React 19.2 View Transitions API
-  - **useEffectEvent opportunities** - detects useEffect with callbacks and exhaustive-deps issues
-  - **Activity component opportunities** - finds hidden components (display:none) that could maintain state
-  - **Code examples** - provides migration examples for each detected pattern
-- **CLI Integration:**
-  - Added `neurolint assess-router` command with verbose progress spinner
-  - Added `neurolint detect-react192` command with result summaries
-  - Updated help documentation for both commands
-- **Status:** All features implemented and working, ready for testing
-
-**November 21, 2025 - Version 1.4.0 Release - Next.js 16 Support:**
-- **Next.js 16 Migration Tool:**
-  - Auto-rename middleware.ts → proxy.ts
-  - Migrate experimental.ppr to Cache Components model
-  - Update function exports from middleware to proxy
-  - Add Node.js runtime declarations
-  - Migrate old caching APIs to new Next.js 16 APIs
-- **React 19 Dependency Checker:**
-  - Scans package.json for incompatible dependencies
-  - Detects known issues with Radix UI, Ant Design, next-auth, react-is
-  - Provides automated fix commands with `--fix` flag
-  - Creates .npmrc with legacy-peer-deps automatically
-  - Adds package.json overrides for stubborn dependencies
-- **Turbopack Migration Assistant:**
-  - Detects Webpack-specific configurations in next.config
-  - Identifies incompatible Webpack loaders and plugins
-  - Checks for Babel configurations and suggests SWC migration
-  - Suggests Turbopack filesystem caching optimizations
-  - Provides comprehensive compatibility reports with migration guidance
-- **React Compiler Detector:**
-  - Detects manual memoization patterns (useMemo, useCallback, React.memo)
-  - Identifies useRef for previous value tracking
-  - Analyzes complex dependency management
-  - Recommends React Compiler when beneficial
-  - Calculates potential bundle size and runtime savings
-  - Fixed critical bug in findLineNumber regex handling
-- **New CLI Commands:**
-  - `neurolint migrate-nextjs-16` - Migrate to Next.js 16
-  - `neurolint check-deps` - Check React 19 dependency compatibility (with `--fix` flag)
-  - `neurolint check-turbopack` - Analyze Turbopack readiness
-  - `neurolint check-compiler` - Detect React Compiler opportunities
-- **46 new tests** for all migration tools and dependency checking (297 total tests, all passing)
-- Updated documentation with Next.js 16 features
-- Version bumped from 1.3.4 to 1.4.0
-- **Status:** READY FOR RELEASE - All features implemented and tested, 100% test pass rate
-
-**November 20, 2025 - Version 1.3.4 Release:**
-- **Professional appearance update - Removed all emojis:**
-  - Removed all emojis from README.md, CLI_USAGE.md, CONTRIBUTING.md
-  - Removed all emojis from CLI output (cli.js)
-  - Replaced emojis with professional bracket notation: [SUCCESS], [FAILED], [!], [+], [i], [*]
-  - Enterprise-friendly output for professional environments
-  - Version bumped from 1.0.0 to 1.3.4 (matching npm)
-  - All 249 tests still passing
-  - Created NPM_PUBLISH_GUIDE.md with comprehensive publishing instructions
-
-**November 22, 2025 - License Migration to Business Source License 1.1 [COMPLETE]:**
-- **Successfully migrated from MIT to BSL 1.1 for commercial protection:**
-  - LICENSE - Business Source License 1.1 with 4-year change date (2029-11-22)
-  - Prevents competitors from cloning and selling NeuroLint as competing SaaS
-  - Allows internal company use, contributions, and modifications
-  - Automatically becomes GPL-3.0-or-later after November 22, 2029
-  - Added LICENSE_NOTICES.md documenting all 329 third-party dependencies (direct + transitive)
-  - Updated package.json with "SEE LICENSE IN LICENSE", README.md, CONTRIBUTING.md with BSL references
-  - Added BSL headers to ALL npm-distributed files verified via package.json "files" array:
-    - Core CLI files: cli.js, server.js, fix-master.js, ast-transformer.js
-    - Backup system: backup-manager.js, backup-manager-production.js, backup-error-handler.js
-    - Utilities: validator.js, selector.js, simple-ora.js
-    - All scripts/ directory transformation files (7 fix layers + 4 migration tools)
-    - All shared-core/ modules (analytics.js, config-manager.js, rule-engine.js)
-    - All API endpoints: api/analyze.js, api/status.js, api/lib/*, api/result/*, api/stream/*
-  - **Status:** COMPLETE - Architect-approved, ready for npm publish
-  - Enables enterprise licensing model while maintaining transparency and community contributions
-
-**November 19, 2025 - Repository Release Preparation:**
-- **Made repository fully accessible with all standard files:**
-  - LICENSE - Now Business Source License 1.1 (updated from MIT)
-  - README.md - Comprehensive rewrite with detailed examples, use cases, troubleshooting, and command reference (matches npm version quality while removing auth)
-  - CONTRIBUTING.md - Comprehensive contribution guidelines with accurate project structure
-  - CODE_OF_CONDUCT.md - Standard Contributor Covenant v2.0
-  - package.json - Updated with correct GitHub repository URLs (https://github.com/Alcatecablee/Neurolint)
-  - All files reviewed and approved by architect agent for YC readiness and publication
-- **Built conversion-focused landing page** at https://neurolint.dev/ to replace current site
-  - Problem-first messaging (hydration crashes, missing keys, React 19 migration, etc.)
-  - Before/after code examples showing real transformations
-  - 6 problem-focused sections instead of "7 layers" feature list
-  - Social proof, FAQ, and clear CTAs throughout
-  - Built with Vite 4 + React + Tailwind in `landing/` directory
-  - Running on port 5000 with workflow "Landing Page"
-  - Fixed React JSX parsing issue: Escaped curly braces in text content (key={item.id} → key=&#123;item.id&#125;)
-- Removed all authentication and paygate logic from the CLI. All 7 layers are now completely free and available without any API key or authentication.
-- Set up comprehensive automated testing with Jest:
-  - **170 tests total**, all passing (expanded from initial 68 tests)
-  - CLI tests with exact exit code assertions (0 for success, 1 for errors)
-  - Integration tests with real fixtures (sample.js, complex-component.jsx)
-  - Error handling tests with specific error message validation
-  - Backup manager tests including error scenarios
-  - AST transformer and validator comprehensive test coverage
-  - Performance tests for large codebases
+NeuroLint CLI is a deterministic, rule-based code transformation tool designed for TypeScript, JavaScript, React, and Next.js projects. It automates fixing common code issues such as ESLint errors, hydration bugs, and missing React keys through a progressive 7-layer architecture. Originally developed to address widespread code quality issues, NeuroLint aims to provide intelligent, predictable code fixes without relying on AI/LLM for stability and reliability. The project is positioned for public release, Y Combinator application, and aims to be the go-to solution for maintaining high code quality in modern web development. All its powerful fixing layers are now completely free to use, fostering community adoption and enterprise opportunities under a Business Source License 1.1.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## If You Want to Use NeuroLint
+## System Architecture
 
-**Don't use this repo.** Instead:
+NeuroLint employs a 7-layer progressive and safe architecture for code transformation, where each layer builds upon the previous one. This architecture ensures deterministic, predictable fixes through rule-based transformations, Abstract Syntax Tree (AST) parsing, and pattern recognition. The CLI is built with `cli.js` as the main entry point, `fix-master.js` orchestrating the fix layers, and supporting modules like `ast-transformer.js`, `backup-manager.js`, `validator.js`, and `selector.js`. Core functionalities like analytics, configuration management, and the rule engine are housed in `shared-core/`. The system is extensively tested with a comprehensive Jest test suite covering CLI commands, AST transformations, backup management, and various migration tools.
 
-```bash
-# Install the published CLI
-npm install -g @neurolint/cli
+**Key Features & Implementations:**
 
-# Analyze your project
-neurolint analyze src/
+- **7-Layer Fixing System:**
+    1.  **Configuration:** Optimizes `tsconfig.json`, `next.config.js`, `package.json`.
+    2.  **Patterns:** Handles HTML entities, `console.log` removal, unused imports.
+    3.  **Components:** Addresses React keys, accessibility, prop types.
+    4.  **Hydration:** Implements SSR/hydration guards for global objects (`localStorage`, `window`, `document`).
+    5.  **Next.js:** Optimizes App Router and `"use client"` directives.
+    6.  **Testing:** Enhances testing with error boundaries and test generation.
+    7.  **Adaptive:** Supports pattern learning and custom rule generation.
+- **Next.js 16 Migration Tools:** Includes auto-conversion for directives like `'use cache'`, async parameter conversion, `await` for `cookies()`/`headers()`, smart `cacheLife` integration, and `updateTag()` suggestions.
+- **React 19 Compatibility Tools:** Features a dependency checker that scans `package.json` for incompatibilities, provides automated fixes, and suggests `package.json` overrides.
+- **Turbopack Migration Assistant:** Detects Webpack-specific configurations, identifies incompatibilities, and suggests SWC migration.
+- **React Compiler Detector:** Identifies manual memoization patterns and recommends React Compiler for optimization.
+- **Router Complexity Assessor:** Analyzes route complexity and provides recommendations for architecture choices.
+- **React 19.2 Feature Detector:** Identifies opportunities for `View Transitions`, `useEffectEvent`, and `Activity components`.
+- **UI/UX Decisions:** CLI output is designed for professional environments, replacing emojis with bracketed status indicators like `[SUCCESS]`, `[FAILED]`, etc.
+- **Testing:** Comprehensive Jest test suite covers all CLI functionalities, AST transformations, backup management, and specific migration tools, ensuring high code quality and reliability.
 
-# Fix all issues with all layers (completely free!)
-neurolint fix src/ --all-layers --verbose
+## External Dependencies
 
-# No authentication needed - all layers are free!
-```
-
-## Documentation
-
-See `CLI_USAGE.md` for complete usage guide including:
-- What's free vs paid
-- Authentication requirements
-- Layer capabilities
-- Real-world examples
-- Troubleshooting
-
-## Repository Status
-
-**This is the official open source NeuroLint CLI repository.**
-
-**GitHub:** https://github.com/Alcatecablee/Neurolint
-
-**Ready for:**
-- Public contributions (under BSL 1.1)
-- Y Combinator application
-- npm publishing (as @neurolint/cli v1.4.0 with BSL)
-- Enterprise licensing and commercial offerings
-- Community engagement
-- Reddit launch (r/nextjs, r/reactjs, r/SideProject)
-- Product Hunt campaign (40% ready, needs 4-6 weeks)
-
-**Next Steps:**
-1. Push all changes to GitHub
-2. Tag release v1.0.0
-3. Announce open source status
-4. Continue development with community contributions
-
----
-
-**NeuroLint: Deterministic code fixing. No AI. No surprises. Protected by BSL, eventually open source.**
+- **npm:** The `@neurolint/cli` package is published and distributed via npm.
+- **Jest:** Used for comprehensive automated testing.
+- **React, Next.js, TypeScript, JavaScript:** Target technologies for code transformation and analysis.
+- **Business Source License 1.1:** The project's licensing model, preventing commercial exploitation by direct competitors while allowing internal use and contributions.
