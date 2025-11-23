@@ -143,37 +143,194 @@ class ASTTransformer {
           }
         },
 
-        // Replace console.log and alert with comments
+        // Replace console.log and alert with proper AST transformations
         CallExpression(path) {
-          // Handle console.log
+          // Helper function to check if console.log is the entire body of an arrow function
+          const isArrowFunctionBody = () => {
+            const parent = path.parent;
+            const parentPath = path.parentPath;
+            
+            // Check if parent is ArrowFunctionExpression and this CallExpression is the entire body
+            if (t.isArrowFunctionExpression(parent) && parent.body === path.node) {
+              return true;
+            }
+            
+            // Also check if parent is ExpressionStatement inside ArrowFunctionExpression body
+            if (t.isExpressionStatement(parent) && parentPath && parentPath.parent) {
+              const grandParent = parentPath.parent;
+              if (t.isBlockStatement(grandParent) && 
+                  grandParent.body.length === 1 && 
+                  grandParent.body[0] === parent) {
+                const arrowPath = parentPath.parentPath;
+                if (arrowPath && t.isArrowFunctionExpression(arrowPath.parent)) {
+                  return true;
+                }
+              }
+            }
+            
+            return false;
+          };
+          
+          // Handle console.log (including all variants: log, info, warn, error, debug)
           if (t.isMemberExpression(path.node.callee)) {
             if (t.isIdentifier(path.node.callee.object, { name: 'console' }) &&
-                t.isIdentifier(path.node.callee.property, { name: 'log' })) {
+                t.isIdentifier(path.node.callee.property) &&
+                ['log', 'info', 'warn', 'error', 'debug'].includes(path.node.callee.property.name)) {
               
-              // Capture location before removing
+              const methodName = path.node.callee.property.name;
               const location = path.node.loc;
-              // Remove the console.log statement
-              path.remove();
-              changes.push({
-                type: 'CallExpression',
-                location: location,
-                description: `Removed console.log statement`
-              });
+              
+              // Check if this is an expression-bodied arrow function
+              if (isArrowFunctionBody()) {
+                // Find the arrow function and convert expression body to block body
+                const parentPath = path.parentPath;
+                
+                if (t.isArrowFunctionExpression(path.parent)) {
+                  // Direct arrow body: () => console.log()
+                  // Replace with empty block statement
+                  path.parentPath.node.body = t.blockStatement([]);
+                  
+                  // Add trailing comment to explain removal
+                  path.parentPath.addComment('trailing', ` [NeuroLint] Removed console.${methodName}()`);
+                  
+                  changes.push({
+                    type: 'ArrowFunctionExpression',
+                    location: location,
+                    description: `Replaced console.${methodName} in arrow function body with empty block {}`
+                  });
+                  return;
+                }
+              }
+              
+              // For other contexts, remove the console statement
+              // Check if parent is ExpressionStatement
+              if (t.isExpressionStatement(path.parent)) {
+                // Remove the entire expression statement
+                path.parentPath.remove();
+                changes.push({
+                  type: 'ExpressionStatement',
+                  location: location,
+                  description: `Removed console.${methodName} statement`
+                });
+              } else {
+                // Replace with undefined to maintain expression context
+                path.replaceWith(t.identifier('undefined'));
+                changes.push({
+                  type: 'CallExpression',
+                  location: location,
+                  description: `Replaced console.${methodName} with undefined`
+                });
+              }
               return;
             }
           }
           
           // Handle alert
           if (t.isIdentifier(path.node.callee, { name: 'alert' })) {
-            // Capture location before removing
             const location = path.node.loc;
-            // Remove the alert statement
-            path.remove();
-            changes.push({
-              type: 'CallExpression',
-              location: location,
-              description: `Removed alert statement`
-            });
+            
+            // Check if this is an expression-bodied arrow function
+            if (isArrowFunctionBody()) {
+              if (t.isArrowFunctionExpression(path.parent)) {
+                // Replace with empty block statement
+                path.parentPath.node.body = t.blockStatement([]);
+                path.parentPath.addComment('trailing', ' [NeuroLint] Removed alert()');
+                
+                changes.push({
+                  type: 'ArrowFunctionExpression',
+                  location: location,
+                  description: 'Replaced alert in arrow function body with empty block {}'
+                });
+                return;
+              }
+            }
+            
+            // For other contexts, remove the alert statement
+            if (t.isExpressionStatement(path.parent)) {
+              path.parentPath.remove();
+              changes.push({
+                type: 'ExpressionStatement',
+                location: location,
+                description: 'Removed alert statement'
+              });
+            } else {
+              path.replaceWith(t.identifier('undefined'));
+              changes.push({
+                type: 'CallExpression',
+                location: location,
+                description: 'Replaced alert with undefined'
+              });
+            }
+          }
+          
+          // Handle confirm
+          if (t.isIdentifier(path.node.callee, { name: 'confirm' })) {
+            const location = path.node.loc;
+            
+            if (isArrowFunctionBody()) {
+              if (t.isArrowFunctionExpression(path.parent)) {
+                path.parentPath.node.body = t.blockStatement([]);
+                path.parentPath.addComment('trailing', ' [NeuroLint] Removed confirm()');
+                
+                changes.push({
+                  type: 'ArrowFunctionExpression',
+                  location: location,
+                  description: 'Replaced confirm in arrow function body with empty block {}'
+                });
+                return;
+              }
+            }
+            
+            if (t.isExpressionStatement(path.parent)) {
+              path.parentPath.remove();
+              changes.push({
+                type: 'ExpressionStatement',
+                location: location,
+                description: 'Removed confirm statement'
+              });
+            } else {
+              path.replaceWith(t.identifier('undefined'));
+              changes.push({
+                type: 'CallExpression',
+                location: location,
+                description: 'Replaced confirm with undefined'
+              });
+            }
+          }
+          
+          // Handle prompt
+          if (t.isIdentifier(path.node.callee, { name: 'prompt' })) {
+            const location = path.node.loc;
+            
+            if (isArrowFunctionBody()) {
+              if (t.isArrowFunctionExpression(path.parent)) {
+                path.parentPath.node.body = t.blockStatement([]);
+                path.parentPath.addComment('trailing', ' [NeuroLint] Removed prompt()');
+                
+                changes.push({
+                  type: 'ArrowFunctionExpression',
+                  location: location,
+                  description: 'Replaced prompt in arrow function body with empty block {}'
+                });
+                return;
+              }
+            }
+            
+            if (t.isExpressionStatement(path.parent)) {
+              path.parentPath.remove();
+              changes.push({
+                type: 'ExpressionStatement',
+                location: location,
+                description: 'Removed prompt statement'
+              });
+            } else {
+              path.replaceWith(t.identifier('undefined'));
+              changes.push({
+                type: 'CallExpression',
+                location: location,
+                description: 'Replaced prompt with undefined'
+              });
+            }
           }
         },
 

@@ -28,6 +28,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const BackupManager = require('../backup-manager');
 const parser = require('@babel/parser');
+const ASTTransformer = require('../ast-transformer');
 
 /**
  * React 19 Pattern Transformation Functions
@@ -362,16 +363,9 @@ async function transform(code, options = {}) {
       }
     }
 
-    // 1) Console.* -> comments (only actual console calls, not strings or regex)
-    const beforeConsole = updatedCode;
-    const consolePatterns = [
-      { name: 'console.log', regex: /\bconsole\.log\(([^)]*)\);?/g },
-      { name: 'console.info', regex: /\bconsole\.info\(([^)]*)\);?/g },
-      { name: 'console.warn', regex: /\bconsole\.warn\(([^)]*)\);?/g },
-      { name: 'console.error', regex: /\bconsole\.error\(([^)]*)\);?/g },
-      { name: 'console.debug', regex: /\bconsole\.debug\(([^)]*)\);?/g }
-    ];
-
+    // 1) AST-based console.log/alert/confirm/prompt removal with arrow function support
+    const beforeAST = updatedCode;
+    
     // Progressive suggestion: interactive component without 'use client'
     if (options.progressive) {
       try {
@@ -388,79 +382,37 @@ async function transform(code, options = {}) {
         }
       } catch {}
     }
-
-    consolePatterns.forEach(({ name, regex }) => {
-      updatedCode = updatedCode.replace(regex, (match, args, offset) => {
-        // Skip if this is inside a string
-        const beforeMatch = updatedCode.substring(0, offset);
-        const quoteCount = (beforeMatch.match(/['"`]/g) || []).length;
-        if (quoteCount % 2 === 1) return match; // Inside a string
+    
+    // Use AST-based transformations for robust console/alert handling
+    try {
+      const transformer = new ASTTransformer();
+      const astResult = transformer.transformPatterns(updatedCode, { filename: filePath });
+      
+      if (astResult.success && astResult.code !== updatedCode) {
+        updatedCode = astResult.code;
         
-        // Check if this console call is the only body of an arrow function
-        // Pattern 1: () => console.log(...) - with parentheses
-        // Pattern 2: value => console.log(value) - single param, no parentheses
-        const arrowWithParens = /\)\s*=>\s*$/;
-        const arrowWithoutParens = /[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>\s*$/;
-        const codeAfterMatch = updatedCode.substring(offset + match.length);
-        const isArrowFunctionBody = arrowWithParens.test(beforeMatch) || arrowWithoutParens.test(beforeMatch);
+        // Add changes from AST transformation
+        astResult.changes.forEach(change => {
+          changes.push({
+            type: change.type,
+            description: change.description,
+            location: change.location
+          });
+          changeCount++;
+        });
         
-        if (isArrowFunctionBody) {
-          // Verify console.log is the ENTIRE arrow body - check what follows
-          // Only replace if followed by: whitespace + (semicolon, comma, closing brace/bracket/paren, or newline/EOF)
-          // Do NOT replace if followed by operators like ||, &&, ?, etc.
-          const afterPattern = /^\s*(;|,|}|\]|\)|$)/;
-          const isEntireBody = afterPattern.test(codeAfterMatch);
-          
-          if (isEntireBody) {
-            // Console.log is the entire arrow body - safe to replace
-            const replacement = `{}`;
-            changes.push({ type: 'Comment', description: `Removed ${name} from arrow function`, location: null });
-            return replacement;
-          }
-          // Otherwise, fall through to normal comment replacement
+        states.push(updatedCode);
+        
+        if (verbose) {
+          process.stdout.write(`[INFO] AST-based pattern transformations: ${astResult.changes.length} changes\n`);
         }
-        
-        const comment = `// [NeuroLint] Removed ${name}: ${args}`;
-        changes.push({ type: 'Comment', description: comment, location: null });
-        return comment;
-      });
-    });
-    if (updatedCode !== beforeConsole) states.push(updatedCode);
-
-    // 2) Dialogs -> comments (toast/dialog) - only actual calls, not strings
-    const beforeDialogs = updatedCode;
-    updatedCode = updatedCode
-      .replace(/\balert\(([^)]*)\);?/g, (m, args) => {
-        // Skip if this is inside a string
-        const beforeMatch = updatedCode.substring(0, updatedCode.indexOf(m));
-        const quoteCount = (beforeMatch.match(/['"`]/g) || []).length;
-        if (quoteCount % 2 === 1) return m; // Inside a string
-        
-        const c = `// [NeuroLint] Replace with toast notification: ${args}`;
-        changes.push({ type: 'Comment', description: c, location: null });
-        return c;
-      })
-      .replace(/\bconfirm\(([^)]*)\);?/g, (m, args) => {
-        // Skip if this is inside a string
-        const beforeMatch = updatedCode.substring(0, updatedCode.indexOf(m));
-        const quoteCount = (beforeMatch.match(/['"`]/g) || []).length;
-        if (quoteCount % 2 === 1) return m; // Inside a string
-        
-        const c = `// [NeuroLint] Replace with dialog: ${args}`;
-        changes.push({ type: 'Comment', description: c, location: null });
-        return c;
-      })
-      .replace(/\bprompt\(([^)]*)\);?/g, (m, args) => {
-        // Skip if this is inside a string
-        const beforeMatch = updatedCode.substring(0, updatedCode.indexOf(m));
-        const quoteCount = (beforeMatch.match(/['"`]/g) || []).length;
-        if (quoteCount % 2 === 1) return m; // Inside a string
-        
-        const c = `// [NeuroLint] Replace with dialog: ${args}`;
-        changes.push({ type: 'Comment', description: c, location: null });
-        return c;
-      });
-    if (updatedCode !== beforeDialogs) states.push(updatedCode);
+      }
+    } catch (astError) {
+      // If AST transformation fails, log warning but continue with other transformations
+      if (verbose) {
+        process.stderr.write(`[WARNING] AST transformation skipped: ${astError.message}\n`);
+      }
+    }
 
     // 3) Mock data and setTimeout
     const beforeMock = updatedCode;
