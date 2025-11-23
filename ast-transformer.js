@@ -180,18 +180,25 @@ class ASTTransformer {
               const methodName = path.node.callee.property.name;
               const location = path.node.loc;
               
+              // Get arguments as string for comment
+              const args = path.node.arguments.map(arg => {
+                try {
+                  return generate(arg).code;
+                } catch {
+                  return '...';
+                }
+              }).join(', ');
+              
               // Check if this is an expression-bodied arrow function
               if (isArrowFunctionBody()) {
-                // Find the arrow function and convert expression body to block body
-                const parentPath = path.parentPath;
-                
+                // Find the arrow function and convert expression body to block body with comment
                 if (t.isArrowFunctionExpression(path.parent)) {
                   // Direct arrow body: () => console.log()
-                  // Replace with empty block statement
-                  path.parentPath.node.body = t.blockStatement([]);
-                  
-                  // Add trailing comment to explain removal
-                  path.parentPath.addComment('trailing', ` [NeuroLint] Removed console.${methodName}()`);
+                  // Replace with empty block statement with comment
+                  const comment = ` [NeuroLint] Removed console.${methodName}: ${args}`;
+                  const emptyBlock = t.blockStatement([]);
+                  path.parentPath.node.body = emptyBlock;
+                  path.parentPath.addComment('trailing', comment);
                   
                   changes.push({
                     type: 'ArrowFunctionExpression',
@@ -202,23 +209,35 @@ class ASTTransformer {
                 }
               }
               
-              // For other contexts, remove the console statement
-              // Check if parent is ExpressionStatement
+              // For other contexts, replace with comment
               if (t.isExpressionStatement(path.parent)) {
-                // Remove the entire expression statement
-                path.parentPath.remove();
+                // Replace the entire expression statement with an EmptyStatement carrying the comment
+                const commentText = `[NeuroLint] Removed console.${methodName}: ${args}`;
+                const emptyStatement = t.emptyStatement();
+                emptyStatement.leadingComments = [{
+                  type: 'CommentLine',
+                  value: ` ${commentText}`
+                }];
+                path.parentPath.replaceWith(emptyStatement);
                 changes.push({
                   type: 'ExpressionStatement',
                   location: location,
-                  description: `Removed console.${methodName} statement`
+                  description: `Removed console.${methodName} statement (added comment)`
                 });
               } else {
-                // Replace with undefined to maintain expression context
-                path.replaceWith(t.identifier('undefined'));
+                // For expression contexts, we need to maintain syntax but add comment
+                // Replace with a comment expression (use undefined to maintain valid syntax)
+                const commentText = `[NeuroLint] Removed console.${methodName}: ${args}`;
+                const replacement = t.identifier('undefined');
+                replacement.leadingComments = [{
+                  type: 'CommentLine',
+                  value: ` ${commentText}`
+                }];
+                path.replaceWith(replacement);
                 changes.push({
                   type: 'CallExpression',
                   location: location,
-                  description: `Replaced console.${methodName} with undefined`
+                  description: `Replaced console.${methodName} with undefined (added comment)`
                 });
               }
               return;
@@ -229,12 +248,22 @@ class ASTTransformer {
           if (t.isIdentifier(path.node.callee, { name: 'alert' })) {
             const location = path.node.loc;
             
+            // Get arguments as string for comment
+            const args = path.node.arguments.map(arg => {
+              try {
+                return generate(arg).code;
+              } catch {
+                return '...';
+              }
+            }).join(', ');
+            
             // Check if this is an expression-bodied arrow function
             if (isArrowFunctionBody()) {
               if (t.isArrowFunctionExpression(path.parent)) {
-                // Replace with empty block statement
+                // Replace with empty block statement with comment
+                const comment = ` [NeuroLint] Replace with toast notification: ${args}`;
                 path.parentPath.node.body = t.blockStatement([]);
-                path.parentPath.addComment('trailing', ' [NeuroLint] Removed alert()');
+                path.parentPath.addComment('trailing', comment);
                 
                 changes.push({
                   type: 'ArrowFunctionExpression',
@@ -245,20 +274,32 @@ class ASTTransformer {
               }
             }
             
-            // For other contexts, remove the alert statement
+            // For other contexts, replace with comment
             if (t.isExpressionStatement(path.parent)) {
-              path.parentPath.remove();
+              const commentText = `[NeuroLint] Replace with toast notification: ${args}`;
+              const emptyStatement = t.emptyStatement();
+              emptyStatement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.parentPath.replaceWith(emptyStatement);
               changes.push({
                 type: 'ExpressionStatement',
                 location: location,
-                description: 'Removed alert statement'
+                description: 'Removed alert statement (added comment)'
               });
             } else {
-              path.replaceWith(t.identifier('undefined'));
+              const commentText = `[NeuroLint] Replace with toast notification: ${args}`;
+              const replacement = t.identifier('undefined');
+              replacement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.replaceWith(replacement);
               changes.push({
                 type: 'CallExpression',
                 location: location,
-                description: 'Replaced alert with undefined'
+                description: 'Replaced alert with undefined (added comment)'
               });
             }
           }
@@ -267,10 +308,19 @@ class ASTTransformer {
           if (t.isIdentifier(path.node.callee, { name: 'confirm' })) {
             const location = path.node.loc;
             
+            const args = path.node.arguments.map(arg => {
+              try {
+                return generate(arg).code;
+              } catch {
+                return '...';
+              }
+            }).join(', ');
+            
             if (isArrowFunctionBody()) {
               if (t.isArrowFunctionExpression(path.parent)) {
+                const comment = ` [NeuroLint] Replace with dialog: ${args}`;
                 path.parentPath.node.body = t.blockStatement([]);
-                path.parentPath.addComment('trailing', ' [NeuroLint] Removed confirm()');
+                path.parentPath.addComment('trailing', comment);
                 
                 changes.push({
                   type: 'ArrowFunctionExpression',
@@ -282,18 +332,30 @@ class ASTTransformer {
             }
             
             if (t.isExpressionStatement(path.parent)) {
-              path.parentPath.remove();
+              const commentText = `[NeuroLint] Replace with dialog: ${args}`;
+              const emptyStatement = t.emptyStatement();
+              emptyStatement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.parentPath.replaceWith(emptyStatement);
               changes.push({
                 type: 'ExpressionStatement',
                 location: location,
-                description: 'Removed confirm statement'
+                description: 'Removed confirm statement (added comment)'
               });
             } else {
-              path.replaceWith(t.identifier('undefined'));
+              const commentText = `[NeuroLint] Replace with dialog: ${args}`;
+              const replacement = t.identifier('undefined');
+              replacement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.replaceWith(replacement);
               changes.push({
                 type: 'CallExpression',
                 location: location,
-                description: 'Replaced confirm with undefined'
+                description: 'Replaced confirm with undefined (added comment)'
               });
             }
           }
@@ -302,10 +364,19 @@ class ASTTransformer {
           if (t.isIdentifier(path.node.callee, { name: 'prompt' })) {
             const location = path.node.loc;
             
+            const args = path.node.arguments.map(arg => {
+              try {
+                return generate(arg).code;
+              } catch {
+                return '...';
+              }
+            }).join(', ');
+            
             if (isArrowFunctionBody()) {
               if (t.isArrowFunctionExpression(path.parent)) {
+                const comment = ` [NeuroLint] Replace with dialog: ${args}`;
                 path.parentPath.node.body = t.blockStatement([]);
-                path.parentPath.addComment('trailing', ' [NeuroLint] Removed prompt()');
+                path.parentPath.addComment('trailing', comment);
                 
                 changes.push({
                   type: 'ArrowFunctionExpression',
@@ -317,18 +388,30 @@ class ASTTransformer {
             }
             
             if (t.isExpressionStatement(path.parent)) {
-              path.parentPath.remove();
+              const commentText = `[NeuroLint] Replace with dialog: ${args}`;
+              const emptyStatement = t.emptyStatement();
+              emptyStatement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.parentPath.replaceWith(emptyStatement);
               changes.push({
                 type: 'ExpressionStatement',
                 location: location,
-                description: 'Removed prompt statement'
+                description: 'Removed prompt statement (added comment)'
               });
             } else {
-              path.replaceWith(t.identifier('undefined'));
+              const commentText = `[NeuroLint] Replace with dialog: ${args}`;
+              const replacement = t.identifier('undefined');
+              replacement.leadingComments = [{
+                type: 'CommentLine',
+                value: ` ${commentText}`
+              }];
+              path.replaceWith(replacement);
               changes.push({
                 type: 'CallExpression',
                 location: location,
-                description: 'Replaced prompt with undefined'
+                description: 'Replaced prompt with undefined (added comment)'
               });
             }
           }
