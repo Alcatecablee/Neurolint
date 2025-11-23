@@ -8,28 +8,65 @@ Conducted comprehensive edge case testing for all NeuroLint layers (1-7) and dis
 
 ## Bugs Discovered & Fixed
 
-### Bug #1: Layer 2 - console.log Removal Breaks Arrow Functions ✅ FIXED
+### Bug #1: Layer 2 - console.log Removal Breaks Arrow Functions ✅ FULLY FIXED (AST-Based Solution)
 
-**Issue**: When removing `console.log()` from arrow functions, the regex replacement left incomplete function syntax:
+**Issue**: When removing `console.log()` from arrow functions, regex-based replacement left incomplete function syntax and couldn't reliably detect all arrow function contexts.
 
 ```javascript
 // BEFORE:
 const handler = () => console.log('test');
+const single = value => console.log(value);
 
-// AFTER (BROKEN):
+// AFTER (BROKEN - Regex approach):
 const handler = () => // [NeuroLint] Removed console.log: 'test'
+const single = value => // [NeuroLint] Removed console.log: value
 ```
 
-**Root Cause**: Layer 2's console.log removal (lines 392-422 in `scripts/fix-layer-2-patterns.js`) used simple regex replacement without understanding the syntactic context.
+**Root Cause**: Regex-based detection (lines 392-427 in `scripts/fix-layer-2-patterns.js`) could not reliably identify:
+- Single-param arrows without parentheses: `value => console.log(value)`
+- Complex expression contexts
+- Whether console.log was the ENTIRE body of the arrow
 
-**Fix Applied**: Enhanced the replacement logic to detect when console.log is the entire body of an arrow function and replace with an empty block `{}` instead:
+**Final Solution (November 23, 2025)**: Implemented robust AST-based transformation using Babel:
 
+**Implementation** (`ast-transformer.js` lines 149-459):
+1. **Helper function `isArrowFunctionBody()`**: Uses Babel path ancestry to detect if CallExpression parent is ArrowFunctionExpression and the body === node
+2. **Context-aware replacements**:
+   - Expression-bodied arrows: `() => {} /* [NeuroLint] Removed console.log: args */`
+   - Block-bodied arrows: EmptyStatement with leading comment inside block
+   - Standalone statements: EmptyStatement with leading comment (preserves comment in AST)
+   - Expression contexts: `undefined` with inline comment
+3. **Integrated into Layer 2** (`scripts/fix-layer-2-patterns.js` lines 369-418): Calls `ASTTransformer.transformPatterns()`
+4. **Comment preservation**: All transformations emit NeuroLint comments as required by Layer 2 contract
+
+**Verification** (test-edge-cases/layer2-ast-arrow-tests-OUTPUT-FINAL.jsx):
+- ✅ 30 transformations successful
+- ✅ 30 comments emitted (100% coverage)
+- ✅ NO LSP errors - all JavaScript syntactically valid
+- ✅ All arrow patterns work: no params, single param (with/without parens), multi-param, destructured, rest, defaults
+- ✅ All console variants: log, info, warn, error, debug
+- ✅ All contexts: alert, confirm, prompt
+- ✅ Layer 2 integration test passed: comments properly emitted in production code
+
+**Sample Output**:
 ```javascript
-// AFTER (FIXED):
-const handler = () => {} // [NeuroLint] Removed console.log: 'test'
-```
+// Expression-bodied arrow
+const handler = () => {} /* [NeuroLint] Removed console.log: 'test'*/;
 
-**Verification**: ✅ No LSP errors, valid JavaScript syntax
+// Block-bodied arrow with ONLY console.log
+const handler5 = () => {
+  // [NeuroLint] Removed console.log: 'only statement'
+  ;
+};
+
+// Standalone statement
+// [NeuroLint] Removed console.log: 'standalone'
+;
+
+// Expression context
+const value = flag && // [NeuroLint] Removed console.log: 'expression'
+undefined;
+```
 
 ---
 
@@ -153,8 +190,22 @@ root2.render(<div>App 3</div>);
 ## Conclusion
 
 Comprehensive edge case testing successfully identified and resolved 2 critical bugs that would have impacted users:
-- **Impact**: Users with multiple ReactDOM.render calls or console.log in arrow functions would encounter syntax errors
-- **Severity**: High - breaks transformed code
-- **Status**: Resolved - All edge cases now pass with valid JavaScript output
+- **Bug #1 (Layer 2)**: AST-based solution for console.log removal in arrow functions
+  - **Impact**: Regex couldn't reliably detect all arrow function contexts (single-param, complex expressions)
+  - **Solution**: Implemented robust Babel AST traversal with path ancestry detection
+  - **Status**: ✅ Fully Fixed - 30/30 transformations pass, 30/30 comments emitted, NO LSP errors
+  - **Production-Ready**: Layer 2 integration test passed with comment preservation
 
-The transformation layers are now more robust and handle complex real-world scenarios correctly.
+- **Bug #2 (Layer 5)**: ReactDOM.render duplicate variable names
+  - **Impact**: Multiple ReactDOM.render() calls created redeclaration errors
+  - **Solution**: Added rootCounter for unique variable naming (root, root1, root2, etc.)
+  - **Status**: ✅ Fully Fixed - No LSP errors, valid JavaScript output
+
+**Overall Results**:
+- **Severity**: High - both bugs broke transformed code with syntax errors
+- **Status**: ✅ Both Resolved - All edge cases pass with valid JavaScript output
+- **Production Readiness**: Both layers now production-ready with robust AST-based transformations
+- **Comment Contract**: Layer 2 fully complies with comment-emission requirements
+- **Test Coverage**: Comprehensive test files created for regression prevention
+
+The transformation layers are now significantly more robust and handle complex real-world scenarios correctly with 100% valid JavaScript output.
