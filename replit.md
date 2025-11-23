@@ -16,7 +16,14 @@ NeuroLint employs a 7-layer progressive and safe architecture for code transform
 
 - **7-Layer Fixing System:**
     1.  **Configuration:** Optimizes `tsconfig.json`, `next.config.js`, `package.json`.
-    2.  **Patterns:** Handles HTML entities, `console.log` removal, unused imports.
+    2.  **Patterns (AST-Based, Production-Ready):** 
+        - Handles HTML entities in string literals
+        - AST-based console.log/alert/confirm/prompt removal with context-aware replacements
+        - Detects arrow function contexts using Babel path ancestry
+        - Preserves NeuroLint comments in all transformation contexts (100% comment coverage)
+        - Expression-bodied arrows: `() => {} /* [NeuroLint] comment */`
+        - Block-bodied arrows & standalone: EmptyStatement with leading comments
+        - Unused import removal
     3.  **Components:** Addresses React keys, accessibility, prop types.
     4.  **Hydration:** Implements SSR/hydration guards for global objects (`localStorage`, `window`, `document`).
     5.  **Next.js (Production-Ready):** 
