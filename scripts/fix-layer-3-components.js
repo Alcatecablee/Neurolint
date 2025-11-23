@@ -98,13 +98,96 @@ function applyRegexFallbacks(input) {
     return `<img alt="Image"${attrs}>`;
   });
 
+  // Tokenize parameters using stack-based parsing
+  const tokenizeParams = (str) => {
+    const tokens = [];
+    let current = '';
+    let depth = 0;
+    let hasComplex = false;
+    
+    for (const char of str) {
+      if (char === '(' || char === '{' || char === '[') {
+        depth++;
+        if (char === '{' || char === '[') hasComplex = true;
+        current += char;
+      } else if (char === ')' || char === '}' || char === ']') {
+        depth--;
+        current += char;
+      } else if (char === ',' && depth === 0) {
+        tokens.push(current.trim());
+        current = '';
+      } else {
+        if (char === '=' || char === ':') hasComplex = true;
+        current += char;
+      }
+    }
+    if (current.trim()) tokens.push(current.trim());
+    
+    // Extract second identifier if it exists
+    let secondIdentifier = null;
+    if (tokens.length > 1) {
+      const secondToken = tokens[1];
+      if (/^[a-zA-Z_$][\w$]*$/.test(secondToken)) {
+        secondIdentifier = secondToken;
+      }
+    }
+    
+    return { tokens, hasComplex, secondIdentifier };
+  };
+  
+  // Classify params and generate key expression
+  const classifyMapParams = (params) => {
+    const trimmed = params.trim();
+    const hadParens = trimmed.startsWith('(') && trimmed.endsWith(')');
+    const inner = hadParens ? trimmed.slice(1, -1).trim() : trimmed;
+    
+    const { tokens, hasComplex, secondIdentifier } = tokenizeParams(inner);
+    const firstToken = tokens[0]?.trim() || '';
+    
+    const isSimpleIdentifier = /^[a-zA-Z_$][\w$]*$/.test(firstToken);
+    const isDestructured = firstToken.startsWith('{') || firstToken.startsWith('[');
+    
+    // Regex fallback rule: synthesize index for ALL callbacks without a second param
+    let keyExpr, needsIndex;
+    
+    if (secondIdentifier) {
+      // Has valid second parameter, reuse it
+      keyExpr = secondIdentifier;
+      needsIndex = false;
+    } else {
+      // No second param: synthesize index for determinism
+      keyExpr = 'index';
+      needsIndex = true;
+    }
+    
+    return { keyExpr, needsIndex, originalParams: trimmed, hadParens };
+  };
+  
+  // Insert index parameter properly
+  const insertIndexParam = (params, hadParens) => {
+    const trimmed = params.trim();
+    
+    if (hadParens) {
+      // Insert before closing paren
+      return trimmed.slice(0, -1) + ', index)';
+    } else {
+      // Wrap and add index
+      return `(${trimmed}, index)`;
+    }
+  };
+  
   // Add key prop to map items missing keys in simple cases
-  code = code.replace(/\{\s*([a-zA-Z_$][\w$]*)\.map\(([^)]*)=>\s*<([A-Z][\w]*)\b([^>]*)>\s*([^<]*)\s*<\/\3>\s*\)\s*\}/g,
+  // Match pattern: { array.map(params => <Tag>...</Tag>) }
+  // Updated regex to capture params correctly (everything between .map( and =>)
+  code = code.replace(/\{\s*([a-zA-Z_$][\w$]*)\.map\(([^=]*)\s*=>\s*<([A-Z][\w]*)\b([^>]*)>\s*([^<]*)\s*<\/\3>\s*\)\s*\}/g,
     (m, arr, params, tag, attrs, inner) => {
       if (/\bkey=/.test(m)) return m;
       changes.push({ description: 'Added key prop in map()', location: {} });
-      const keyExpr = params.includes('item') ? 'item.id || item' : 'index';
-      return `{ ${arr}.map(${params} => <${tag} key={${keyExpr}}${attrs}>${inner}</${tag}>) }`;
+      
+      const { keyExpr, needsIndex, originalParams, hadParens } = classifyMapParams(params);
+      const newParams = needsIndex ? insertIndexParam(originalParams, hadParens) : originalParams;
+      
+      return `{ ${arr}.map(${newParams} => <${tag} key={${keyExpr}}${attrs}>${inner}</${tag}>) }`;
     }
   );
 

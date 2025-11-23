@@ -471,6 +471,74 @@ class ASTTransformer {
           if (t.isMemberExpression(path.node.callee) &&
               t.isIdentifier(path.node.callee.property, { name: 'map' })) {
             
+            const callback = path.node.arguments[0];
+            let paramName = null;
+            let useIndex = false;
+            let needsIndexParam = false;
+            let foundStableProperty = false;
+            
+            if (callback) {
+              if (t.isArrowFunctionExpression(callback) || t.isFunctionExpression(callback)) {
+                const params = callback.params;
+                if (params && params.length > 0) {
+                  const firstParam = params[0];
+                  if (t.isIdentifier(firstParam)) {
+                    paramName = firstParam.name;
+                  } else if (t.isObjectPattern(firstParam)) {
+                    // Try to find a stable property (id, key, _id, etc.)
+                    const stableProps = ['id', 'key', '_id', 'uid'];
+                    let foundProp = null;
+                    
+                    for (const prop of firstParam.properties) {
+                      if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+                        if (stableProps.includes(prop.key.name)) {
+                          foundProp = t.isIdentifier(prop.value) ? prop.value.name : prop.key.name;
+                          break;
+                        }
+                      }
+                    }
+                    
+                    if (foundProp) {
+                      paramName = foundProp;
+                      foundStableProperty = true;
+                    } else {
+                      // No stable property found, use index
+                      if (params.length > 1 && t.isIdentifier(params[1])) {
+                        paramName = params[1].name;
+                        useIndex = true;
+                      } else {
+                        paramName = 'index';
+                        useIndex = true;
+                        needsIndexParam = true;
+                      }
+                    }
+                  } else if (t.isArrayPattern(firstParam)) {
+                    // For array destructuring, use index
+                    if (params.length > 1 && t.isIdentifier(params[1])) {
+                      paramName = params[1].name;
+                      useIndex = true;
+                    } else {
+                      paramName = 'index';
+                      useIndex = true;
+                      needsIndexParam = true;
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Fall back to 'index' if no param name found
+            if (!paramName) {
+              paramName = 'index';
+              useIndex = true;
+              needsIndexParam = true;
+            }
+            
+            // Add index parameter to callback if needed
+            if (needsIndexParam && callback && (t.isArrowFunctionExpression(callback) || t.isFunctionExpression(callback))) {
+              callback.params.push(t.identifier('index'));
+            }
+            
             // Look for JSX elements inside the map function
             path.traverse({
               JSXElement(jsxPath) {
@@ -480,19 +548,26 @@ class ASTTransformer {
                 );
                 
                 if (!hasKey) {
-                  // Add key prop
+                  // Add key prop using the actual parameter name or index
+                  let keyExpression;
+                  if (useIndex || foundStableProperty) {
+                    // For index or stable property from destructured params, just use the value
+                    keyExpression = t.identifier(paramName);
+                  } else {
+                    // For normal params (item, todo, etc.), use param.id || param
+                    keyExpression = t.logicalExpression(
+                      '||',
+                      t.memberExpression(
+                        t.identifier(paramName),
+                        t.identifier('id')
+                      ),
+                      t.identifier(paramName)
+                    );
+                  }
+                  
                   const keyAttribute = t.jsxAttribute(
                     t.jsxIdentifier('key'),
-                    t.jsxExpressionContainer(
-                      t.logicalExpression(
-                        '||',
-                        t.memberExpression(
-                          t.identifier('item'),
-                          t.identifier('id')
-                        ),
-                        t.identifier('item')
-                      )
-                    )
+                    t.jsxExpressionContainer(keyExpression)
                   );
                   
                   jsxPath.node.openingElement.attributes.push(keyAttribute);

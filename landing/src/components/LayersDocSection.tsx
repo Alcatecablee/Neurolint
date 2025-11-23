@@ -247,19 +247,19 @@ function handleClick() {
     name: "Layer 4: Hydration",
     shortName: "L4 Hydration",
     icon: <Zap className="w-6 h-6" />,
-    description: "Prevents hydration mismatches in Next.js SSR by guarding browser APIs with typeof checks.",
+    description: "Prevents hydration mismatches in Next.js SSR by guarding browser APIs and implementing event listener cleanup.",
     whatItDoes: [
       "Adds typeof window !== 'undefined' guards for browser globals",
-      "Wraps localStorage/sessionStorage access in typeof checks",
+      "Wraps localStorage/sessionStorage access in SSR checks",
+      "Implements automatic addEventListener cleanup with removeEventListener",
       "Adds typeof document !== 'undefined' guards for DOM access",
-      "Detects addEventListener patterns missing cleanup and warns",
       "Prevents 'ReferenceError: window/document is not defined' in SSR"
     ],
     keyFeatures: [
       "Automatic typeof window/document guards",
       "Inline SSR safety wrapping for browser APIs",
-      "Detection and warnings for missing useEffect cleanup",
-      "Prevents server-side ReferenceErrors"
+      "Automatic useEffect cleanup generation for event listeners",
+      "Prevents server-side ReferenceErrors and memory leaks"
     ],
     examples: [
       {
@@ -279,15 +279,20 @@ function handleClick() {
         explanation: "Wraps localStorage access in typeof window check to prevent server-side ReferenceError. Falls back to null if window is undefined, then || operator uses 'light' default."
       },
       {
-        title: "Event Listener SSR Guard",
+        title: "Event Listener Cleanup",
         before: `useEffect(() => {
   window.addEventListener('resize', handleResize);
+  window.addEventListener('scroll', handleScroll);
 }, []);`,
         after: `useEffect(() => {
   window.addEventListener('resize', handleResize);
-}, []);
-// [WARNING] useEffect with addEventListener missing cleanup`,
-        explanation: "Detects addEventListener patterns missing cleanup and emits a warning. Does not automatically add cleanup or SSR guards for event listeners - these must be added manually."
+  window.addEventListener('scroll', handleScroll);
+  return () => {
+    window.removeEventListener('resize', handleResize);
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, []);`,
+        explanation: "Automatically generates cleanup function with removeEventListener for all addEventListener calls in useEffect, preventing memory leaks and ensuring proper cleanup."
       }
     ],
     whenToUse: "Run after Layer 3. Essential for all Next.js projects with SSR/SSG, especially when using browser APIs like localStorage or window.",

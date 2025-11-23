@@ -645,7 +645,30 @@ async function transform(code, options = {}) {
           const effectCallback = path.node.arguments[0];
           
           if (t.isArrowFunctionExpression(effectCallback) || t.isFunctionExpression(effectCallback)) {
-            const body = effectCallback.body;
+            let body = effectCallback.body;
+            let normalizedToBlock = false;
+            
+            // Normalize concise arrow callbacks to block statements
+            // But preserve cleanup functions (arrow/function expressions)
+            if (!t.isBlockStatement(body)) {
+              // Check if it's already a cleanup function (returns arrow/function)
+              if (t.isArrowFunctionExpression(body) || t.isFunctionExpression(body)) {
+                // Keep it as a cleanup return - wrap in return statement
+                const blockBody = t.blockStatement([
+                  t.returnStatement(body)
+                ]);
+                effectCallback.body = blockBody;
+                body = blockBody;
+              } else {
+                // It's an expression, convert to expression statement
+                const blockBody = t.blockStatement([
+                  t.expressionStatement(body)
+                ]);
+                effectCallback.body = blockBody;
+                body = blockBody;
+                normalizedToBlock = true;
+              }
+            }
             
             // Track if we found addEventListener without cleanup
             let hasAddEventListener = false;
@@ -695,16 +718,69 @@ async function transform(code, options = {}) {
             
             checkBody(body);
             
-            // If we have addEventListener but no cleanup, add warning
-            if (hasAddEventListener && !hasReturnCleanup) {
-              changes.push({
-                type: 'event-listener-warning',
-                description: 'useEffect with addEventListener should return cleanup function',
-                location: path.node.loc
+            // If we have addEventListener but no cleanup, add cleanup function
+            if (hasAddEventListener && !hasReturnCleanup && t.isBlockStatement(body)) {
+              // Collect all addEventListener calls to generate cleanup
+              const addEventListeners = [];
+              
+              body.body.forEach(statement => {
+                if (t.isExpressionStatement(statement) && 
+                    t.isCallExpression(statement.expression)) {
+                  const call = statement.expression;
+                  if (t.isMemberExpression(call.callee) && 
+                      t.isIdentifier(call.callee.property, { name: 'addEventListener' })) {
+                    // Store the object (e.g., window), event name, handler, and options (if any)
+                    addEventListeners.push({
+                      object: call.callee.object,
+                      eventName: call.arguments[0],
+                      handler: call.arguments[1],
+                      options: call.arguments[2] || null
+                    });
+                  }
+                }
               });
               
-              if (verbose) {
-                process.stdout.write('[WARNING] useEffect with addEventListener missing cleanup\n');
+              // Generate cleanup function with removeEventListener calls
+              if (addEventListeners.length > 0) {
+                const cleanupStatements = addEventListeners.map(listener => {
+                  // Build removeEventListener arguments (include options if present)
+                  const removeArgs = [t.cloneNode(listener.eventName), t.cloneNode(listener.handler)];
+                  if (listener.options) {
+                    removeArgs.push(t.cloneNode(listener.options));
+                  }
+                  
+                  return t.expressionStatement(
+                    t.callExpression(
+                      t.memberExpression(
+                        t.cloneNode(listener.object),
+                        t.identifier('removeEventListener')
+                      ),
+                      removeArgs
+                    )
+                  );
+                });
+                
+                // Create return statement with cleanup function
+                const returnCleanup = t.returnStatement(
+                  t.arrowFunctionExpression(
+                    [],
+                    t.blockStatement(cleanupStatements)
+                  )
+                );
+                
+                // Add cleanup to the end of useEffect body
+                body.body.push(returnCleanup);
+                
+                changes.push({
+                  type: 'event-listener-cleanup',
+                  description: `Added removeEventListener cleanup for ${addEventListeners.length} event listener(s)`,
+                  location: path.node.loc
+                });
+                changeCount++;
+                
+                if (verbose) {
+                  process.stdout.write(`[INFO] Added removeEventListener cleanup for ${addEventListeners.length} event listener(s)\n`);
+                }
               }
             }
           }
