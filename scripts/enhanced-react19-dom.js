@@ -37,7 +37,7 @@ function convertReactDOMTestUtils(code) {
   
   while ((match = testUtilsWithOthersPattern.exec(code)) !== null) {
     const otherImports = match[1].trim();
-    const replacement = import {act} from 'react';\nimport {} from 'react-dom/test-utils';
+    const replacement = `import {act} from 'react';\nimport {${otherImports}} from 'react-dom/test-utils';`;
     transformedCode = transformedCode.replace(match[0], replacement);
     
     changes.push({
@@ -71,7 +71,7 @@ function applyReact19DOMFixes(code, options = {}) {
     
     if (testUtilsResult.changes.length > 0 && verbose) {
       testUtilsResult.changes.forEach(change => {
-        process.stdout.write([INFO] \n);
+        process.stdout.write(`[INFO] ${change.description}\n`);
       });
     }
   }
@@ -84,7 +84,7 @@ function applyReact19DOMFixes(code, options = {}) {
     
     if (renderResult.changes.length > 0 && verbose) {
       renderResult.changes.forEach(change => {
-        process.stdout.write([INFO] \n);
+        process.stdout.write(`[INFO] ${change.description}\n`);
       });
     }
   }
@@ -97,7 +97,7 @@ function applyReact19DOMFixes(code, options = {}) {
     
     if (hydrateResult.changes.length > 0 && verbose) {
       hydrateResult.changes.forEach(change => {
-        process.stdout.write([INFO] \n);
+        process.stdout.write(`[INFO] ${change.description}\n`);
       });
     }
   }
@@ -109,8 +109,8 @@ function applyReact19DOMFixes(code, options = {}) {
     
     if (unmountResult.warnings.length > 0 && verbose) {
       unmountResult.warnings.forEach(warning => {
-        process.stdout.write([WARNING] \n);
-        process.stdout.write([SUGGESTION] \n);
+        process.stdout.write(`[WARNING] ${warning.description}\n`);
+        process.stdout.write(`[SUGGESTION] ${warning.suggestion}\n`);
       });
     }
   }
@@ -122,8 +122,8 @@ function applyReact19DOMFixes(code, options = {}) {
     
     if (findDOMNodeWarnings.length > 0 && verbose) {
       findDOMNodeWarnings.forEach(warning => {
-        process.stdout.write([WARNING] \n);
-        process.stdout.write([SUGGESTION] \n);
+        process.stdout.write(`[WARNING] ${warning.description}\n`);
+        process.stdout.write(`[SUGGESTION] ${warning.suggestion}\n`);
       });
     }
   }
