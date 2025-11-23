@@ -34,6 +34,7 @@ const { glob } = require('glob');
 function convertReactDOMRender(code) {
   let transformedCode = code;
   const changes = [];
+  let rootCounter = 0;
   
   // Pattern: ReactDOM.render(<App />, container)
   // Convert to: createRoot(container).render(<App />)
@@ -69,8 +70,12 @@ function convertReactDOMRender(code) {
     const hasSemicolon = code[pos + 1] === ';';
     const matchWithSemicolon = hasSemicolon ? fullMatch + ';' : fullMatch;
     
+    // Generate unique root variable name to avoid redeclaration errors
+    const rootVarName = rootCounter === 0 ? 'root' : `root${rootCounter}`;
+    rootCounter++;
+    
     // Replace the render call with createRoot pattern
-    const replacement = `const root = createRoot(${container});\nroot.render(${jsxElement});`;
+    const replacement = `const ${rootVarName} = createRoot(${container});\n${rootVarName}.render(${jsxElement});`;
     transformedCode = transformedCode.replace(matchWithSemicolon, replacement);
     
     changes.push({

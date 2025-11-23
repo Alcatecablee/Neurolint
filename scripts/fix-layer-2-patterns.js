@@ -390,11 +390,27 @@ async function transform(code, options = {}) {
     }
 
     consolePatterns.forEach(({ name, regex }) => {
-      updatedCode = updatedCode.replace(regex, (match, args) => {
+      updatedCode = updatedCode.replace(regex, (match, args, offset) => {
         // Skip if this is inside a string
-        const beforeMatch = updatedCode.substring(0, updatedCode.indexOf(match));
+        const beforeMatch = updatedCode.substring(0, offset);
         const quoteCount = (beforeMatch.match(/['"`]/g) || []).length;
         if (quoteCount % 2 === 1) return match; // Inside a string
+        
+        // Check if this console call is the only body of an arrow function
+        // Pattern 1: () => console.log(...) - with parentheses
+        // Pattern 2: value => console.log(value) - single param, no parentheses
+        const arrowWithParens = /\)\s*=>\s*$/;
+        const arrowWithoutParens = /[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>\s*$/;
+        const codeAfterMatch = updatedCode.substring(offset + match.length);
+        const isArrowFunctionBody = arrowWithParens.test(beforeMatch) || arrowWithoutParens.test(beforeMatch);
+        
+        if (isArrowFunctionBody) {
+          // Simply replace with empty block - no inline comment to avoid swallowing subsequent code
+          // The transformation itself serves as documentation
+          const replacement = `{}`;
+          changes.push({ type: 'Comment', description: `Removed ${name} from arrow function`, location: null });
+          return replacement;
+        }
         
         const comment = `// [NeuroLint] Removed ${name}: ${args}`;
         changes.push({ type: 'Comment', description: comment, location: null });

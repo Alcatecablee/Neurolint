@@ -486,6 +486,7 @@ class ASTTransformer {
     let needsCreateRootImport = false;
     let needsHydrateRootImport = false;
     let reactDOMClientImportPath = null;
+    let rootCounter = 0; // Counter for unique root variable names
     
     // Track imported hooks and their local bindings (handles aliases and destructuring)
     const importedHooks = new Set();
@@ -639,10 +640,14 @@ class ASTTransformer {
             const [element, container] = path.node.arguments;
             if (!element || !container) return;
             
+            // Generate unique root variable name to avoid redeclaration errors
+            const rootVarName = rootCounter === 0 ? 'root' : `root${rootCounter}`;
+            rootCounter++;
+            
             // Create: const root = createRoot(container);
             const rootDeclaration = t.variableDeclaration('const', [
               t.variableDeclarator(
-                t.identifier('root'),
+                t.identifier(rootVarName),
                 t.callExpression(t.identifier('createRoot'), [container])
               )
             ]);
@@ -650,7 +655,7 @@ class ASTTransformer {
             // Create: root.render(element);
             const renderCall = t.expressionStatement(
               t.callExpression(
-                t.memberExpression(t.identifier('root'), t.identifier('render')),
+                t.memberExpression(t.identifier(rootVarName), t.identifier('render')),
                 [element]
               )
             );
@@ -1122,7 +1127,7 @@ class ASTTransformer {
             
             if (jsxElement && container) {
               // Generate unique root identifier to avoid redeclaration errors
-              const rootId = `root${rootCounter > 0 ? rootCounter : ''}`;
+              const rootId = rootCounter === 0 ? 'root' : `root${rootCounter}`;
               rootCounter++;
               
               // Only convert if it's in a statement context
