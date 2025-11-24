@@ -503,9 +503,21 @@ class ASTTransformer {
                       foundStableProperty = true;
                     } else {
                       // No stable property found, use index
-                      if (params.length > 1 && t.isIdentifier(params[1])) {
-                        paramName = params[1].name;
-                        useIndex = true;
+                      if (params.length > 1) {
+                        // Handle both plain identifiers and assignment patterns (default params)
+                        const secondParam = params[1];
+                        if (t.isIdentifier(secondParam)) {
+                          paramName = secondParam.name;
+                          useIndex = true;
+                        } else if (t.isAssignmentPattern(secondParam) && t.isIdentifier(secondParam.left)) {
+                          // Handle default parameters like `idx = 0`
+                          paramName = secondParam.left.name;
+                          useIndex = true;
+                        } else {
+                          paramName = 'index';
+                          useIndex = true;
+                          needsIndexParam = true;
+                        }
                       } else {
                         paramName = 'index';
                         useIndex = true;
@@ -514,13 +526,52 @@ class ASTTransformer {
                     }
                   } else if (t.isArrayPattern(firstParam)) {
                     // For array destructuring, use index
-                    if (params.length > 1 && t.isIdentifier(params[1])) {
-                      paramName = params[1].name;
-                      useIndex = true;
+                    if (params.length > 1) {
+                      // Handle both plain identifiers and assignment patterns (default params)
+                      const secondParam = params[1];
+                      if (t.isIdentifier(secondParam)) {
+                        paramName = secondParam.name;
+                        useIndex = true;
+                      } else if (t.isAssignmentPattern(secondParam) && t.isIdentifier(secondParam.left)) {
+                        // Handle default parameters like `idx = 0`
+                        paramName = secondParam.left.name;
+                        useIndex = true;
+                      } else {
+                        paramName = 'index';
+                        useIndex = true;
+                        needsIndexParam = true;
+                      }
                     } else {
                       paramName = 'index';
                       useIndex = true;
                       needsIndexParam = true;
+                    }
+                  } else if (t.isAssignmentPattern(firstParam)) {
+                    // Handle first param with default value (item = {})
+                    // Extract the actual parameter name
+                    if (t.isIdentifier(firstParam.left)) {
+                      paramName = firstParam.left.name;
+                      // Check if there's a second param
+                      if (params.length > 1) {
+                        const secondParam = params[1];
+                        if (t.isIdentifier(secondParam)) {
+                          paramName = secondParam.name;
+                          useIndex = true;
+                        } else if (t.isAssignmentPattern(secondParam) && t.isIdentifier(secondParam.left)) {
+                          paramName = secondParam.left.name;
+                          useIndex = true;
+                        } else {
+                          // No valid second param, add index
+                          useIndex = true;
+                          needsIndexParam = true;
+                          paramName = 'index';
+                        }
+                      } else {
+                        // Only one param with default, add index
+                        useIndex = true;
+                        needsIndexParam = true;
+                        paramName = 'index';
+                      }
                     }
                   }
                 }

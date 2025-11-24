@@ -142,12 +142,14 @@ function applyRegexFallbacks(input) {
     }
     if (current.trim()) tokens.push(current.trim());
     
-    // Extract second identifier if it exists
+    // Extract second identifier if it exists (handle defaults like `idx = 0`)
     let secondIdentifier = null;
     if (tokens.length > 1) {
       const secondToken = tokens[1];
-      if (/^[a-zA-Z_$][\w$]*$/.test(secondToken)) {
-        secondIdentifier = secondToken;
+      // Check if simple identifier OR identifier with default value
+      const identMatch = secondToken.match(/^([a-zA-Z_$][\w$]*)(?:\s*=|$)/);
+      if (identMatch) {
+        secondIdentifier = identMatch[1];
       }
     }
     
