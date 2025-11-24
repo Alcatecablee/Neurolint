@@ -595,7 +595,7 @@ export function LayersDocSection() {
                 <ul className="space-y-2">
                   {selectedLayerData.whatItDoes.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-gray-300">
-                      <span className="text-green-400 mt-1">✓</span>
+                      <span className="text-white mt-1">—</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -713,14 +713,14 @@ export function LayersDocSection() {
                       {expandedSections.has(`example-${idx}`) && (
                         <div className="space-y-3 animate-fade-in">
                           <div>
-                            <div className="text-sm font-bold text-red-400 mb-2">Before:</div>
-                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-red-500/30">
+                            <div className="text-sm font-bold text-zinc-400 mb-2">Before:</div>
+                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-white/20">
                               <code>{example.before}</code>
                             </pre>
                           </div>
                           <div>
-                            <div className="text-sm font-bold text-green-400 mb-2">After:</div>
-                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-green-500/30">
+                            <div className="text-sm font-bold text-white mb-2">After:</div>
+                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-white/20">
                               <code>{example.after}</code>
                             </pre>
                           </div>
