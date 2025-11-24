@@ -1452,6 +1452,157 @@ See [CHANGELOG.md](./CHANGELOG.md) for full details.
 
 ---
 
+## The Orchestration Pattern: How NeuroLint Prevents Code Corruption
+
+NeuroLint's **5-step fail-safe orchestration system** is the critical design pattern that guarantees no corrupted code reaches production.
+
+### The Problem with AI Code Tools
+
+AI-powered code tools can hallucinate invalid syntax:
+- LLMs guess at transformations without understanding code structure
+- No validation ensures the output is syntactically correct
+- Developers waste time fixing AI-generated bugs
+- Production deployments break due to invalid code
+
+### NeuroLint's Solution: Orchestrated Validation
+
+Every transformation follows this fail-safe pattern:
+
+#### Stage 1: AST-First Transformation
+```
+Try AST (Abstract Syntax Tree) transformation first
+↓
+Precise structural understanding of your code
+↓
+Safe, context-aware modifications
+```
+
+**Why AST first?** AST parsing understands the semantic structure of your code, enabling precise transformations that preserve logic and prevent syntax errors.
+
+#### Stage 2: Immediate Syntax Validation
+```
+Transformation complete
+↓
+Validate syntax and structure
+↓
+Check for breaking changes
+```
+
+**Every transformation is validated** before acceptance. This catches issues immediately.
+
+#### Stage 3: Regex Fallback (If AST Fails)
+```
+If AST parsing or validation fails
+↓
+Fall back to regex-based transformation
+```
+
+**Smart fallback system** ensures transformations succeed even when AST parsing encounters unexpected code patterns.
+
+#### Stage 4: Re-Validate Regex Transformation
+```
+Regex transformation complete
+↓
+Validate syntax and structure (same strict checks)
+↓
+No shortcuts — every transformation path must pass validation
+```
+
+**Mandatory second validation.** The regex fallback path goes through the exact same validation checks as the AST path. This ensures no corrupted code slips through.
+
+#### Stage 5: Accept Only If Valid
+```
+Did transformation pass validation (AST or regex path)?
+↓
+YES → Apply changes to codebase
+NO  → REVERT to last known good state (no changes applied)
+```
+
+**Zero tolerance for invalid code.** If validation fails at any step (after AST or after regex), changes are automatically reverted.
+
+### Visual Flow
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Original Code (Last Known Good State)                          │
+│  ↓                                                               │
+│  Attempt AST Transformation                                      │
+│  ↓                                                               │
+│  Syntax Validation ✓/✗                                           │
+│  ├─ Valid ✓ → Accept changes                                    │
+│  └─ Invalid ✗ → Try Regex Fallback                              │
+│     ↓                                                            │
+│     Regex Transformation                                         │
+│     ↓                                                            │
+│     Syntax Validation ✓/✗                                        │
+│     ├─ Valid ✓ → Accept changes                                 │
+│     └─ Invalid ✗ → REVERT to original (no changes applied)      │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Why This Matters
+
+**Guarantee:** NeuroLint will **never** produce invalid code. If a transformation cannot be validated, it's rejected.
+
+**Contrast with AI tools:**
+- AI tools: Generate code → Hope it works → Debug when it breaks
+- NeuroLint: Transform → Validate → Accept only if valid
+
+### Real-World Example
+
+**Scenario:** Fixing React keys in a `.map()` loop with complex JSX
+
+```tsx
+// Before
+{items.map(item => (
+  <ComplexComponent 
+    data={item}
+    nested={<div>{item.value}</div>}
+  />
+))}
+```
+
+**NeuroLint's approach:**
+1. **AST Transformation:** Parse JSX structure, identify map call, add key prop
+2. **Validation:** Ensure JSX is still valid, braces match, no syntax errors
+3. **Result:** Only accept if valid
+
+```tsx
+// After (validated)
+{items.map((item, index) => (
+  <ComplexComponent 
+    key={item.id || index}
+    data={item}
+    nested={<div>{item.value}</div>}
+  />
+))}
+```
+
+**AI tool might produce:**
+```tsx
+// AI hallucination (invalid)
+{items.map(item => (
+  <ComplexComponent 
+    key={item.id}  // Missing index fallback
+    data={item
+    nested={<div>{item.value}</div>}  // Missing closing brace
+  />
+))}
+```
+
+NeuroLint's orchestration pattern would **reject this transformation** because validation fails.
+
+### Implementation in NeuroLint
+
+All 7 layers use this orchestration pattern:
+- **Layers 1-2:** Regex transformations (config files, simple patterns)
+- **Layers 3-5:** AST-first with regex fallback (React components, SSR guards, Next.js optimizations)
+- **Layers 6-7:** Hybrid approach (error boundaries, adaptive learning)
+
+Every layer validates transformations before acceptance, ensuring your codebase remains stable.
+
+---
+
 ## Support & Resources
 
 - **npm Package:** [https://www.npmjs.com/package/@neurolint/cli](https://www.npmjs.com/package/@neurolint/cli)

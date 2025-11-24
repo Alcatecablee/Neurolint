@@ -38,6 +38,49 @@ NeuroLint uses deterministic, rule-based transformations — NOT artificial inte
 
 ---
 
+## How It Works: The Orchestration Pattern
+
+NeuroLint's critical differentiator is its **5-step fail-safe orchestration system** that prevents corrupted code from ever reaching production:
+
+### Step 1: AST-First Transformation
+Attempts precise code transformation using Abstract Syntax Tree parsing for deep structural understanding of your code.
+
+### Step 2: First Validation
+Immediately validates the AST transformation to ensure the code remains syntactically correct and maintains semantic integrity.
+
+### Step 3: Regex Fallback (If AST Fails)
+If AST parsing fails or Step 2 validation fails, falls back to regex-based transformation as a safety net.
+
+### Step 4: Second Validation
+Re-validates the regex transformation with the same strict checks. No shortcuts — every transformation path must pass validation.
+
+### Step 5: Accept Only If Valid
+**Changes are only applied if they pass validation.** If validation fails at any step, the transformation is automatically reverted to the last known good state.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Original Code (Last Known Good State)                      │
+│  ↓                                                           │
+│  Step 1: Try AST Transformation                             │
+│  ↓                                                           │
+│  Step 2: Validate AST Result ✓/✗                            │
+│  ├─ Valid ✓ → Step 5: Accept changes                        │
+│  └─ Invalid ✗ → Step 3: Try Regex Fallback                  │
+│     ↓                                                        │
+│     Step 4: Validate Regex Result ✓/✗                       │
+│     ├─ Valid ✓ → Step 5: Accept changes                     │
+│     └─ Invalid ✗ → REVERT (no changes applied)              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Why This Matters:**
+- **AI tools**: Generate code → Hope it works → Debug when it breaks → Waste developer time
+- **NeuroLint**: Transform → Validate → Fallback if needed → Re-validate → Accept only if valid
+
+**This is why NeuroLint never breaks your code** — unlike AI tools that can hallucinate invalid syntax, NeuroLint's orchestration pattern guarantees every change is validated twice before acceptance.
+
+---
+
 ## Quick Start
 
 ### Installation

@@ -103,6 +103,7 @@ export default function Index() {
   const [demoSectionRef, demoSectionInView] = useInView(0.1);
   const [featuresSectionRef, featuresSectionInView] = useInView(0.1);
   const [howItWorksSectionRef, howItWorksInView] = useInView(0.2);
+  const [orchestrationSectionRef, orchestrationSectionInView] = useInView(0.2);
   const [vscodeSectionRef, vscodeSectionInView] = useInView(0.2);
   const [faqSectionRef, faqSectionInView] = useInView(0.2);
   const [finalCtaSectionRef, finalCtaSectionInView] = useInView(0.2);
@@ -585,6 +586,130 @@ export default function Index() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Orchestration Pattern Section */}
+      <section ref={orchestrationSectionRef} className="py-24 px-4 bg-gradient-to-b from-black via-zinc-900/30 to-black">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 transition-all duration-700 ease-out transform ${
+            orchestrationSectionInView
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
+          }`}>
+            <h2 className={`text-4xl md:text-6xl font-black mb-6 tracking-tight text-white transition-all duration-700 delay-100 ease-out transform ${
+              orchestrationSectionInView
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-10'
+            }`}>
+              Why NeuroLint Never Breaks Your Code
+            </h2>
+            <p className={`text-lg md:text-2xl text-gray-300 max-w-4xl mx-auto font-medium transition-all duration-700 delay-200 ease-out transform ${
+              orchestrationSectionInView
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-10'
+            }`}>
+              The 5-Step Fail-Safe Orchestration System That AI Tools Can't Match
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {[
+              {
+                stage: "1",
+                title: "AST Transform",
+                description: "Try precise code transformation using Abstract Syntax Tree parsing for deep structural understanding.",
+                icon: "🌳"
+              },
+              {
+                stage: "2",
+                title: "First Validation",
+                description: "Immediately validate the AST result to ensure code remains syntactically correct and semantically sound.",
+                icon: "✓"
+              },
+              {
+                stage: "3",
+                title: "Regex Fallback",
+                description: "If AST or validation fails, fall back to regex-based transformation as a safety net.",
+                icon: "🔄"
+              },
+              {
+                stage: "4",
+                title: "Second Validation",
+                description: "Re-validate the regex result with the same strict checks. Every path must pass validation — no shortcuts.",
+                icon: "✓✓"
+              },
+              {
+                stage: "5",
+                title: "Accept or Revert",
+                description: "Only apply changes if validation passed. If validation fails at any step, automatically revert to last known good state.",
+                icon: "🛡️"
+              }
+            ].map((item, index) => (
+              <div
+                key={index}
+                className={`bg-white/5 backdrop-blur-xl p-8 rounded-2xl border-2 border-white/10 hover:border-white/20 transition-all duration-700 ease-out transform ${
+                  orchestrationSectionInView
+                    ? 'opacity-100 translate-y-0 scale-100'
+                    : 'opacity-0 translate-y-20 scale-95'
+                }`}
+                style={{ transitionDelay: `${(index * 150) + 400}ms` }}
+              >
+                <div className="text-5xl mb-4">{item.icon}</div>
+                <div className="text-3xl font-black text-white mb-2">Stage {item.stage}</div>
+                <h3 className="text-xl font-bold mb-3 text-white">{item.title}</h3>
+                <p className="text-gray-300 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className={`bg-zinc-900/50 backdrop-blur-xl border-2 border-white/10 rounded-2xl p-8 md:p-12 transition-all duration-700 ease-out transform ${
+            orchestrationSectionInView
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
+          }`} style={{ transitionDelay: '850ms' }}>
+            <div className="max-w-4xl mx-auto">
+              <h3 className="text-2xl md:text-3xl font-black text-white mb-6 text-center">AI Tools vs NeuroLint</h3>
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="bg-red-900/20 border-2 border-red-500/30 rounded-xl p-6">
+                  <h4 className="text-xl font-bold text-red-400 mb-3">AI Code Tools</h4>
+                  <div className="space-y-2 text-gray-300 text-sm">
+                    <p>✗ Generate code without validation</p>
+                    <p>✗ Hallucinate invalid syntax</p>
+                    <p>✗ Break production deployments</p>
+                    <p>✗ Waste developer time debugging</p>
+                  </div>
+                </div>
+                <div className="bg-green-900/20 border-2 border-green-500/30 rounded-xl p-6">
+                  <h4 className="text-xl font-bold text-green-400 mb-3">NeuroLint</h4>
+                  <div className="space-y-2 text-gray-300 text-sm">
+                    <p>✓ Validate every transformation twice</p>
+                    <p>✓ Deterministic, rule-based fixes</p>
+                    <p>✓ Auto-revert on validation failure</p>
+                    <p>✓ Guaranteed valid code output</p>
+                  </div>
+                </div>
+              </div>
+              
+              <h3 className="text-xl md:text-2xl font-black text-white mb-4 text-center">The 5-Step Flow</h3>
+              <div className="bg-black/40 rounded-xl p-6 font-mono text-sm overflow-x-auto">
+                <div className="text-green-400">Step 1: Original Code (Last Known Good State)</div>
+                <div className="text-gray-400 ml-4">↓</div>
+                <div className="text-blue-400">Step 2: Try AST Transformation</div>
+                <div className="text-gray-400 ml-4">↓</div>
+                <div className="text-yellow-400">Step 3: Validate AST Result ✓/✗</div>
+                <div className="text-gray-400 ml-4">├─ Valid ✓ → Step 5: Accept changes</div>
+                <div className="text-gray-400 ml-4">└─ Invalid ✗ → Try Regex Fallback</div>
+                <div className="text-purple-400 ml-8">↓</div>
+                <div className="text-purple-400 ml-8">Step 4: Validate Regex Result ✓/✗</div>
+                <div className="text-gray-400 ml-8">├─ Valid ✓ → Step 5: Accept changes</div>
+                <div className="text-gray-400 ml-8">└─ Invalid ✗ → REVERT to original</div>
+              </div>
+              <p className="text-lg leading-relaxed pt-6 text-gray-300 text-center">
+                <span className="text-white font-bold">This is why NeuroLint never breaks your code</span> — every transformation is validated twice before acceptance.
+              </p>
+            </div>
           </div>
         </div>
       </section>
