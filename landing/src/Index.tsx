@@ -108,9 +108,9 @@ const AsciinemaPlayerComponent = () => {
   return (
     <div className="w-full aspect-video">
       <iframe
-        src="https://asciinema.org/a/AxbSacKfssHHJTodkyMdLerCd/embed?autoplay=1&loop=1&theme=asciinema&preload=1"
+        src="https://asciinema.org/a/D4fNjywkxwEIoJKn4G4mZjVXR/embed?autoplay=1&loop=1&theme=asciinema&preload=1&speed=0.9"
         className="w-full h-full border-0"
-        title="NeuroLint CLI Demo"
+        title="NeuroLint CLI Demo - Real Pain Points Fixed in Seconds"
         allowFullScreen
       />
     </div>
