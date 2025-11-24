@@ -23,42 +23,30 @@ export const demoScenarios: DemoScenario[] = [
   {
     id: 'hydration',
     title: 'Hydration Error Fix',
-    description: 'Fixes common React hydration mismatches from browser API usage',
+    description: 'Adds typeof window guards to fix React hydration mismatches from browser API usage',
     beforeCode: `export default function UserProfile() {
   const userId = localStorage.getItem('userId');
-  const theme = window.matchMedia('(prefers-color-scheme: dark)').matches 
-    ? 'dark' 
-    : 'light';
+  const width = window.innerWidth;
+  const pathname = window.location.pathname;
 
   return (
-    <div className={theme}>
-      <h1>Welcome User #{userId}</h1>
-      <p>Current time: {new Date().toLocaleString()}</p>
+    <div>
+      <h1>User: {userId}</h1>
+      <p>Width: {width}px</p>
+      <p>Path: {pathname}</p>
     </div>
   );
 }`,
-    afterCode: `'use client';
-import { useEffect, useState } from 'react';
-
-export default function UserProfile() {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [theme, setTheme] = useState('light');
-  const [currentTime, setCurrentTime] = useState('');
-
-  useEffect(() => {
-    setUserId(localStorage.getItem('userId'));
-    setTheme(
-      window.matchMedia('(prefers-color-scheme: dark)').matches 
-        ? 'dark' 
-        : 'light'
-    );
-    setCurrentTime(new Date().toLocaleString());
-  }, []);
+    afterCode: `export default function UserProfile() {
+  const userId = typeof window !== "undefined" ? localStorage.getItem('userId') : null;
+  const width = typeof window !== "undefined" ? window.innerWidth : null;
+  const pathname = typeof window !== "undefined" ? window.location.pathname : null;
 
   return (
-    <div className={theme}>
-      <h1>Welcome User #{userId || 'Guest'}</h1>
-      <p>Current time: {currentTime}</p>
+    <div>
+      <h1>User: {userId}</h1>
+      <p>Width: {width}px</p>
+      <p>Path: {pathname}</p>
     </div>
   );
 }`,
@@ -73,16 +61,16 @@ export default function UserProfile() {
       {
         type: 'hydration-risk',
         severity: 'high',
-        description: 'window.matchMedia access during render causes mismatch',
+        description: 'window.innerWidth accessed during render causes mismatch',
         fixedByLayer: 4,
         ruleId: 'hydration-window-api'
       },
       {
         type: 'hydration-risk',
-        severity: 'medium',
-        description: 'Date instantiation differs between server/client',
+        severity: 'high',
+        description: 'window.location.pathname accessed during render causes mismatch',
         fixedByLayer: 4,
-        ruleId: 'hydration-date-mismatch'
+        ruleId: 'hydration-window-api'
       }
     ],
     layerBreakdown: [
@@ -91,9 +79,10 @@ export default function UserProfile() {
         name: 'Hydration',
         issuesFound: 3,
         fixes: [
-          'Wrapped browser API calls in useEffect',
-          'Added client-side state management',
-          'Implemented safe hydration pattern with defaults'
+          'Added typeof window !== "undefined" guards for all browser API access',
+          'Wrapped localStorage.getItem() in ternary with null fallback',
+          'Wrapped window.innerWidth in ternary with null fallback',
+          'Wrapped window.location.pathname in ternary with null fallback'
         ]
       }
     ]
@@ -448,6 +437,398 @@ export default async function BlogPost({ params }: PageProps) {
           'Replaced getStaticProps with async Server Component',
           'Migrated Head component to generateMetadata API',
           'Removed client-side router hooks from Server Component'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer2-arrow-console',
+    title: 'Layer 2: Console.log in Arrow Functions',
+    description: 'AST-based transformation correctly handles console.log removal in all arrow function patterns',
+    beforeCode: `const handler1 = () => console.log('test');
+const handler2 = value => console.log(value);
+const handler3 = (a, b) => console.log(a, b);
+const handler4 = ({name}) => console.log(name);
+const handler5 = () => {
+  console.log('only statement');
+};
+
+function handleClick() {
+  console.log('Button clicked');
+  alert('Success!');
+}`,
+    afterCode: `const handler1 = () => {} /* [NeuroLint] Removed console.log: 'test'*/;
+const handler2 = value => {} /* [NeuroLint] Removed console.log: value*/;
+const handler3 = (a, b) => {} /* [NeuroLint] Removed console.log: a, b*/;
+const handler4 = ({name}) => {} /* [NeuroLint] Removed console.log: name*/;
+const handler5 = () => {
+  // [NeuroLint] Removed console.log: 'only statement'
+  ;
+};
+
+function handleClick() {
+  // [NeuroLint] Removed console.log: 'Button clicked'
+  ;
+  // [NeuroLint] Replace with toast notification: 'Success!'
+  ;
+}`,
+    issues: [
+      {
+        type: 'debug-code',
+        severity: 'high',
+        description: 'console.log in expression-bodied arrow function',
+        fixedByLayer: 2,
+        ruleId: 'pattern-console-removal'
+      },
+      {
+        type: 'debug-code',
+        severity: 'high',
+        description: 'console.log with single parameter (no parentheses) arrow',
+        fixedByLayer: 2,
+        ruleId: 'pattern-console-removal'
+      },
+      {
+        type: 'debug-code',
+        severity: 'high',
+        description: 'console.log in block-bodied arrow function',
+        fixedByLayer: 2,
+        ruleId: 'pattern-console-removal'
+      },
+      {
+        type: 'anti-pattern',
+        severity: 'medium',
+        description: 'alert() should use toast notification instead',
+        fixedByLayer: 2,
+        ruleId: 'pattern-alert-replacement'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 2,
+        name: 'Patterns',
+        issuesFound: 4,
+        fixes: [
+          'AST-based console.log removal preserves valid JavaScript syntax',
+          'Handles all arrow function patterns: no params, single param, multi-param, destructured',
+          'Expression-bodied arrows convert to empty block: () => {} /* comment */',
+          'Block-bodied arrows add EmptyStatement with leading comment and semicolon',
+          'Expression contexts (ternary, logical) replace with undefined',
+          'Suggests toast notification over alert for better UX'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer2-createfactory',
+    title: 'Layer 2: React.createFactory Migration',
+    description: 'Converts React.createFactory to JSX components (removed in React 19)',
+    beforeCode: `import React from 'react';
+
+const divFactory = React.createFactory('div');
+const buttonFactory = React.createFactory('button');
+const spanFactory = createFactory('span');
+
+function OldComponent() {
+  return divFactory(
+    { className: 'container' },
+    buttonFactory(
+      { onClick: handleClick },
+      'Click me'
+    ),
+    spanFactory(null, 'Text')
+  );
+}`,
+    afterCode: `import React from 'react';
+
+const divFactory = (props) => <div {...props} />;
+const buttonFactory = (props) => <button {...props} />;
+const spanFactory = (props) => <span {...props} />;
+
+function OldComponent() {
+  return divFactory(
+    { className: 'container' },
+    buttonFactory(
+      { onClick: handleClick },
+      'Click me'
+    ),
+    spanFactory(null, 'Text')
+  );
+}`,
+    issues: [
+      {
+        type: 'react19-breaking',
+        severity: 'high',
+        description: 'React.createFactory is removed in React 19',
+        fixedByLayer: 2,
+        ruleId: 'react19-createfactory'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 2,
+        name: 'Patterns',
+        issuesFound: 1,
+        fixes: [
+          'Converted React.createFactory to JSX component functions',
+          'Maintains props spreading for compatibility',
+          'Works with both React.createFactory and standalone createFactory'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer4-deep-nesting',
+    title: 'Layer 4: Deep Nesting SSR Guards',
+    description: 'Handles deeply nested browser API access with SSR safety',
+    beforeCode: `function GeoTracking() {
+  const [position, setPosition] = useState(null);
+  
+  useEffect(() => {
+    window.navigator.geolocation.watchPosition = (pos) => {
+      setPosition(pos);
+    };
+    
+    document.body.firstElementChild.textContent = 'Tracking...';
+  }, []);
+
+  const width = window.innerWidth;
+  const theme = localStorage.getItem('theme');
+  
+  return <div>{position ? 'Located' : 'Locating...'}</div>;
+}`,
+    afterCode: `function GeoTracking() {
+  const [position, setPosition] = useState(null);
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.navigator.geolocation.watchPosition = (pos) => {
+        setPosition(pos);
+      };
+    }
+    
+    if (typeof document !== "undefined") {
+      document.body.firstElementChild.textContent = 'Tracking...';
+    }
+  }, []);
+
+  const width = typeof window !== "undefined" ? window.innerWidth : null;
+  const theme = typeof window !== "undefined" ? localStorage.getItem('theme') : null;
+  
+  return <div>{position ? 'Located' : 'Locating...'}</div>;
+}`,
+    issues: [
+      {
+        type: 'hydration-risk',
+        severity: 'high',
+        description: 'Deep nested window.navigator.geolocation access without SSR guard',
+        fixedByLayer: 4,
+        ruleId: 'hydration-deep-nesting'
+      },
+      {
+        type: 'hydration-risk',
+        severity: 'high',
+        description: 'Deep nested document.body access without SSR guard',
+        fixedByLayer: 4,
+        ruleId: 'hydration-deep-nesting'
+      },
+      {
+        type: 'hydration-risk',
+        severity: 'high',
+        description: 'window.innerWidth accessed during render',
+        fixedByLayer: 4,
+        ruleId: 'hydration-window-api'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 4,
+        name: 'Hydration',
+        issuesFound: 3,
+        fixes: [
+          'Added typeof window guards for deeply nested navigator.geolocation',
+          'Added typeof document guards for deeply nested body.firstElementChild',
+          'Wrapped window.innerWidth in ternary with null fallback',
+          'Handles arbitrary depth member expressions via getRootGlobalName() helper'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer5-createroot',
+    title: 'Layer 5: ReactDOM.render to createRoot',
+    description: 'Converts multiple ReactDOM.render calls with unique variable names (React 19)',
+    beforeCode: `import ReactDOM from 'react-dom';
+import App from './App';
+import Dashboard from './Dashboard';
+
+ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<Dashboard />, document.getElementById('dashboard'));
+ReactDOM.render(<App />, document.getElementById('app'));`,
+    afterCode: `import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import Dashboard from './Dashboard';
+
+const root = createRoot(typeof document !== "undefined" ? document.getElementById('root') : null);
+root.render(<App />);
+const root1 = createRoot(typeof document !== "undefined" ? document.getElementById('dashboard') : null);
+root1.render(<Dashboard />);
+const root2 = createRoot(typeof document !== "undefined" ? document.getElementById('app') : null);
+root2.render(<App />);`,
+    issues: [
+      {
+        type: 'react19-breaking',
+        severity: 'high',
+        description: 'ReactDOM.render is removed in React 19',
+        fixedByLayer: 5,
+        ruleId: 'react19-createroot'
+      },
+      {
+        type: 'naming-conflict',
+        severity: 'high',
+        description: 'Multiple ReactDOM.render calls would create duplicate variable names',
+        fixedByLayer: 5,
+        ruleId: 'react19-unique-root-vars'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 5,
+        name: 'Next.js Router',
+        issuesFound: 2,
+        fixes: [
+          'Converted ReactDOM.render to createRoot API',
+          'Generated unique variable names: root, root1, root2',
+          'Added automatic import of createRoot from react-dom/client',
+          'Applied SSR guards to document.getElementById() calls',
+          'Prevents variable redeclaration errors'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer5-hydrateroot',
+    title: 'Layer 5: ReactDOM.hydrate to hydrateRoot',
+    description: 'Converts ReactDOM.hydrate with correct parameter order (React 19)',
+    beforeCode: `import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.hydrate(
+  <App />,
+  document.getElementById('root')
+);`,
+    afterCode: `import ReactDOM from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
+import App from './App';
+
+hydrateRoot(
+  typeof document !== "undefined" ? document.getElementById('root') : null,
+  <App />
+);`,
+    issues: [
+      {
+        type: 'react19-breaking',
+        severity: 'high',
+        description: 'ReactDOM.hydrate is removed in React 19',
+        fixedByLayer: 5,
+        ruleId: 'react19-hydrateroot'
+      },
+      {
+        type: 'parameter-order',
+        severity: 'high',
+        description: 'hydrateRoot has different parameter order than ReactDOM.hydrate',
+        fixedByLayer: 5,
+        ruleId: 'react19-hydrateroot-params'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 5,
+        name: 'Next.js Router',
+        issuesFound: 2,
+        fixes: [
+          'Converted ReactDOM.hydrate to hydrateRoot API',
+          'Fixed parameter order: hydrateRoot(container, element) vs hydrate(element, container)',
+          'Added automatic import of hydrateRoot from react-dom/client',
+          'Applied SSR guard to document.getElementById()'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'layer5-use-client',
+    title: 'Layer 5: Automatic \'use client\' Directive',
+    description: 'Detects hooks and browser APIs to add Client Component directive',
+    beforeCode: `import { useState, useEffect } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  const [theme, setTheme] = useState('light');
+  
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) setTheme(saved);
+  }, []);
+  
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}`,
+    afterCode: `'use client';
+
+import { useState, useEffect } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  const [theme, setTheme] = useState('light');
+  
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) setTheme(saved);
+  }, []);
+  
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}`,
+    issues: [
+      {
+        type: 'nextjs-app-router',
+        severity: 'high',
+        description: 'Component uses React hooks (useState, useEffect) but missing \'use client\'',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-use-client-hooks'
+      },
+      {
+        type: 'nextjs-app-router',
+        severity: 'high',
+        description: 'Component uses browser API (localStorage) but missing \'use client\'',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-use-client-browser-api'
+      },
+      {
+        type: 'nextjs-app-router',
+        severity: 'high',
+        description: 'Component has onClick event handler but missing \'use client\'',
+        fixedByLayer: 5,
+        ruleId: 'nextjs-use-client-events'
+      }
+    ],
+    layerBreakdown: [
+      {
+        layerId: 5,
+        name: 'Next.js Router',
+        issuesFound: 3,
+        fixes: [
+          'Added \'use client\' directive at top of file',
+          'Detected React hooks: useState, useEffect',
+          'Detected browser API: localStorage',
+          'Detected event handler: onClick',
+          'Proper directive placement after imports'
         ]
       }
     ]
