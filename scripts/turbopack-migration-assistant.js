@@ -309,7 +309,7 @@ class TurbopackMigrationAssistant {
         console.log('');
       });
     } else {
-      console.log('✓ No compatibility issues found!\n');
+      console.log('(no issues found) No compatibility issues found!\n');
     }
 
     // Suggestions section

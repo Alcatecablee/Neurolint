@@ -362,16 +362,16 @@ class RouterComplexityAssessor {
     console.log('='.repeat(60));
     console.log(`\nComplexity Score: ${metrics.complexityScore}/100 (${this.getComplexityLevel(metrics.complexityScore)})`);
     console.log(`\nRouter Configuration:`);
-    console.log(`  App Router: ${metrics.hasAppRouter ? '✓' : '✗'}`);
-    console.log(`  Pages Router: ${metrics.hasPagesRouter ? '✓' : '✗'}`);
+    console.log(`  App Router: ${metrics.hasAppRouter ? 'Yes' : 'No'}`);
+    console.log(`  Pages Router: ${metrics.hasPagesRouter ? 'Yes' : 'No'}`);
     console.log(`  Total Routes: ${metrics.routeCount}`);
     console.log(`\nFeatures:`);
-    console.log(`  Middleware: ${metrics.hasMiddleware ? '✓' : '✗'}`);
-    console.log(`  API Routes: ${metrics.hasAPIRoutes ? '✓' : '✗'}`);
-    console.log(`  Server Components: ${metrics.hasServerComponents ? '✓' : '✗'}`);
-    console.log(`  Client Components: ${metrics.hasClientComponents ? '✓' : '✗'}`);
-    console.log(`  SSR: ${metrics.usesSSR ? '✓' : '✗'}`);
-    console.log(`  SSG: ${metrics.usesSSG ? '✓' : '✗'}`);
+    console.log(`  Middleware: ${metrics.hasMiddleware ? 'Yes' : 'No'}`);
+    console.log(`  API Routes: ${metrics.hasAPIRoutes ? 'Yes' : 'No'}`);
+    console.log(`  Server Components: ${metrics.hasServerComponents ? 'Yes' : 'No'}`);
+    console.log(`  Client Components: ${metrics.hasClientComponents ? 'Yes' : 'No'}`);
+    console.log(`  SSR: ${metrics.usesSSR ? 'Yes' : 'No'}`);
+    console.log(`  SSG: ${metrics.usesSSG ? 'Yes' : 'No'}`);
     
     if (recommendations.length > 0) {
       console.log(`\nRecommendations:`);

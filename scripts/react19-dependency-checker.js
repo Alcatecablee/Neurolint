@@ -323,9 +323,9 @@ class React19DependencyChecker {
     // React version
     console.log('React Version:');
     if (results.react.status === 'compatible') {
-      console.log(`  ✓ ${results.react.version} (Compatible)`);
+      console.log(`  [OK] ${results.react.version} (Compatible)`);
     } else if (results.react.status === 'incompatible') {
-      console.log(`  ✗ ${results.react.version} (Needs upgrade)`);
+      console.log(`  [X] ${results.react.version} (Needs upgrade)`);
     } else {
       console.log(`  ? Not found in package.json`);
     }
@@ -342,15 +342,15 @@ class React19DependencyChecker {
         console.log('');
       });
     } else {
-      console.log('✓ No known compatibility issues found\n');
+      console.log('[OK] No known compatibility issues found\n');
     }
 
     // Suggestions
     if (results.suggestions.length > 0) {
       console.log('Recommendations:\n');
       results.suggestions.forEach((sug, i) => {
-        const priority = sug.priority === 'high' ? '🔴' : 
-                        sug.priority === 'medium' ? '🟡' : '🟢';
+        const priority = sug.priority === 'high' ? '[HIGH]' : 
+                        sug.priority === 'medium' ? '[MEDIUM]' : '[LOW]';
         console.log(`${priority} ${sug.message}`);
         console.log(`   ${sug.action}`);
         console.log('');

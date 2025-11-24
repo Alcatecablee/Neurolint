@@ -28,7 +28,7 @@ class SimpleSpinner {
 
   succeed(text) {
     if (this.isSpinning) {
-      process.stdout.write(`✓ ${text || this.text}\n`);
+      process.stdout.write(`[OK] ${text || this.text}\n`);
       this.isSpinning = false;
     }
     return this;
@@ -36,7 +36,7 @@ class SimpleSpinner {
 
   fail(text) {
     if (this.isSpinning) {
-      process.stdout.write(`✗ ${text || this.text}\n`);
+      process.stdout.write(`[ERROR] ${text || this.text}\n`);
       this.isSpinning = false;
     }
     return this;

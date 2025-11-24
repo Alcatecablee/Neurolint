@@ -12,7 +12,7 @@ module.exports = async function globalTeardown() {
     if (fs.existsSync(dir)) {
       try {
         fs.rmSync(dir, { recursive: true, force: true });
-        console.log(`✓ Cleaned up: ${dir}`);
+        console.log(`[OK] Cleaned up: ${dir}`);
       } catch (error) {
         console.warn(`⚠ Could not clean up ${dir}: ${error.message}`);
       }
@@ -36,5 +36,5 @@ module.exports = async function globalTeardown() {
     }
   });
 
-  console.log('✓ Test cleanup complete');
+  console.log('[OK] Test cleanup complete');
 };

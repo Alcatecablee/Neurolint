@@ -227,7 +227,7 @@ class ReactCompilerDetector {
     console.log('='.repeat(60) + '\n');
 
     if (this.findings.length === 0) {
-      console.log('✓ No manual memoization patterns detected\n');
+      console.log('(no issues found) No manual memoization patterns detected\n');
       console.log('Your code is already optimized or doesn\'t need memoization.\n');
       return;
     }
