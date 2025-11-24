@@ -36,16 +36,16 @@ localPort = 35469
 externalPort = 3002
 
 [[ports]]
-localPort = 35559
-externalPort = 8080
-
-[[ports]]
 localPort = 36373
 externalPort = 3003
 
 [[ports]]
 localPort = 38261
 externalPort = 3001
+
+[[ports]]
+localPort = 40133
+externalPort = 8080
 
 [[ports]]
 localPort = 42339
@@ -82,10 +82,6 @@ author = "agent"
 task = "workflow.run"
 args = "Landing Page"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "API Server"
-
 [[workflows.workflow]]
 name = "Landing Page"
 author = "agent"
@@ -97,18 +93,6 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[workflows.workflow]]
-name = "API Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev:api"
-waitForPort = 3001
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_mem_db:1.0.0"]

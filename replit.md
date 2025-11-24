@@ -12,6 +12,8 @@ Preferred communication style: Simple, everyday language.
 
 NeuroLint employs a 7-layer progressive and safe architecture for code transformation, where each layer builds upon the previous one. This architecture ensures deterministic, predictable fixes through rule-based transformations, Abstract Syntax Tree (AST) parsing, and pattern recognition. The CLI is built with `cli.js` as the main entry point, `fix-master.js` orchestrating the fix layers, and supporting modules like `ast-transformer.js`, `backup-manager.js`, `validator.js`, and `selector.js`. Core functionalities like analytics, configuration management, and the rule engine are housed in `shared-core/`. The system is extensively tested with a comprehensive Jest test suite covering CLI commands, AST transformations, backup management, and various migration tools.
 
+The landing page is a static React + Vite application that showcases NeuroLint's capabilities with an interactive demo using pre-defined scenarios, visual demonstrations via GIF, and comprehensive documentation of all 7 layers.
+
 **Key Features & Implementations:**
 
 - **7-Layer Fixing System:**
