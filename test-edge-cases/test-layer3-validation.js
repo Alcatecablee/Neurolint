@@ -110,7 +110,7 @@ function isValidSyntax(code) {
  * Run all tests and report results
  */
 async function runTests() {
-  console.log('🧪 Layer 3 Edge Case Validation Test Suite\n');
+  console.log('[TEST] Layer 3 Edge Case Validation Test Suite\n');
   console.log('=' .repeat(80));
   
   let passed = 0;
