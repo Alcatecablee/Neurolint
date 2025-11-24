@@ -103,41 +103,65 @@ const TypewriterHeadline = () => {
   );
 };
 
-// Asciinema Player Component with controls
+// CLI Demo Player Component with professional styling
 const AsciinemaPlayerComponent = () => {
-  const playerRef = React.useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(true);
+  const imgRef = React.useRef<HTMLImageElement>(null);
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && playerRef.current) {
-      import('asciinema-player').then((AsciinemaPlayer) => {
-        if (playerRef.current && !isLoaded) {
-          AsciinemaPlayer.create('/demo.cast', playerRef.current, {
-            cols: 80,
-            rows: 24,
-            autoPlay: true,
-            loop: true,
-            fit: 'width',
-            terminalFontSize: '14px',
-            theme: {
-              background: '#0a0a0a',
-              foreground: '#ffffff',
-              palette: '#000000:#cc0000:#4e9a06:#c4a000:#3465a4:#75507b:#06989a:#d3d7cf:#555753:#ef2929:#8ae234:#fce94f:#729fcf:#ad7fa8:#34e2e2:#eeeeec'
-            }
-          });
-          setIsLoaded(true);
-        }
-      });
-    }
-  }, [isLoaded]);
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   return (
-    <div className="w-full">
-      <div 
-        ref={playerRef} 
-        className="asciinema-player-wrapper w-full"
-        style={{ minHeight: '400px' }}
+    <div className="w-full relative">
+      <img
+        ref={imgRef}
+        src="/demo.gif"
+        alt="NeuroLint CLI Demo - Hydration crashes, missing keys, and ESLint errors fixed in seconds"
+        className="w-full h-auto rounded-lg"
+        loading="lazy"
+        style={{ display: 'block' }}
       />
+      
+      {/* Professional Control Bar Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 opacity-0 hover:opacity-100 transition-opacity duration-300">
+        <div className="flex items-center justify-between gap-4">
+          {/* Play/Pause Button */}
+          <button
+            onClick={togglePlay}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? (
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Progress Bar */}
+          <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-white rounded-full transition-all duration-100"
+              style={{ width: '45%' }}
+            />
+          </div>
+
+          {/* Speed & Fullscreen */}
+          <div className="flex items-center gap-2 text-white text-sm font-mono">
+            <span className="px-2 py-1 bg-white/10 rounded">1x</span>
+            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors" aria-label="Fullscreen">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

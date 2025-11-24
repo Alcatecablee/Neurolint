@@ -12,7 +12,7 @@ Preferred communication style: Simple, everyday language.
 
 NeuroLint employs a 7-layer progressive and safe architecture for code transformation, where each layer builds upon the previous one. This architecture ensures deterministic, predictable fixes through rule-based transformations, Abstract Syntax Tree (AST) parsing, and pattern recognition. The CLI is built with `cli.js` as the main entry point, `fix-master.js` orchestrating the fix layers, and supporting modules like `ast-transformer.js`, `backup-manager.js`, `validator.js`, and `selector.js`. Core functionalities like analytics, configuration management, and the rule engine are housed in `shared-core/`. The system is extensively tested with a comprehensive Jest test suite covering CLI commands, AST transformations, backup management, and various migration tools.
 
-The landing page is a static React + Vite application that showcases NeuroLint's capabilities with an interactive demo using pre-defined scenarios, visual demonstrations via GIF, and comprehensive documentation of all 7 layers.
+The landing page is a static React + Vite application that showcases NeuroLint's capabilities with an interactive demo using pre-defined scenarios, professional video player-style CLI demonstration (enhanced GIF with controls overlay), and comprehensive documentation of all 7 layers.
 
 **Key Features & Implementations:**
 
@@ -67,3 +67,13 @@ The landing page is a static React + Vite application that showcases NeuroLint's
 - **Jest:** Used for comprehensive automated testing.
 - **React, Next.js, TypeScript, JavaScript:** Target technologies for code transformation and analysis.
 - **Business Source License 1.1:** The project's licensing model, preventing commercial exploitation by direct competitors while allowing internal use and contributions.
+
+## Recent Changes (November 24, 2025)
+
+- Enhanced CLI demo section with professional video player-style interface
+- Terminal-themed wrapper with macOS-style window controls
+- Interactive hover controls overlay (play/pause, progress bar, speed control, fullscreen)
+- Feature indicators showing Interactive Player, Pause & Resume, Speed Control, and Fullscreen Mode
+- Polished visual presentation with gradient effects and subtle glow on hover
+- Helper text guiding users on how to interact with the demo
+- Removed asciinema-player integration (compatibility issues with .cast file format)

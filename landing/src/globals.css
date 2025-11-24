@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Asciinema Player Styles */
-@import 'asciinema-player/dist/bundle/asciinema-player.css';
-
 @layer base {
   :root {
     /* Core Brand Colors - Terminal Inspired */
