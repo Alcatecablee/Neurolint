@@ -3,6 +3,7 @@ import { useState } from "react";
 
 export function QuickStart() {
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
+  const [bannerVisible, setBannerVisible] = useState(true);
 
   const copyToClipboard = (command: string, id: string) => {
     navigator.clipboard.writeText(command);
@@ -43,13 +44,78 @@ export function QuickStart() {
   );
 
   return (
-    <section
-      id="quick-start"
-      className="w-full flex flex-col items-center py-24 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black"
-      role="region"
-      aria-labelledby="quick-start-heading"
-    >
-      <div className="max-w-4xl w-full">
+    <div className="min-h-screen bg-black text-white">
+      {/* Beta Banner */}
+      {bannerVisible && (
+        <div className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 relative">
+          <div className="container mx-auto flex items-center justify-center gap-2 text-sm md:text-base">
+            <p className="text-center">
+              <strong>NeuroLint CLI is currently in beta.</strong> We're actively improving and would love your feedback and contribution!
+            </p>
+            <button
+              onClick={() => setBannerVisible(false)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 hover:bg-white/20 rounded-full p-1 transition-colors"
+              aria-label="Close banner"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Header */}
+      <nav 
+        className="sticky top-0 w-full z-50 bg-black/30 backdrop-blur-md border-b border-white/10 transition-all duration-300" 
+        style={{ marginTop: bannerVisible ? '48px' : '0' }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <a href="/" className="flex items-center">
+              <img src="/logo.png" alt="NeuroLint" className="h-9" />
+            </a>
+            <div className="flex items-center gap-6">
+              <a 
+                href="/" 
+                className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+              >
+                Home
+              </a>
+              <a 
+                href="/quick-start" 
+                className="text-white font-medium text-sm"
+              >
+                Quick Start
+              </a>
+              <a 
+                href="https://github.com/Alcatecablee/Neurolint-CLI/blob/main/CLI_USAGE.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+              >
+                Docs
+              </a>
+              <a 
+                href="https://www.npmjs.com/package/@neurolint/cli"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-2.5 bg-white text-black rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm shadow-lg"
+              >
+                Install
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <section
+        className="w-full flex flex-col items-center py-24 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black"
+        role="region"
+        aria-labelledby="quick-start-heading"
+      >
+        <div className="max-w-4xl w-full">
         <h2
           id="quick-start-heading"
           className="text-5xl md:text-7xl font-black mb-6 tracking-tight text-white text-center"
@@ -212,6 +278,38 @@ export function QuickStart() {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-800 py-8 px-4 text-center text-gray-400 text-sm">
+        <div className="max-w-7xl mx-auto">
+          <p>© 2024 NeuroLint. All rights reserved.</p>
+          <div className="mt-4 flex justify-center gap-6">
+            <a 
+              href="https://github.com/Alcatecablee/Neurolint-CLI" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              GitHub
+            </a>
+            <a 
+              href="https://www.npmjs.com/package/@neurolint/cli" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              npm
+            </a>
+            <a 
+              href="mailto:clivemakazhu@gmail.com"
+              className="hover:text-white transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

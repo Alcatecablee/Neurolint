@@ -3,7 +3,6 @@ import { FAQSection } from "./FAQSection";
 import { ModalDemo } from "./components/ModalDemo";
 import { LayersDocSection } from "./components/LayersDocSection";
 import { LandingFooter } from "./LandingFooter";
-import { QuickStart } from "./QuickStart";
 import 'asciinema-player/dist/bundle/asciinema-player.css';
 
 import {
@@ -356,7 +355,7 @@ export default function Index() {
                 Demo
               </a>
               <a 
-                href="#quick-start" 
+                href="/quick-start" 
                 className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
               >
                 Quick Start
@@ -599,9 +598,6 @@ export default function Index() {
       }`}>
         <ModalDemo />
       </div>
-
-      {/* Quick Start Section */}
-      <QuickStart />
 
       {/* Layers Documentation Section */}
       <LayersDocSection />
