@@ -103,15 +103,40 @@ const TypewriterHeadline = () => {
   );
 };
 
-// Asciinema Player Component (using optimized GIF)
+// Asciinema Player Component with controls
 const AsciinemaPlayerComponent = () => {
+  const playerRef = React.useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && playerRef.current) {
+      import('asciinema-player').then((AsciinemaPlayer) => {
+        if (playerRef.current && !isLoaded) {
+          AsciinemaPlayer.create('/demo.cast', playerRef.current, {
+            cols: 80,
+            rows: 24,
+            autoPlay: true,
+            loop: true,
+            fit: 'width',
+            terminalFontSize: '14px',
+            theme: {
+              background: '#0a0a0a',
+              foreground: '#ffffff',
+              palette: '#000000:#cc0000:#4e9a06:#c4a000:#3465a4:#75507b:#06989a:#d3d7cf:#555753:#ef2929:#8ae234:#fce94f:#729fcf:#ad7fa8:#34e2e2:#eeeeec'
+            }
+          });
+          setIsLoaded(true);
+        }
+      });
+    }
+  }, [isLoaded]);
+
   return (
     <div className="w-full">
-      <img
-        src="/demo.gif"
-        alt="NeuroLint CLI Demo - Hydration crashes, missing keys, and ESLint errors fixed in seconds"
-        className="w-full h-auto rounded-lg"
-        loading="lazy"
+      <div 
+        ref={playerRef} 
+        className="asciinema-player-wrapper w-full"
+        style={{ minHeight: '400px' }}
       />
     </div>
   );
@@ -345,18 +370,76 @@ export default function Index() {
       </section>
 
       {/* CLI Demo Video Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">
               See It In Action
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-6">
               Watch NeuroLint automatically fix your code in seconds
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>Interactive Player</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span>Pause & Resume</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span>Speed Control</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                <span>Fullscreen Mode</span>
+              </div>
+            </div>
           </div>
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-black/40 backdrop-blur-xl">
-            <AsciinemaPlayerComponent />
+          
+          {/* Terminal-style wrapper */}
+          <div className="relative group">
+            {/* Terminal Header */}
+            <div className="bg-gradient-to-b from-gray-800 to-gray-900 border-t-2 border-x-2 border-white/10 rounded-t-2xl px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-lg"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg"></div>
+                </div>
+                <div className="ml-4 text-sm text-gray-400 font-mono flex items-center gap-2">
+                  <span className="text-gray-500">❯</span>
+                  <span>terminal — neurolint-demo</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-gray-500 text-xs">
+                <kbd className="px-2 py-1 bg-black/30 rounded border border-white/10 font-mono">Space</kbd>
+                <span>to pause/play</span>
+              </div>
+            </div>
+            
+            {/* Player Container */}
+            <div className="relative bg-black border-2 border-t-0 border-white/10 rounded-b-2xl overflow-hidden shadow-2xl">
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-t from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+              
+              {/* Player */}
+              <div className="relative z-10">
+                <AsciinemaPlayerComponent />
+              </div>
+            </div>
+            
+            {/* Decorative elements */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+          </div>
+          
+          {/* Helper text */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Click inside the terminal to pause, use the controls to adjust speed, or press <kbd className="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-400 font-mono text-xs">f</kbd> for fullscreen
+            </p>
           </div>
         </div>
       </section>
