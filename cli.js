@@ -2813,9 +2813,9 @@ Examples:
         spinner.succeed('Turbopack analysis completed!');
         
         if (turbopackResult.compatible) {
-          console.log('\n✓ Project is Turbopack-ready! No blocking issues found.');
+          console.log('\nProject is Turbopack-ready! No blocking issues found.');
         } else {
-          console.log(`\n⚠ Found ${turbopackResult.issues.length} compatibility issues.`);
+          console.log(`\nFound ${turbopackResult.issues.length} compatibility issues.`);
           console.log('Review the report above for migration guidance.');
         }
         break;
@@ -2832,12 +2832,12 @@ Examples:
         spinner.succeed('React Compiler analysis completed!');
         
         if (compilerResult.recommendCompiler) {
-          console.log('\n🎯 Strong recommendation: Enable React Compiler');
+          console.log('\nStrong recommendation: Enable React Compiler');
           console.log(`Found ${compilerResult.totalFindings} opportunities for optimization.`);
         } else if (compilerResult.totalFindings > 0) {
-          console.log(`\n💡 React Compiler could simplify ${compilerResult.totalFindings} manual optimizations.`);
+          console.log(`\nReact Compiler could simplify ${compilerResult.totalFindings} manual optimizations.`);
         } else {
-          console.log('\n✓ No manual memoization patterns detected.');
+          console.log('\nNo manual memoization patterns detected.');
         }
         break;
       case 'assess-router':
@@ -2853,12 +2853,12 @@ Examples:
         spinner.succeed('Router complexity assessment completed!');
         
         if (routerResult.level === 'Simple') {
-          console.log('\n💡 Tip: Your project may be over-engineered for its needs.');
+          console.log('\nTip: Your project may be over-engineered for its needs.');
           console.log('Consider simplifying with: neurolint simplify ./src --target=react');
         } else if (routerResult.level === 'Moderate') {
-          console.log('\n✓ Router complexity is appropriate for your project size.');
+          console.log('\nRouter complexity is appropriate for your project size.');
         } else {
-          console.log('\n📊 Complex router setup detected - this is justified for your requirements.');
+          console.log('\nComplex router setup detected - this is justified for your requirements.');
         }
         break;
       case 'detect-react192':
@@ -2874,10 +2874,10 @@ Examples:
         spinner.succeed('React 19.2 feature detection completed!');
         
         if (react192Result.total > 0) {
-          console.log(`\n✨ Found ${react192Result.total} opportunities to use React 19.2 features!`);
+          console.log(`\nFound ${react192Result.total} opportunities to use React 19.2 features!`);
           console.log('Review the report above to modernize your codebase.');
         } else {
-          console.log('\n✓ No React 19.2 feature opportunities detected.');
+          console.log('\nNo React 19.2 feature opportunities detected.');
         }
         break;
       case 'migrate':
