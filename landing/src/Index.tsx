@@ -29,7 +29,7 @@ const useInView = (threshold = 0.1) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry && entry.isIntersecting) {
           setIsInView(true);
           observer.disconnect();
         }
@@ -67,9 +67,12 @@ const TypewriterHeadline = () => {
     const deletingSpeed = 50;
     const delayBetweenWords = 2000;
 
-    if (currentIndex < words[currentWordIndex].length) {
+    const currentWord = words[currentWordIndex];
+    if (!currentWord) return;
+
+    if (currentIndex < currentWord.length) {
       timeout = setTimeout(() => {
-        setCurrentText((prev) => prev + words[currentWordIndex][currentIndex]);
+        setCurrentText((prev) => prev + currentWord[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
       }, typingSpeed);
     } else {
@@ -82,7 +85,7 @@ const TypewriterHeadline = () => {
             setCurrentIndex(0);
           }
         },
-        currentText.length === words[currentWordIndex].length
+        currentText.length === currentWord.length
           ? delayBetweenWords
           : deletingSpeed,
       );

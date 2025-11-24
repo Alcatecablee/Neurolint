@@ -573,8 +573,8 @@ export function LayersDocSection() {
             <div className="p-8 space-y-6">
               {/* Header */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black flex-shrink-0">
-                  {selectedLayerData.icon}
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black flex-shrink-0 text-xl font-black">
+                  L{selectedLayerData.id}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-3xl font-black text-white mb-2">
@@ -588,8 +588,7 @@ export function LayersDocSection() {
 
               {/* What It Does */}
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
-                <h4 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-                  <Wrench className="w-5 h-5" />
+                <h4 className="text-xl font-black text-white mb-4">
                   What This Layer Does
                 </h4>
                 <ul className="space-y-2">
@@ -608,8 +607,7 @@ export function LayersDocSection() {
                   onClick={() => toggleSection('features')}
                   className="w-full flex items-center justify-between text-left mb-4"
                 >
-                  <h4 className="text-xl font-black text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
+                  <h4 className="text-xl font-black text-white">
                     Key Features
                   </h4>
                   {expandedSections.has('features') ? (
@@ -637,8 +635,7 @@ export function LayersDocSection() {
                     onClick={() => toggleSection('react19')}
                     className="w-full flex items-center justify-between text-left mb-4"
                   >
-                    <h4 className="text-xl font-black text-white flex items-center gap-2">
-                      <Code className="w-5 h-5" />
+                    <h4 className="text-xl font-black text-white">
                       React 19 Specific
                     </h4>
                     {expandedSections.has('react19') ? (
@@ -667,8 +664,7 @@ export function LayersDocSection() {
                     onClick={() => toggleSection('nextjs')}
                     className="w-full flex items-center justify-between text-left mb-4"
                   >
-                    <h4 className="text-xl font-black text-white flex items-center gap-2">
-                      <Rocket className="w-5 h-5" />
+                    <h4 className="text-xl font-black text-white">
                       Next.js 15.5 Specific
                     </h4>
                     {expandedSections.has('nextjs') ? (
@@ -692,8 +688,7 @@ export function LayersDocSection() {
 
               {/* Examples */}
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
-                <h4 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-                  <Code className="w-5 h-5" />
+                <h4 className="text-xl font-black text-white mb-4">
                   Examples
                 </h4>
                 <div className="space-y-6">
@@ -737,8 +732,7 @@ export function LayersDocSection() {
 
               {/* When to Use */}
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
-                <h4 className="text-xl font-black text-white mb-3 flex items-center gap-2">
-                  <Target className="w-5 h-5" />
+                <h4 className="text-xl font-black text-white mb-3">
                   When to Use This Layer
                 </h4>
                 <p className="text-gray-300">{selectedLayerData.whenToUse}</p>
@@ -750,8 +744,7 @@ export function LayersDocSection() {
                   onClick={() => toggleSection('technical')}
                   className="w-full flex items-center justify-between text-left"
                 >
-                  <h4 className="text-xl font-black text-white flex items-center gap-2">
-                    <Settings className="w-5 h-5" />
+                  <h4 className="text-xl font-black text-white">
                     Technical Implementation
                   </h4>
                   {expandedSections.has('technical') ? (
@@ -769,9 +762,6 @@ export function LayersDocSection() {
             </div>
           ) : (
             <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <Layers className="w-8 h-8 text-gray-400" />
-              </div>
               <p className="text-gray-400 text-lg">
                 Select a layer from the dropdown above to explore its features, examples, and technical details
               </p>
