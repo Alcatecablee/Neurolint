@@ -150,46 +150,46 @@ function Test() {
       
       if (expectValid && !syntaxValid) {
         testPassed = false;
-        issues.push('❌ SYNTAX ERROR: Produced invalid code');
+        issues.push('[FAIL] SYNTAX ERROR: Produced invalid code');
       }
       
       if (expectKey && !hasKey) {
         testPassed = false;
-        issues.push('❌ Missing key prop');
+        issues.push('[FAIL] Missing key prop');
       }
       
       if (noIndexAdd && hasIndexParam && shouldTransform) {
         testPassed = false;
-        issues.push('❌ Added index param when it already existed');
+        issues.push('[FAIL] Added index param when it already existed');
       }
       
       if (testPassed) {
         passed++;
-        const marker = critical ? '🔥' : '✅';
+        const marker = critical ? '[CRITICAL]' : '[PASS]';
         console.log(`${marker} PASS: ${name}`);
         if (critical) {
           console.log(`   ↳ Critical edge case handled correctly`);
         }
       } else {
         failed++;
-        console.log(`❌ FAIL: ${name}`);
+        console.log(`[FAIL] FAIL: ${name}`);
         issues.forEach(issue => console.log(`   ↳ ${issue}`));
         failures.push({ name, issues, input, output: result.code });
       }
       
     } catch (error) {
       failed++;
-      console.log(`❌ FAIL: ${name}`);
+      console.log(`[FAIL] FAIL: ${name}`);
       console.log(`   ↳ Error: ${error.message}`);
       failures.push({ name, issues: [error.message], input });
     }
   }
   
   console.log('\n' + '='.repeat(80));
-  console.log(`\n📊 Test Results: ${passed}/${testCases.length} passed`);
+  console.log(`\nTest Results: ${passed}/${testCases.length} passed`);
   
   if (failed > 0) {
-    console.log(`\n⚠️  ${failed} tests failed:\n`);
+    console.log(`\nWARNING: ${failed} tests failed:\n`);
     failures.forEach(({ name, issues, input, output }) => {
       console.log(`Failed Test: ${name}`);
       console.log(`Input:  ${input}`);
@@ -206,7 +206,7 @@ function Test() {
     
     process.exit(1);
   } else {
-    console.log('\n✨ All tests passed! Layer 3 handles all edge cases correctly.');
+    console.log('\nAll tests passed! Layer 3 handles all edge cases correctly.');
     process.exit(0);
   }
 }
