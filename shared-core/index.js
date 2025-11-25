@@ -480,7 +480,14 @@ module.exports = {
   trackCommand: (command, options) => neurolintCore.trackCommand(command, options),
   trackUser: (userId, action) => neurolintCore.trackUser(userId, action),
   
-  // Version info
-  version: '1.4.0',
+  // Version info (dynamically read from package.json)
+  get version() {
+    try {
+      const pkg = require('../package.json');
+      return pkg.version;
+    } catch {
+      return '1.3.9';
+    }
+  },
   description: 'NeuroLint Shared Core - Unified code modernization engine'
 }; 

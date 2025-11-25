@@ -1,6 +1,6 @@
 # NeuroLint CLI - Complete Usage Guide
 
-> **Version 1.4.0** | Last Updated: November 21, 2025
+> **Version 1.3.9** | Last Updated: November 25, 2025
 
 Comprehensive guide for using NeuroLint CLI to automatically fix React, Next.js, and TypeScript code issues using deterministic AST transformations.
 
@@ -1426,15 +1426,18 @@ For complete version history and detailed release notes, see [CHANGELOG.md](./CH
 
 ### Latest Release
 
-**Version 1.4.0** - Next.js 16 migration, React 19 dependency checker, Turbopack assistant, and more.
+**Version 1.3.9** - Repository cleanup and launch preparation for Reddit and Product Hunt.
 
 Key features:
-- Next.js 16 migration tooling
-- React 19 dependency compatibility checker with auto-fix
-- Turbopack migration readiness analysis
-- React Compiler opportunity detection
-- Router complexity assessment
-- React 19.2 feature detection
+- 7-layer progressive architecture
+- React 19 migration support
+- Next.js 15.5 optimization
+- Hydration error detection and fixes
+- Accessibility compliance (WCAG 2.1 AA)
+- 297 passing tests
+- Deterministic AST transformations
+
+**Upcoming in 1.4.0:** Next.js 16 migration, React 19 dependency checker, Turbopack assistant, and more.
 
 See [CHANGELOG.md](./CHANGELOG.md) for full details.
 
@@ -1631,4 +1634,4 @@ New to NeuroLint? Follow this checklist:
 
 **Built for developers who want deterministic, rule-based code quality - not AI-driven unpredictability.**
 
-**Version 1.4.0** | Business Source License 1.1 | Built for the React and Next.js community
+**Version 1.3.9** | Business Source License 1.1 | Built for the React and Next.js community

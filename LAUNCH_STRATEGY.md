@@ -10,11 +10,13 @@
 
 **Best Launch Day: Tuesday** (highest engagement for developer tools)
 
-### Coordinated Timeline:
+### Coordinated Timeline (SAST = South Africa Standard Time):
 
-- **Product Hunt**: Launch at **12:01 AM PST Tuesday**
-- **Reddit r/reactjs**: **6-8 AM PST / 9-11 AM EST Tuesday** (primary post)
-- **Reddit r/nextjs**: **12:00 PM PST / 3:00 PM EST Tuesday** (2-3 hours after r/reactjs)
+- **Product Hunt**: Launch at **12:01 AM PST / 10:01 AM SAST Tuesday**
+- **Reddit r/reactjs**: **6-8 AM PST / 4-6 PM SAST Tuesday** (primary post)
+- **Reddit r/nextjs**: **12:00 PM PST / 10:00 PM SAST Tuesday** (2-3 hours after r/reactjs)
+
+**Note for South Africa:** Your prime posting time is **4-6 PM SAST** (late afternoon)
 
 ---
 
@@ -22,27 +24,27 @@
 
 ### Priority Subreddit Order:
 
-1. **r/reactjs** (Tue/Thu 6-8 AM PST) - PRIMARY TARGET
+1. **r/reactjs** (Tue/Thu 6-8 AM PST / 4-6 PM SAST) - PRIMARY TARGET
    - 500K+ members, highly engaged
    - Best for React 19 migration angle
    - Emphasize deterministic transformations
 
-2. **r/nextjs** (Tue/Thu noon PST) - SECONDARY
+2. **r/nextjs** (Tue/Thu 12 PM PST / 10 PM SAST) - SECONDARY
    - Cross-post 2-3 hours after r/reactjs gains traction
    - Emphasize Next.js 16 migration
    - Tailor intro to Next.js-specific pain points
 
-3. **r/frontend** (Wed 7-9 AM PST)
+3. **r/frontend** (Wed 7-9 AM PST / 5-7 PM SAST)
    - General frontend audience
    - Emphasize accessibility + hydration fixes
    - Broader appeal beyond React ecosystem
 
-4. **r/webdev** (Mon/Wed 6-8 AM PST)
+4. **r/webdev** (Mon/Wed 6-8 AM PST / 4-6 PM SAST)
    - Broader developer audience
    - Focus on "deterministic vs AI" angle
    - CI/CD integration benefits
 
-5. **r/devops** (Thu 10 AM PST)
+5. **r/devops** (Thu 10 AM PST / 8 PM SAST)
    - CI/CD integration angle
    - 297 passing tests = reliability
    - Automation + safety messaging
@@ -512,42 +514,42 @@ that handles edge cases: [helpful tip]"
 
 ## 🎬 LAUNCH DAY TIMELINE
 
-### Monday Night (11:00 PM PST):
+### Monday Night (11:00 PM PST / 9:00 AM SAST Tuesday):
 
 ```
 ☐ Final check: Product Hunt assets uploaded
 ☐ Reddit posts drafted but NOT published
 ☐ Response templates ready
 ☐ Team notified of launch
-☐ Sleep!
+☐ Get ready!
 ```
 
-### Tuesday Launch:
+### Tuesday Launch (SAST - South Africa Time):
 
 ```
-12:01 AM PST:  ☐ Product Hunt goes live (auto-scheduled)
-12:05 AM:      ☐ Verify PH launched correctly
-12:10 AM:      ☐ Post first comment on PH
-              ☐ Share PH link with close supporters (max 10 people)
+10:01 AM SAST: ☐ Product Hunt goes live (auto-scheduled)
+10:05 AM:      ☐ Verify PH launched correctly
+10:10 AM:      ☐ Post first comment on PH
+               ☐ Share PH link with close supporters (max 10 people)
 
-6:00 AM PST:   ☐ Post to r/reactjs
-6:05 AM:       ☐ Monitor for first comments
-6:15 AM:       ☐ Seed 1-2 clarifying comments
-6:30 AM:       ☐ Respond to all comments
+4:00 PM SAST:  ☐ Post to r/reactjs (PRIMARY - BEST TIME)
+4:05 PM:       ☐ Monitor for first comments
+4:15 PM:       ☐ Seed 1-2 clarifying comments
+4:30 PM:       ☐ Respond to all comments
 
-8:00 AM:       ☐ Check Product Hunt ranking
-8:30 AM:       ☐ Update supporters on progress
+6:00 PM:       ☐ Check Product Hunt ranking
+6:30 PM:       ☐ Update supporters on progress
 
-12:00 PM PST:  ☐ Cross-post to r/nextjs (if r/reactjs >20 upvotes)
-12:30 PM:      ☐ Lunch break (set notifications!)
+10:00 PM SAST: ☐ Cross-post to r/nextjs (if r/reactjs >20 upvotes)
+10:30 PM:      ☐ Evening break (set notifications!)
 
-3:00 PM:       ☐ Check all metrics: PH, Reddit, npm, GitHub
-3:30 PM:       ☐ Post update on Product Hunt (milestone reached?)
+1:00 AM SAST:  ☐ Check all metrics: PH, Reddit, npm, GitHub
+               ☐ (Wed morning) Final check before sleep
 
-6:00 PM:       ☐ Handoff to backup engineer
-9:00 PM:       ☐ Evening check-in
-11:00 PM:      ☐ Final metrics review, celebrate!
+Next Morning:  ☐ Review overnight activity, celebrate!
 ```
+
+**🇿🇦 South Africa Advantage:** Your 4-6 PM SAST perfectly aligns with US East Coast morning (prime Reddit time)!
 
 ---
 

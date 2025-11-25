@@ -2689,7 +2689,8 @@ Examples:
 `);
         process.exit(0);
       case 'version':
-        console.log('1.4.0');
+        const pkg = require('./package.json');
+        console.log(pkg.version);
         logSuccess('Version displayed');
         break;
       case 'analyze':
