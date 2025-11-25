@@ -1,20 +1,18 @@
 /**
- * NeuroLint - Unified Configuration Manager
- * 
- * Handles configuration across CLI, VS Code, and Web App platforms
- * with support for project-specific, team, and global settings.
+ * NeuroLint
  * 
  * Copyright (c) 2025 NeuroLint
- * Licensed under the Business Source License 1.1
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
- * Use Limitation: You may not use this software to provide a commercial
- * SaaS offering that competes with NeuroLint's code transformation services.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Change Date: 2029-11-22
- * Change License: GPL-3.0-or-later
- * 
- * For commercial licensing: clivemakazhu@gmail.com
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 const fs = require('fs').promises;
@@ -43,7 +41,6 @@ class ConfigManager {
 
   /**
    * Get global configuration path
-   */
   getGlobalConfigPath() {
     const home = process.env.HOME || process.env.USERPROFILE;
     return path.join(home, '.neurolintrc');
@@ -51,7 +48,6 @@ class ConfigManager {
 
   /**
    * Load configuration from file
-   */
   async loadConfig(configPath = null) {
     const paths = [
       configPath,
@@ -76,7 +72,6 @@ class ConfigManager {
 
   /**
    * Save configuration to file
-   */
   async saveConfig(config = null, configPath = null) {
     const configToSave = config || this.config;
     const savePath = configPath || path.join(process.cwd(), this.configPath);
@@ -91,49 +86,42 @@ class ConfigManager {
 
   /**
    * Get configuration value
-   */
   get(key, defaultValue = null) {
     return this.config[key] !== undefined ? this.config[key] : defaultValue;
   }
 
   /**
    * Set configuration value
-   */
   set(key, value) {
     this.config[key] = value;
   }
 
   /**
    * Get enabled layers for analysis
-   */
   getEnabledLayers() {
     return this.config.enabledLayers || [1, 2, 3, 4, 5, 6, 7];
   }
 
   /**
    * Check if layer is enabled
-   */
   isLayerEnabled(layerId) {
     return this.config.enabledLayers.includes(layerId);
   }
 
   /**
    * Get file patterns to include
-   */
   getIncludePatterns() {
     return this.config.include || ['**/*.{ts,tsx,js,jsx,json}'];
   }
 
   /**
    * Get file patterns to exclude
-   */
   getExcludePatterns() {
     return this.config.exclude || ['**/node_modules/**', '**/dist/**', '**/.next/**'];
   }
 
   /**
    * Get team preferences
-   */
   getTeamPrefs() {
     return this.config.teamPrefs || {
       syncRules: true,
@@ -143,7 +131,6 @@ class ConfigManager {
 
   /**
    * Validate configuration
-   */
   validateConfig(config = null) {
     const configToValidate = config || this.config;
     const errors = [];
@@ -182,7 +169,6 @@ class ConfigManager {
 
   /**
    * Get configuration for specific platform
-   */
   getPlatformConfig(platform) {
     const baseConfig = { ...this.config };
     
@@ -214,7 +200,6 @@ class ConfigManager {
 
   /**
    * Merge configurations from multiple sources
-   */
   mergeConfigs(configs) {
     return configs.reduce((merged, config) => {
       return { ...merged, ...config };
@@ -223,7 +208,6 @@ class ConfigManager {
 
   /**
    * Get configuration schema for validation
-   */
   getConfigSchema() {
     return {
       type: 'object',
@@ -279,7 +263,6 @@ class ConfigManager {
 
   /**
    * Create default configuration
-   */
   createDefaultConfig() {
     return {
       enabledLayers: [1, 2, 3, 4, 5, 6],
@@ -299,7 +282,6 @@ class ConfigManager {
 
   /**
    * Export configuration for sharing
-   */
   exportConfig() {
     return {
       version: '1.2.1',
@@ -310,7 +292,6 @@ class ConfigManager {
 
   /**
    * Import configuration from external source
-   */
   async importConfig(configData) {
     if (typeof configData === 'string') {
       configData = JSON.parse(configData);

@@ -1,10 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * NeuroLint - Licensed under Business Source License 1.1
+ * NeuroLint - Copyright (c) 2025 NeuroLint
+ * 
  * Copyright (c) 2025 NeuroLint
- * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 
@@ -21,12 +31,10 @@ const parser = require('@babel/parser');
  * - Add mounted state for theme providers
  * - Fix hydration mismatches in useEffect
  * - Handles nested parentheses correctly via AST
- */
 
 /**
  * Validate syntax using Babel parser
  * Returns true if code is valid JavaScript/TypeScript, false otherwise
- */
 function validateSyntax(code) {
   try {
     parser.parse(code, {
@@ -44,7 +52,6 @@ function validateSyntax(code) {
 /**
  * Regex-based fallback for hydration guards
  * Used when AST transformation fails
- */
 function applyRegexHydrationFallbacks(input) {
   let code = input;
   const changes = [];
@@ -146,7 +153,6 @@ async function isRegularFile(filePath) {
 /**
  * Check if a node is already wrapped in SSR guard
  * Only accepts guards with !== operator and "undefined" literal
- */
 function isAlreadyGuarded(path, guardType = 'window') {
   let parent = path.parentPath;
   
@@ -193,7 +199,6 @@ function isAlreadyGuarded(path, guardType = 'window') {
 
 /**
  * Wrap an expression with SSR guard
- */
 function wrapWithSSRGuard(expression, guardType = 'window') {
   // Create: typeof window !== "undefined" ? expression : null
   return t.conditionalExpression(
@@ -211,7 +216,6 @@ function wrapWithSSRGuard(expression, guardType = 'window') {
  * Extract the root global identifier from a member expression tree
  * Walks the full tree regardless of depth
  * Returns 'window', 'document', or null
- */
 function getRootGlobalName(node) {
   if (t.isIdentifier(node)) {
     return (node.name === 'window' || node.name === 'document') ? node.name : null;
@@ -224,7 +228,6 @@ function getRootGlobalName(node) {
 
 /**
  * Main AST-based hydration transform
- */
 async function transform(code, options = {}) {
   const { dryRun = false, verbose = false, filePath = process.cwd() } = options;
   const results = [];

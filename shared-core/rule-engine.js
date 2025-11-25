@@ -1,23 +1,18 @@
 /**
- * NeuroLint - Shared Rule Engine
- * 
- * This module provides the core analysis and transformation logic
- * that will be shared across CLI, VS Code, and Web App platforms.
- * 
- * Production-ready with comprehensive error handling, fallback mechanisms,
- * and input validation to avoid problematic AI behaviors.
+ * NeuroLint
  * 
  * Copyright (c) 2025 NeuroLint
- * Licensed under the Business Source License 1.1
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
- * Use Limitation: You may not use this software to provide a commercial
- * SaaS offering that competes with NeuroLint's code transformation services.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Change Date: 2029-11-22
- * Change License: GPL-3.0-or-later
- * 
- * For commercial licensing: clivemakazhu@gmail.com
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 const { parse } = require('@babel/parser');
@@ -66,7 +61,6 @@ class RuleEngine {
 
   /**
    * Initialize built-in rules and analyzers
-   */
   initializeRules() {
     // Layer 1: Configuration rules
     this.addRule('config-modernization', {
@@ -113,7 +107,6 @@ class RuleEngine {
 
   /**
    * Initialize fallback analyzer for when AST parsing fails
-   */
   initializeFallbackAnalyzer() {
     this.fallbackAnalyzer = {
       analyze: (code, options) => {
@@ -165,7 +158,6 @@ class RuleEngine {
 
   /**
    * Validate input parameters
-   */
   validateInput(code, options = {}) {
     const errors = [];
     
@@ -202,7 +194,6 @@ class RuleEngine {
 
   /**
    * Add a new rule to the engine
-   */
   addRule(name, rule) {
     if (!name || typeof name !== 'string') {
       throw new Error('Rule name must be a non-empty string');
@@ -232,7 +223,6 @@ class RuleEngine {
 
   /**
    * Analyze code and return issues with comprehensive error handling
-   */
   async analyze(code, options = {}) {
     const {
       layers = [1, 2, 3, 4, 5, 6],
@@ -310,7 +300,6 @@ class RuleEngine {
 
   /**
    * Perform the actual analysis with proper error handling
-   */
   async performAnalysis(code, layers, filename, verbose) {
     try {
       // Parse code to AST with comprehensive error handling
@@ -375,7 +364,6 @@ class RuleEngine {
 
   /**
    * Apply fixes to code based on issues with comprehensive error handling
-   */
   async applyFixes(code, issues, options = {}) {
     const {
       dryRun = false,
@@ -429,7 +417,6 @@ class RuleEngine {
 
   /**
    * Perform the actual fixes with proper error handling
-   */
   async performFixes(code, issues, options) {
     try {
       // Parse code to AST
@@ -499,7 +486,6 @@ class RuleEngine {
 
   /**
    * Group issues by layer for reporting
-   */
   groupIssuesByLayer(issues) {
     return issues.reduce((acc, issue) => {
       const layer = issue.layer;
@@ -511,7 +497,6 @@ class RuleEngine {
 
   /**
    * Group fixes by rule for reporting
-   */
   groupFixesByRule(fixes) {
     return fixes.reduce((acc, fix) => {
       const rule = fix.rule;

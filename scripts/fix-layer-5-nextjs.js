@@ -1,10 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * NeuroLint - Licensed under Business Source License 1.1
+ * NeuroLint - Copyright (c) 2025 NeuroLint
+ * 
  * Copyright (c) 2025 NeuroLint
- * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 
@@ -14,7 +24,6 @@
  * Optimizes App Router with directives and imports using proper code parsing
  * Enhanced for Next.js 15.5 compatibility with Type Safe Routing
  * React 19 Integration: Handles ReactDOM.render, ReactDOM.hydrate, unmountComponentAtNode, findDOMNode
- */
 
 const fs = require('fs').promises;
 const path = require('path');
@@ -25,12 +34,10 @@ const { glob } = require('glob');
 /**
  * React 19 DOM API Transformation Functions
  * Handles breaking changes in React 19 for ReactDOM APIs
- */
 
 /**
  * Convert ReactDOM.render to createRoot (React 19)
  * ReactDOM.render is removed in React 19
- */
 function convertReactDOMRender(code) {
   let transformedCode = code;
   const changes = [];
@@ -134,7 +141,6 @@ function convertReactDOMRender(code) {
 /**
  * Convert ReactDOM.hydrate to hydrateRoot (React 19)
  * ReactDOM.hydrate is removed in React 19
- */
 function convertReactDOMHydrate(code) {
   let transformedCode = code;
   const changes = [];
@@ -234,7 +240,6 @@ function convertReactDOMHydrate(code) {
 /**
  * Convert unmountComponentAtNode to root.unmount (React 19)
  * unmountComponentAtNode is removed in React 19
- */
 function convertUnmountComponentAtNode(code) {
   let transformedCode = code;
   const warnings = [];
@@ -264,7 +269,6 @@ function convertUnmountComponentAtNode(code) {
 /**
  * Detect findDOMNode usage (React 19)
  * findDOMNode is removed in React 19
- */
 function detectFindDOMNodeUsage(code) {
   const warnings = [];
   
@@ -296,7 +300,6 @@ function detectFindDOMNodeUsage(code) {
 /**
  * Convert ReactDOM test-utils imports to react imports (React 19)
  * react-dom/test-utils is removed in React 19; act moved to react package
- */
 function convertReactDOMTestUtils(code) {
   let transformedCode = code;
   const changes = [];
@@ -333,7 +336,6 @@ function convertReactDOMTestUtils(code) {
 
 /**
  * Apply all React 19 DOM API fixes
- */
 function applyReact19DOMFixes(code, options = {}) {
   const { verbose = false } = options;
   let transformedCode = code;
@@ -435,7 +437,6 @@ async function isRegularFile(filePath) {
 /**
  * Type Safe Routing Transformer for Next.js 15.5
  * Implements comprehensive type-safe routing with AST-based transformations
- */
 class TypeSafeRoutingTransformer {
   constructor() {
     this.routePatterns = {
@@ -458,7 +459,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Extract route parameters from file path
-   */
   extractRouteParams(filePath) {
     const routeSegments = filePath.split('/');
     const params = {};
@@ -481,7 +481,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Generate TypeScript interface name from file path
-   */
   getInterfaceName(filePath) {
     const fileName = path.basename(filePath, path.extname(filePath));
     const routePath = filePath.replace(/^.*?app\//, '').replace(/\/[^\/]+$/, '');
@@ -500,7 +499,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Generate deterministic hash for file path
-   */
   generateHash(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -513,7 +511,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Generate TypeScript interfaces for route parameters
-   */
   generateRouteTypes(filePath, routeParams) {
     const interfaceName = this.getInterfaceName(filePath);
     const paramTypes = this.inferParamTypes(routeParams);
@@ -526,7 +523,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Infer parameter types from route structure
-   */
   inferParamTypes(routeParams) {
     if (Object.keys(routeParams).length === 0) {
       return 'Record<string, string>';
@@ -549,7 +545,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Transform route components with type safety
-   */
   transformRouteComponent(code, filePath) {
     try {
       // Handle edge cases
@@ -605,7 +600,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Transform function signature to use type-safe props
-   */
   transformFunctionSignature(code, interfaceName) {
     // More robust pattern to match export default function with destructured props
     const functionPattern = /(export\s+default\s+function\s+(\w+)\s*\(\s*\{[^}]*\}\s*\))/g;
@@ -635,7 +629,6 @@ class TypeSafeRoutingTransformer {
 
   /**
    * Validate Type Safe Routing transformation
-   */
   validateTransformation(before, after, filePath) {
     const validation = {
       success: true,
@@ -699,7 +692,6 @@ class TypeSafeRoutingTransformer {
 /**
  * Next.js 15.5 File Discovery and Processing System
  * Implements intelligent file discovery for route components with comprehensive processing
- */
 class NextJS15FileDiscoverer {
   constructor() {
     this.routePatterns = [
@@ -723,7 +715,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Discover all route components in project
-   */
   async discoverRouteFiles(projectPath, options = {}) {
     const files = [];
     
@@ -780,7 +771,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Fallback file discovery using fs
-   */
   async discoverFilesFallback(projectPath, exclusions = []) {
     const files = [];
     
@@ -795,7 +785,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Recursively scan directory for route files
-   */
   async scanDirectory(dirPath, files, exclusions = []) {
     try {
       const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -838,7 +827,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Check if file path matches route patterns
-   */
   matchesRoutePattern(filePath) {
     const normalizedPath = filePath.replace(/\\/g, '/'); // Normalize for Windows
     return this.routePatterns.some(pattern => {
@@ -853,7 +841,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Validate route file for transformation
-   */
   async isValidRouteFile(filePath) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
@@ -872,7 +859,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Generate overall categorization across all migration features
-   */
   generateOverallCategorization(results) {
     const overallStats = {
       'Successfully migrated': { count: 0, percentage: '0.0', description: 'Files that were successfully updated for Next.js 15.5 compatibility' },
@@ -909,7 +895,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Determine why a file is being skipped
-   */
   async determineSkipReason(filePath) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
@@ -959,7 +944,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Process route files with progress reporting and comprehensive categorization
-   */
   async processRouteFiles(files, options = {}) {
     const results = [];
     const { verbose = false, dryRun = false } = options;
@@ -1013,7 +997,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Transform individual route file with comprehensive validation
-   */
   async transformRouteFile(filePath, content, transformer, options = {}) {
     const { dryRun = false, verbose = false } = options;
     
@@ -1068,7 +1051,6 @@ class NextJS15FileDiscoverer {
 
   /**
    * Generate comprehensive migration report with proper categorization
-   */
   generateMigrationReport(results) {
     // Categorize results properly
     const successful = results.filter(r => r.success);
@@ -1170,7 +1152,6 @@ class NextJS15FileDiscoverer {
 
 /**
  * Enhanced Server Actions wrapper for Next.js 15.5
- */
 function enhanceServerActions(code) {
   const changes = [];
   
@@ -1248,7 +1229,6 @@ ${functionBody}
 
 /**
  * Enhanced Metadata API for Next.js 15.5
- */
 function enhanceMetadataAPI(code) {
   const changes = [];
   
@@ -1310,7 +1290,6 @@ function enhanceMetadataAPI(code) {
 
 /**
  * Detect and warn about Next.js 15.5 deprecations
- */
 function detectDeprecations(code) {
   const warnings = [];
   
@@ -1346,7 +1325,6 @@ function detectDeprecations(code) {
 
 /**
  * Configure Turbopack for Next.js 15.5
- */
 function configureTurbopack(code) {
   const changes = [];
   
@@ -1388,7 +1366,6 @@ function configureTurbopack(code) {
 
 /**
  * Suggest caching optimizations for Next.js 15.5
- */
 function suggestCachingOptimizations(code) {
   const suggestions = [];
   
@@ -1808,7 +1785,6 @@ async function transform(code, options = {}) {
 
 /**
  * Main Type Safe Routing migration function for CLI integration
- */
 async function migrateTypeSafeRouting(projectPath, options = {}) {
   const { dryRun = false, verbose = false } = options;
   
@@ -1888,7 +1864,6 @@ async function migrateTypeSafeRouting(projectPath, options = {}) {
 
 /**
  * Next.js Lint Migration Function for CLI integration
- */
 async function migrateNextJSLint(projectPath, options = {}) {
   const { dryRun = false, verbose = false, useBiome = false } = options;
   
@@ -1991,7 +1966,6 @@ async function migrateNextJSLint(projectPath, options = {}) {
 /**
  * Biome Migration Transformer
  * Migrates ESLint configurations to Biome (Next.js 15.5 recommended)
- */
 class BiomeMigrationTransformer {
   constructor() {
     this.configMappings = {
@@ -2007,7 +1981,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Migrate project from ESLint to Biome
-   */
   async migrateProjectToBiome(projectPath, options = {}) {
     const { dryRun = false, verbose = false } = options;
     
@@ -2072,7 +2045,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Generate Biome configuration from existing ESLint/Prettier setup
-   */
   async generateBiomeConfig(projectPath) {
     const config = {
       "$schema": "https://biomejs.dev/schemas/1.4.1/schema.json",
@@ -2102,7 +2074,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Map ESLint rules to Biome equivalents
-   */
   mapESLintRules(biomeConfig, eslintRules) {
     const biomeRules = {};
 
@@ -2122,7 +2093,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Update package.json with Biome dependencies and scripts
-   */
   async updatePackageJson(packageJsonPath, biomeConfig) {
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
     
@@ -2156,7 +2126,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Read existing ESLint configuration
-   */
   async readESLintConfig(projectPath) {
     const configFiles = ['.eslintrc.json', '.eslintrc.js', '.eslintrc.yml'];
     
@@ -2174,7 +2143,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Read existing Prettier configuration
-   */
   async readPrettierConfig(projectPath) {
     const configFiles = ['.prettierrc', '.prettierrc.json', '.prettierrc.js'];
     
@@ -2192,7 +2160,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Apply Prettier settings to Biome formatter
-   */
   applyPrettierSettings(biomeConfig, prettierConfig) {
     if (prettierConfig.semi !== undefined) {
       biomeConfig.formatter.semicolons = prettierConfig.semi ? 'always' : 'asNeeded';
@@ -2207,7 +2174,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Remove old ESLint configurations
-   */
   async removeESLintConfigs(projectPath) {
     const configFiles = ['.eslintrc.json', '.eslintrc.js', '.eslintrc.yml', '.eslintignore'];
     let removed = false;
@@ -2227,7 +2193,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Remove old Prettier configurations
-   */
   async removePrettierConfigs(projectPath) {
     const configFiles = ['.prettierrc', '.prettierrc.json', '.prettierrc.js', '.prettierignore'];
     let removed = false;
@@ -2247,7 +2212,6 @@ class BiomeMigrationTransformer {
 
   /**
    * Update CI/CD configurations
-   */
   async updateCIConfigs(projectPath) {
     const ciFiles = ['.github/workflows/ci.yml', '.github/workflows/test.yml', 'ci.yml'];
     let updated = false;
@@ -2277,7 +2241,6 @@ class BiomeMigrationTransformer {
 /**
  * Next.js 15.5 Deprecation Handler
  * Detects and fixes deprecated patterns
- */
 class NextJS15DeprecationHandler {
   constructor() {
     this.deprecationPatterns = {
@@ -2405,7 +2368,6 @@ class NextJS15DeprecationHandler {
 
   /**
    * Process deprecations in project
-   */
   async processDeprecations(projectPath, options = {}) {
     const { dryRun = false, verbose = false, autoFix = true } = options;
     
@@ -2449,7 +2411,6 @@ class NextJS15DeprecationHandler {
 
   /**
    * Find relevant files for deprecation processing
-   */
   async findRelevantFiles(projectPath) {
     const patterns = [
       '**/*.tsx',
@@ -2476,7 +2437,6 @@ class NextJS15DeprecationHandler {
 
   /**
    * Process deprecations in a single file
-   */
   async processFile(filePath, options = {}) {
     const { dryRun = false, autoFix = true } = options;
     
@@ -2541,7 +2501,6 @@ class NextJS15DeprecationHandler {
 /**
  * Comprehensive Next.js 15.5 Migration Function
  * Combines all Phase 1 and Phase 2 features
- */
 async function migrateNextJS15Comprehensive(projectPath, options = {}) {
   const { 
     dryRun = false, 
@@ -2637,7 +2596,6 @@ async function migrateNextJS15Comprehensive(projectPath, options = {}) {
 /**
  * Suggest migration to new React 19 static APIs
  * Detects renderToString and suggests prerender for better Suspense support
- */
 function suggestStaticAPIMigration(code) {
   const warnings = [];
   const renderToStringPattern = /renderToString\s*\(/g;
@@ -2659,7 +2617,6 @@ function suggestStaticAPIMigration(code) {
 /**
  * Generate Biome configuration for Next.js 15.5 projects
  * Next.js 15.5 officially recommends Biome over ESLint
- */
 async function generateBiomeConfig(projectPath, options = {}) {
   const { dryRun = false, verbose = false } = options;
   const results = [];

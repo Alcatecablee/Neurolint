@@ -1,10 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * NeuroLint - Licensed under Business Source License 1.1
+ * NeuroLint - Copyright (c) 2025 NeuroLint
+ * 
  * Copyright (c) 2025 NeuroLint
- * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 
@@ -15,7 +25,6 @@
  * - View Transitions
  * - useEffectEvent
  * - Activity component
- */
 
 const fs = require('fs').promises;
 const path = require('path');
@@ -35,7 +44,6 @@ class React192FeatureDetector {
 
   /**
    * Main detection entry point
-   */
   async detect() {
     this.log('Scanning for React 19.2 feature opportunities...', 'info');
     
@@ -63,7 +71,6 @@ class React192FeatureDetector {
   /**
    * Detect View Transition opportunities
    * Look for manual animation code that could use View Transitions API
-   */
   async detectViewTransitionOpportunities() {
     const opportunities = [];
     const files = await this.findSourceFiles();
@@ -95,7 +102,6 @@ class React192FeatureDetector {
   /**
    * Detect useEffectEvent opportunities
    * Look for non-reactive logic in useEffect
-   */
   async detectUseEffectEventOpportunities() {
     const opportunities = [];
     const files = await this.findSourceFiles();
@@ -136,7 +142,6 @@ class React192FeatureDetector {
   /**
    * Detect Activity component opportunities
    * Look for background rendering patterns
-   */
   async detectActivityOpportunities() {
     const opportunities = [];
     const files = await this.findSourceFiles();
@@ -168,7 +173,6 @@ class React192FeatureDetector {
 
   /**
    * Print detection report
-   */
   printReport(opportunities) {
     console.log('\n' + '='.repeat(60));
     console.log('React 19.2 Feature Opportunities');
@@ -221,7 +225,6 @@ class React192FeatureDetector {
 
   /**
    * Helper: Find all source files
-   */
   async findSourceFiles() {
     const files = [];
     const extensions = ['.ts', '.tsx', '.js', '.jsx'];
