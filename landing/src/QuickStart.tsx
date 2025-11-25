@@ -240,61 +240,61 @@ export function QuickStart() {
           </div>
 
           {/* Basic Commands */}
-          <div className="mb-12 md:mb-16 text-left">
+          <div className="mb-12 md:mb-16 text-center">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="basic-commands">Basic Commands</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">Show Version</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Show Version</h3>
             <CommandBlock command="neurolint --version" id="version" />
             
-            <h3 className="text-lg text-gray-300 mb-4">Show Help</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Show Help</h3>
             <CommandBlock command="neurolint --help" id="help" />
             
-            <h3 className="text-lg text-gray-300 mb-4">Show All Layers</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Show All Layers</h3>
             <CommandBlock command="neurolint layers" id="layers" />
           </div>
 
           {/* Analysis Commands */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-4">Analysis Commands (Safe - No Changes)</h2>
-            <p className="text-sm text-gray-400 mb-8">These commands analyze your project without making any modifications</p>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6 scroll-mt-24" id="analysis-commands">Analysis Commands (Safe - No Changes)</h2>
+            <p className="text-sm sm:text-base text-gray-400 mb-8">These commands analyze your project without making any modifications</p>
             
-            <h3 className="text-lg text-gray-300 mb-4">Analyze Project</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Analyze Project</h3>
             <CommandBlock command="neurolint analyze your-project" id="analyze" />
             <CommandBlock command="neurolint analyze your-project --verbose" id="analyze-verbose" />
             <CommandBlock command="neurolint analyze your-project/src --verbose" id="analyze-folder" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Check Project Statistics</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Check Project Statistics</h3>
             <CommandBlock command="neurolint stats your-project --verbose" id="stats" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Validate Without Changes</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Validate Without Changes</h3>
             <CommandBlock command="neurolint validate your-project --verbose" id="validate" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Check React 19 Dependency Compatibility</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Check React 19 Dependency Compatibility</h3>
             <CommandBlock command="neurolint check-deps your-project --verbose" id="check-deps" />
             <CommandBlock command="neurolint check-deps your-project --fix --verbose" id="check-deps-fix" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Check Turbopack Migration Readiness</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Check Turbopack Migration Readiness</h3>
             <CommandBlock command="neurolint check-turbopack your-project --verbose" id="turbopack" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Check React Compiler Opportunities</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Check React Compiler Opportunities</h3>
             <CommandBlock command="neurolint check-compiler your-project --verbose" id="compiler" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Assess Router Complexity</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Assess Router Complexity</h3>
             <CommandBlock command="neurolint assess-router your-project --verbose" id="router" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Detect React 19.2 Feature Opportunities</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Detect React 19.2 Feature Opportunities</h3>
             <CommandBlock command="neurolint detect-react192 your-project --verbose" id="react192" />
           </div>
 
           {/* Dry Run Commands */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-4">Dry Run Commands (Preview Changes - No Modifications)</h2>
-            <p className="text-sm text-gray-400 mb-8">See what would be fixed without actually changing your files</p>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6 scroll-mt-24" id="dry-run-commands">Dry Run Commands (Preview Changes - No Modifications)</h2>
+            <p className="text-sm sm:text-base text-gray-400 mb-8">See what would be fixed without actually changing your files</p>
             
-            <h3 className="text-lg text-gray-300 mb-4">Preview All Layer Fixes</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Preview All Layer Fixes</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --dry-run --verbose" id="preview-all" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Preview Specific Layer Fixes</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Preview Specific Layer Fixes</h3>
             <CommandBlock command="neurolint fix your-project --layers=1 --dry-run --verbose" id="layer1" />
             <CommandBlock command="neurolint fix your-project --layers=2 --dry-run --verbose" id="layer2" />
             <CommandBlock command="neurolint fix your-project --layers=3 --dry-run --verbose" id="layer3" />
@@ -304,7 +304,7 @@ export function QuickStart() {
             <CommandBlock command="neurolint fix your-project --layers=7 --dry-run --verbose" id="layer7" />
             <CommandBlock command="neurolint fix your-project --layers=1,2,3 --dry-run --verbose" id="layers-multi" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Preview Migration Commands</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Preview Migration Commands</h3>
             <CommandBlock command="neurolint migrate-react19 your-project --dry-run --verbose" id="migrate-react19-preview" />
             <CommandBlock command="neurolint migrate-nextjs-16 your-project --dry-run --verbose" id="migrate-next16-preview" />
             <CommandBlock command="neurolint migrate-nextjs-15.5 your-project --dry-run --verbose" id="migrate-next155-preview" />
@@ -312,93 +312,93 @@ export function QuickStart() {
           </div>
 
           {/* Actual Fix Commands */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Actual Fix Commands (MAKES CHANGES - Backups created automatically)</h2>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="fix-commands">Actual Fix Commands (MAKES CHANGES - Backups created automatically)</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">Apply All Fixes (Automatic Backup)</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Apply All Fixes (Automatic Backup)</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --verbose" id="fix-all" />
             <CommandBlock command="neurolint fix your-project --layers=1,2,3 --verbose" id="fix-specific" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Apply Fixes Without Backup (Not Recommended)</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Apply Fixes Without Backup (Not Recommended)</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --no-backup --verbose" id="fix-no-backup-all" />
             <CommandBlock command="neurolint fix your-project --layers=1 --no-backup --verbose" id="fix-no-backup-layer1" />
           </div>
 
           {/* Migration Commands */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Migration Commands (MAKES CHANGES - Backups created automatically)</h2>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="migration-commands">Migration Commands (MAKES CHANGES - Backups created automatically)</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">React 19 Migration</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">React 19 Migration</h3>
             <CommandBlock command="neurolint migrate-react19 your-project --verbose" id="migrate-react19" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Next.js 16 Migration</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Next.js 16 Migration</h3>
             <CommandBlock command="neurolint migrate-nextjs-16 your-project --verbose" id="migrate-next16" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Biome Migration</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Biome Migration</h3>
             <CommandBlock command="neurolint migrate-biome your-project --verbose" id="migrate-biome" />
           </div>
 
           {/* Backup Management */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Backup Management</h2>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="backup-management">Backup Management</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">List Backups</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">List Backups</h3>
             <CommandBlock command="neurolint backup list" id="backup-list" />
             
-            <h3 className="text-lg text-gray-300 mb-4">Restore from Backup</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Restore from Backup</h3>
             <CommandBlock command="neurolint restore --interactive" id="restore" />
           </div>
 
           {/* Testing Workflow */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Testing Workflow (Recommended Order)</h2>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="testing-workflow">Testing Workflow (Recommended Order)</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">Step 1: Analyze First</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">Step 1: Analyze First</h3>
             <CommandBlock command="neurolint analyze your-project --verbose" id="workflow-analyze" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Step 2: Check Dependencies</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Step 2: Check Dependencies</h3>
             <CommandBlock command="neurolint check-deps your-project --verbose" id="workflow-deps" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Step 3: Preview Fixes</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Step 3: Preview Fixes</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --dry-run --verbose" id="workflow-preview" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Step 4: Apply Layer by Layer (Safest Approach - Automatic Backups)</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Step 4: Apply Layer by Layer (Safest Approach - Automatic Backups)</h3>
             <CommandBlock command="neurolint fix your-project --layers=1 --verbose" id="workflow-layer1" />
             <CommandBlock command="neurolint fix your-project --layers=2 --verbose" id="workflow-layer2" />
             <CommandBlock command="neurolint fix your-project --layers=3 --verbose" id="workflow-layer3" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">Step 5: Validate</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">Step 5: Validate</h3>
             <CommandBlock command="neurolint validate your-project --verbose" id="workflow-validate" />
           </div>
 
           {/* Quick Reference by Use Case */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Quick Reference by Use Case</h2>
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="quick-reference">Quick Reference by Use Case</h2>
             
-            <h3 className="text-lg text-gray-300 mb-4">"I want to see what issues exist"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4">"I want to see what issues exist"</h3>
             <CommandBlock command="neurolint analyze your-project --verbose" id="usecase-issues" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">"I want to see what would be fixed"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">"I want to see what would be fixed"</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --dry-run --verbose" id="usecase-preview" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">"I want to fix everything safely"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">"I want to fix everything safely"</h3>
             <CommandBlock command="neurolint fix your-project --all-layers --verbose" id="usecase-fix" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">"I want to migrate to React 19"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">"I want to migrate to React 19"</h3>
             <CommandBlock command="neurolint migrate-react19 your-project --dry-run --verbose" id="usecase-react19-preview" />
             <CommandBlock command="neurolint migrate-react19 your-project --verbose" id="usecase-react19-apply" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">"I want to check Turbopack compatibility"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">"I want to check Turbopack compatibility"</h3>
             <CommandBlock command="neurolint check-turbopack your-project --verbose" id="usecase-turbopack" />
 
-            <h3 className="text-lg text-gray-300 mb-4 mt-8">"I need to undo changes"</h3>
+            <h3 className="text-base sm:text-lg text-gray-300 mb-4 mt-8">"I need to undo changes"</h3>
             <CommandBlock command="neurolint restore --interactive" id="usecase-undo" />
           </div>
 
           {/* Notes */}
-          <div className="mb-16 text-left">
-            <h2 className="text-2xl font-bold text-white mb-8">Notes</h2>
-            <div className="text-sm text-gray-400 space-y-2">
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="notes">Notes</h2>
+            <div className="text-sm sm:text-base text-gray-400 space-y-2 max-w-3xl mx-auto text-left">
               <p>• Always use <code className="text-green-400">--dry-run</code> first to preview changes before applying</p>
               <p>• Backups are created <strong>automatically by default</strong> - use <code className="text-green-400">--no-backup</code> to skip (not recommended)</p>
               <p>• Use <code className="text-green-400">--verbose</code> to see detailed output and understand what's happening</p>
