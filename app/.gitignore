@@ -21,6 +21,9 @@
 .env.test.local
 .env.production.local
 
+# Prevent demo mode from being committed
+.env.local
+
 # Debug
 npm-debug.log*
 yarn-debug.log*

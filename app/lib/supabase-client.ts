@@ -1,30 +1,34 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { isDemoMode } from "./demo-mode";
+import { DemoSupabaseClient } from "./supabase-demo-wrapper";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Only throw error in runtime, not during build
-if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
-  throw new Error("Missing Supabase environment variables");
-}
-
 // Create a singleton instance to prevent multiple GoTrueClient instances
-let supabaseInstance: SupabaseClient | null = null;
+let supabaseInstance: any = null;
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    // Only create client if we have valid environment variables
-    if (supabaseUrl && supabaseAnonKey) {
+    // Use demo mode if enabled
+    if (isDemoMode()) {
+      console.log('[Supabase Client] Using demo mode');
+      supabaseInstance = new DemoSupabaseClient();
+    } else if (supabaseUrl && supabaseAnonKey) {
+      // Only create real client if we have valid environment variables
       supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
-          autoRefreshToken: true, // Re-enable auto refresh
-          persistSession: true, // Re-enable persistence
-          detectSessionInUrl: false, // Keep this disabled to avoid conflicts
-          storageKey: 'neurolint-supabase-auth', // Use unique storage key
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false,
+          storageKey: 'neurolint-supabase-auth',
         },
       });
     } else {
-      // Return a mock client for build time
+      // Fallback for build time without credentials
+      if (typeof window !== 'undefined') {
+        console.error('Missing Supabase credentials and not in demo mode');
+      }
       supabaseInstance = createClient('https://placeholder.supabase.co', 'placeholder-key', {
         auth: {
           autoRefreshToken: false,
