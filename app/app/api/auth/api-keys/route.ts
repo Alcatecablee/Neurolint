@@ -2,11 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiKeyService, type ApiKey } from "../../../../lib/api-key-utils";
 import { authenticateRequest } from "../../../../lib/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
+import { isDemoMode } from "../../../../lib/demo-mode";
+import { DEMO_API_KEYS } from "../../../../lib/demo-data";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
+
+    // Demo mode - return mock API keys
+    if (isDemoMode()) {
+      console.log('[Demo Mode] Returning mock API keys');
+      return NextResponse.json({
+        apiKeys: DEMO_API_KEYS,
+        total: DEMO_API_KEYS.length,
+      });
+    }
 
     // Try to authenticate the request to get the real user ID
     const authResult = await authenticateRequest(request);

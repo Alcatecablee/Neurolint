@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from "../../../lib/auth-middleware";
+import { isDemoMode } from "../../../lib/demo-mode";
+import { DEMO_ANALYSIS_HISTORY } from "../../../lib/demo-data";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -15,6 +17,54 @@ if (supabaseUrl && supabaseServiceKey) {
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const timeRange = searchParams.get('timeRange') || 'week';
+    const userId = searchParams.get('userId');
+    const teamId = searchParams.get('teamId');
+    const detailed = searchParams.get('detailed') === 'true';
+    const includePredictive = searchParams.get('includePredictive') === 'true';
+
+    // Demo mode - return mock analytics data
+    if (isDemoMode()) {
+      console.log('[Demo Mode] Returning mock analytics data');
+      return NextResponse.json({
+        analysisHistory: DEMO_ANALYSIS_HISTORY,
+        usageLogs: [],
+        summary: {
+          totalAnalyses: DEMO_ANALYSIS_HISTORY.length,
+          totalFiles: DEMO_ANALYSIS_HISTORY.length,
+          averageScore: 85,
+          improvementRate: 12,
+          maintainabilityIndex: 78
+        },
+        layerPerformance: {
+          layer1: 45,
+          layer2: 67,
+          layer3: 89,
+          layer4: 92,
+          layer5: 78
+        },
+        issueTypes: {
+          accessibility: 15,
+          hydration: 8,
+          patterns: 12,
+          config: 5,
+          nextjs: 10
+        },
+        severityDistribution: {
+          critical: 2,
+          high: 8,
+          medium: 15,
+          low: 25
+        },
+        recommendations: [
+          'Focus on Layer 4 fixes for maximum impact',
+          'Address accessibility issues first',
+          'Consider upgrading to latest Next.js version'
+        ]
+      });
+    }
+
     if (!supabase) {
       console.error('Supabase not configured - missing environment variables');
       return NextResponse.json(
@@ -22,13 +72,6 @@ export async function GET(request: NextRequest) {
         { status: 503 }
       );
     }
-
-    const { searchParams } = new URL(request.url);
-    const timeRange = searchParams.get('timeRange') || 'week';
-    const userId = searchParams.get('userId');
-    const teamId = searchParams.get('teamId');
-    const detailed = searchParams.get('detailed') === 'true';
-    const includePredictive = searchParams.get('includePredictive') === 'true';
 
     // If advanced options requested, require enterprise tier
     if (detailed || includePredictive) {

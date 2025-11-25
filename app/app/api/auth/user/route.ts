@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { validateSupabaseConfig } from "../../../../lib/demo-mode";
+import { validateSupabaseConfig, isDemoMode, DEMO_USER } from "../../../../lib/demo-mode";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,31 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
+    
+    // Demo mode - return demo user
+    if (isDemoMode()) {
+      console.log('[Demo Mode] Returning demo user data');
+      return NextResponse.json({
+        user: {
+          id: DEMO_USER.id,
+          email: DEMO_USER.email,
+          firstName: DEMO_USER.first_name,
+          lastName: DEMO_USER.last_name,
+          plan: DEMO_USER.plan,
+          emailConfirmed: DEMO_USER.email_confirmed,
+          createdAt: DEMO_USER.created_at,
+          profileCreatedAt: DEMO_USER.created_at,
+          lastUpdated: DEMO_USER.updated_at,
+          trialPlan: null,
+          trialStartDate: null,
+          trialEndDate: null,
+          trialUsed: false,
+          isOnTrial: false,
+          trialDaysRemaining: 0,
+        },
+      });
+    }
+    
     if (!validateSupabaseConfig()) {
       return NextResponse.json(
         { error: "Service configuration error" },
@@ -127,6 +152,30 @@ export async function PUT(request: NextRequest) {
 
     const token = authHeader.substring(7);
     const { firstName, lastName } = await request.json();
+    
+    // Demo mode - return success with demo user data
+    if (isDemoMode()) {
+      console.log('[Demo Mode] Profile update simulated');
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: DEMO_USER.id,
+          email: DEMO_USER.email,
+          firstName: firstName || DEMO_USER.first_name,
+          lastName: lastName || DEMO_USER.last_name,
+          plan: DEMO_USER.plan,
+          emailConfirmed: DEMO_USER.email_confirmed,
+          lastUpdated: new Date().toISOString(),
+          trialPlan: null,
+          trialStartDate: null,
+          trialEndDate: null,
+          trialUsed: false,
+          isOnTrial: false,
+          trialDaysRemaining: 0,
+        },
+      });
+    }
+    
     if (!validateSupabaseConfig()) {
       return NextResponse.json(
         { error: "Service configuration error" },

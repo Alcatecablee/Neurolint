@@ -106,6 +106,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // Demo mode - auto-populate session if none exists
+      if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+        const savedSession = localStorage.getItem("neurolint-supabase-auth");
+        if (!savedSession) {
+          const { DEMO_USER, DEMO_SESSION } = await import("./demo-mode");
+          const demoSessionData = {
+            access_token: DEMO_SESSION.access_token,
+            refresh_token: 'demo-refresh-token',
+            expires_at: DEMO_SESSION.expires_at,
+            expires_in: 86400,
+            token_type: 'bearer',
+            rememberMe: true,
+            persistUntil: Date.now() + (30 * 24 * 60 * 60 * 1000)
+          };
+          localStorage.setItem("neurolint-supabase-auth", JSON.stringify(demoSessionData));
+          localStorage.setItem("user_data", JSON.stringify({
+            id: DEMO_USER.id,
+            email: DEMO_USER.email,
+            firstName: DEMO_USER.first_name,
+            lastName: DEMO_USER.last_name,
+            plan: DEMO_USER.plan,
+            emailConfirmed: DEMO_USER.email_confirmed,
+            createdAt: DEMO_USER.created_at,
+          }));
+          setUser({
+            id: DEMO_USER.id,
+            email: DEMO_USER.email,
+            firstName: DEMO_USER.first_name,
+            lastName: DEMO_USER.last_name,
+            plan: DEMO_USER.plan,
+            emailConfirmed: DEMO_USER.email_confirmed,
+            createdAt: DEMO_USER.created_at,
+          });
+          setSession(demoSessionData as any);
+          setLoading(false);
+          logger.auth('[Demo Mode] Auto-logged in as demo user');
+          return;
+        }
+      }
+
       const savedSession = localStorage.getItem("neurolint-supabase-auth");
 
       if (savedSession) {

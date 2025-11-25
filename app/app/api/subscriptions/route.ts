@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedHandler } from "../../../lib/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
+import { isDemoMode, DEMO_USER } from "../../../lib/demo-mode";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -9,7 +10,7 @@ let supabase: any = null;
 
 if (supabaseUrl && supabaseServiceKey) {
   supabase = createClient(supabaseUrl, supabaseServiceKey);
-} else {
+} else if (!isDemoMode()) {
   console.error("Missing Supabase environment variables for subscriptions API");
 }
 
@@ -29,6 +30,24 @@ interface Subscription {
 // Get user's subscriptions
 export const GET = createAuthenticatedHandler(async (request, user) => {
   try {
+    // Demo mode - return mock subscription data
+    if (isDemoMode()) {
+      console.log('[Demo Mode] Returning mock subscriptions');
+      return NextResponse.json({
+        subscriptions: [{
+          id: 'demo-sub-123',
+          userId: DEMO_USER.id,
+          plan: 'professional',
+          status: 'active',
+          currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+          updatedAt: new Date().toISOString(),
+        }],
+        currentPlan: 'professional',
+      });
+    }
+
     // Get subscriptions from Supabase
     const { data: subscriptions, error } = await supabase
       .from("subscriptions")
