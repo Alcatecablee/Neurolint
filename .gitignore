@@ -8,6 +8,7 @@ vite.config.ts.*
 # NeuroLint artifacts
 .neurolint
 .neurolint-backups
+.neurolintrc
 *.neurolint-restore-tmp-*
 *.backup-*
 **/*.backup-*
