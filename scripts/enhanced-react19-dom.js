@@ -1,8 +1,7 @@
 /**
- * NeuroLint - Licensed under Business Source License 1.1
+ * NeuroLint - Licensed under Apache License 2.0
  * Copyright (c) 2025 NeuroLint
- * Change Date: 2029-11-22 | Change License: GPL-3.0-or-later
- * Full license: https://github.com/Alcatecablee/Neurolint/blob/main/LICENSE
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 
 
