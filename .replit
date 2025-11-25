@@ -20,10 +20,6 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 33613
-externalPort = 4200
-
-[[ports]]
 localPort = 34085
 externalPort = 8008
 
@@ -56,6 +52,10 @@ localPort = 40133
 externalPort = 8080
 
 [[ports]]
+localPort = 41547
+externalPort = 4200
+
+[[ports]]
 localPort = 42339
 externalPort = 6000
 
@@ -70,10 +70,6 @@ externalPort = 5173
 [[ports]]
 localPort = 44895
 externalPort = 3000
-
-[[ports]]
-localPort = 46039
-externalPort = 8081
 
 [[ports]]
 localPort = 46089
@@ -98,13 +94,13 @@ args = "Landing Page"
 name = "Landing Page"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd app && npm run dev -- -p 5000"
+waitForPort = 5000
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_mem_db:1.0.0"]
