@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { InstallCTA } from "./components/InstallCTA";
 
 interface FAQItem {
   question: string;
@@ -251,6 +252,9 @@ export const FAQSection: React.FC = () => {
                   Email Support
                 </a>
               </div>
+
+              {/* CTA for FAQ Section */}
+              <InstallCTA className="mt-8" />
             </div>
           </div>
         </div>

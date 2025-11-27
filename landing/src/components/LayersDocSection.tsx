@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, Layers, Sparkles, Target, ChevronDown, ChevronUp, Wrench, Code, Shield, Zap, Rocket, TestTube, Brain } from 'lucide-react';
+import { InstallCTA } from './InstallCTA';
 
 interface LayerDetail {
   id: number;
@@ -746,6 +747,11 @@ export function LayersDocSection() {
                   </p>
                 )}
               </div>
+
+              {/* CTA - Only shows when user has explored examples */}
+              {Array.from(expandedSections).some(s => s.startsWith('example-')) && (
+                <InstallCTA />
+              )}
             </div>
           ) : (
             <div className="p-12 text-center">

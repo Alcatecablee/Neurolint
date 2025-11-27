@@ -22,6 +22,7 @@ import {
   FileCheck,
   X,
 } from "lucide-react";
+import { InstallCTA } from "./components/InstallCTA";
 
 // Beta Banner Component - Floating notification style
 const BetaBanner = ({ onClose }: { onClose: () => void }) => {
@@ -566,6 +567,8 @@ export default function Index() {
                 <span className="text-sm text-white font-medium group-hover:underline">Watch Demo</span>
               </div>
             </button>
+          {/* CTA for CLI Demo Section */}
+          <InstallCTA className="mt-12" />
           </div>
         </div>
       </section>
@@ -707,6 +710,9 @@ export default function Index() {
               </div>
             ))}
           </div>
+
+          {/* CTA for How It Works Section */}
+          <InstallCTA className="mt-16" />
         </div>
       </section>
 
@@ -849,6 +855,9 @@ export default function Index() {
                 </div>
               </div>
             </div>
+
+            {/* CTA for Orchestration Section */}
+            <InstallCTA className="mt-12" />
               
           </div>
         </div>

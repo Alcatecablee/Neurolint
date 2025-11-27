@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Play, Copy, Check } 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { demoScenarios, type DemoScenario } from '../data/staticDemoData';
+import { InstallCTA } from './InstallCTA';
 
 export function ModalDemo() {
   const [selectedScenario, setSelectedScenario] = useState<DemoScenario | null>(null);
@@ -50,9 +51,9 @@ export function ModalDemo() {
         </p>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-black shadow-2xl overflow-hidden">
         {/* Scenario Selector Dropdown */}
-        <div className="bg-black/40 border-b border-white/20 p-6">
+        <div className="bg-black/40 border-b border-black p-6">
           <label htmlFor="scenario-select" className="block text-sm font-bold text-zinc-400 mb-3">
             Choose Demo Scenario
           </label>
@@ -68,7 +69,7 @@ export function ModalDemo() {
                 setCopiedCode(null);
               }
             }}
-            className="w-full bg-black/60 border-2 border-white/20 text-white rounded-xl px-4 py-3 font-medium text-lg focus:outline-none focus:border-white/40 transition-colors cursor-pointer"
+            className="w-full bg-black/60 border-2 border-black text-white rounded-xl px-4 py-3 font-medium text-lg focus:outline-none focus:border-white/40 transition-colors cursor-pointer"
           >
             <option value="" disabled>Select a demo scenario...</option>
             {demoScenarios.map((scenario) => (
@@ -294,10 +295,13 @@ export function ModalDemo() {
                       ))}
                     </div>
                   </div>
+
+                  {/* CTA - Only shows after user analyzes code */}
+                  <InstallCTA />
                 </div>
-              )}
-            </div>
-          ) : (
+            )}
+          </div>
+        ) : (
             <div className="p-12 text-center">
               <p className="text-zinc-400 text-lg">
                 Select a scenario from the dropdown above to begin
