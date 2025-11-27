@@ -789,32 +789,6 @@ export default function Index() {
               </div>
             </div>
               
-            {/* The 5-Step Flow Diagram */}
-            <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 backdrop-blur-xl border-2 border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
-              <h3 className="text-3xl md:text-4xl font-black text-white mb-8 text-center">The 5-Step Flow</h3>
-              <div className="bg-black/60 border border-white/10 rounded-2xl p-6 md:p-8 font-mono text-xs md:text-sm overflow-x-auto">
-                <div className="space-y-2">
-                  <div className="text-blue-400 font-bold">Step 1: Original Code (Last Known Good State)</div>
-                  <div className="text-gray-500 ml-6">↓</div>
-                  <div className="text-cyan-400 font-bold">Step 2: Try AST Transformation</div>
-                  <div className="text-gray-500 ml-6">↓</div>
-                  <div className="text-white font-bold">Step 3: Validate AST Result</div>
-                  <div className="text-gray-400 ml-6">├─ Valid → Step 5: Accept changes</div>
-                  <div className="text-gray-400 ml-6">└─ Invalid → Try Regex Fallback</div>
-                  <div className="text-purple-400 ml-12">↓</div>
-                  <div className="text-purple-400 font-bold ml-12">Step 4: Validate Regex Result</div>
-                  <div className="text-gray-400 ml-12">├─ Valid → Step 5: Accept changes</div>
-                  <div className="text-gray-400 ml-12">└─ Invalid → REVERT to original</div>
-                </div>
-              </div>
-              <div className="mt-8 bg-gradient-to-r from-white/5 to-white/2 border border-white/10 rounded-xl p-6 md:p-8">
-                <p className="text-base md:text-lg leading-relaxed text-gray-300 text-center">
-                  <span className="text-white font-bold text-lg md:text-xl">This is why NeuroLint never breaks your code</span>
-                  <br />
-                  <span className="text-gray-400">Every transformation is validated twice before acceptance.</span>
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
