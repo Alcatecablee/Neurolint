@@ -308,6 +308,7 @@ export default function Index() {
   const [mounted, setMounted] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [bannerVisible, setBannerVisible] = React.useState(true);
+  const [demoModalOpen, setDemoModalOpen] = React.useState(false);
 
   // Lazy loading refs for each section
   const [demoSectionRef, demoSectionInView] = useInView(0.1);
@@ -498,75 +499,130 @@ export default function Index() {
       </section>
 
       {/* CLI Demo Video Section */}
-      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-black via-zinc-900/50 to-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+      <section className="py-16 md:py-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 md:mb-16">
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 md:mb-8 tracking-tight text-white">
               See It In Action
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-6">
-              Watch NeuroLint automatically fix your code in seconds
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto font-medium">
+              Watch NeuroLint automatically detect and fix issues in real-time
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white/40 rounded-full"></div>
-                <span>Interactive Player</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white/40 rounded-full"></div>
-                <span>Pause & Resume</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white/40 rounded-full"></div>
-                <span>Speed Control</span>
-              </div>
-            </div>
           </div>
           
-          {/* Terminal-style wrapper */}
-          <div className="relative group">
-            {/* Terminal Header */}
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 border-t-2 border-x-2 border-white/10 rounded-t-2xl px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-lg"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg"></div>
+          {/* Video Preview Card */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden">
+            <div className="bg-black/40 border-b border-white/20 p-4 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 bg-red-500/80 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500/80 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500/80 rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-zinc-400 font-mono hidden sm:block">terminal — neurolint-demo</span>
                 </div>
-                <div className="ml-4 text-sm text-gray-400 font-mono flex items-center gap-2">
-                  <span className="text-gray-500">❯</span>
-                  <span>terminal — neurolint-demo</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-gray-500 text-xs">
-                <kbd className="px-2 py-1 bg-black/30 rounded border border-white/10 font-mono">Space</kbd>
-                <span>to pause/play</span>
+                <span className="text-xs text-zinc-500">CLI Demo</span>
               </div>
             </div>
             
-            {/* Player Container */}
-            <div className="relative bg-black border-2 border-t-0 border-white/10 rounded-b-2xl overflow-hidden shadow-2xl">
-              {/* Subtle glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+            {/* Clickable Preview */}
+            <button
+              onClick={() => setDemoModalOpen(true)}
+              className="w-full relative group cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-inset"
+              aria-label="Open demo video"
+            >
+              <div className="relative bg-black/60 p-8 md:p-16 lg:p-24">
+                {/* Terminal Preview Lines */}
+                <div className="font-mono text-sm md:text-base space-y-2 text-left max-w-2xl mx-auto opacity-60 group-hover:opacity-40 transition-opacity">
+                  <div className="text-zinc-500">$ neurolint analyze ./src</div>
+                  <div className="text-zinc-400">Scanning 247 files...</div>
+                  <div className="text-zinc-400">Found 12 issues across 5 layers</div>
+                  <div className="text-zinc-500">$ neurolint fix --all-layers</div>
+                  <div className="text-white">Fixed 12 issues successfully</div>
+                </div>
+                
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30 group-hover:bg-white/20 group-hover:border-white/50 group-hover:scale-110 transition-all duration-300 shadow-2xl">
+                    <svg className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
               
-              {/* Player */}
-              <div className="relative z-10">
-                <AsciinemaPlayerComponent />
+              {/* Bottom Info Bar */}
+              <div className="bg-black/40 border-t border-white/10 p-4 md:p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4 text-sm text-zinc-400">
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    2:30
+                  </span>
+                  <span className="hidden sm:block">Interactive Demo</span>
+                </div>
+                <span className="text-sm text-white font-medium group-hover:underline">Watch Demo</span>
               </div>
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-          </div>
-          
-          {/* Helper text */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              Click inside the terminal to pause, use the controls to adjust speed, or press <kbd className="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-400 font-mono text-xs">f</kbd> for fullscreen
-            </p>
+            </button>
           </div>
         </div>
       </section>
+      
+      {/* Demo Video Modal */}
+      {demoModalOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="demo-modal-title"
+        >
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            onClick={() => setDemoModalOpen(false)}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden bg-zinc-900 rounded-2xl border border-white/20 shadow-2xl animate-fade-in-blur">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/40">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <h3 id="demo-modal-title" className="text-white font-mono text-sm">terminal — neurolint-demo</h3>
+              </div>
+              <button
+                onClick={() => setDemoModalOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+                aria-label="Close demo"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Player Container */}
+            <div className="relative bg-black overflow-hidden">
+              <AsciinemaPlayerComponent />
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10 bg-black/40 flex items-center justify-between">
+              <div className="flex items-center gap-4 text-sm text-zinc-400">
+                <span>Use controls to pause, adjust speed, or seek</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-black/50 rounded border border-white/10 font-mono text-xs text-zinc-400">Space</kbd>
+                <span className="text-xs text-zinc-500">to pause/play</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Demo Section */}
       <div ref={demoSectionRef} id="comprehensive-demo" className={`transition-all duration-1000 transform ${
