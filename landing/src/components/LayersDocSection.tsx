@@ -516,7 +516,7 @@ export function LayersDocSection() {
     : null;
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-black to-gray-900">
+    <section className="py-24 px-4 bg-black">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white">
@@ -530,9 +530,9 @@ export function LayersDocSection() {
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden">
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl border-2 border-black shadow-2xl overflow-hidden">
           {/* Layer Selector Dropdown */}
-          <div className="bg-black/40 border-b border-white/20 p-6">
+          <div className="bg-black/40 border-b border-black p-6">
             <label htmlFor="layer-select" className="block text-sm font-bold text-gray-400 mb-3">
               Choose a Layer to Explore
             </label>
@@ -544,7 +544,7 @@ export function LayersDocSection() {
                 setSelectedLayer(layerId);
                 setExpandedSections(new Set());
               }}
-              className="w-full bg-black/60 border-2 border-white/20 text-white rounded-xl px-4 py-3 font-medium text-lg focus:outline-none focus:border-white/40 transition-colors cursor-pointer"
+              className="w-full bg-black/60 border-2 border-black text-white rounded-xl px-4 py-3 font-medium text-lg focus:outline-none focus:border-white/40 transition-colors cursor-pointer"
             >
               <option value="" disabled>Select a layer to learn more...</option>
               {layersData.map((layer) => (
@@ -574,7 +574,7 @@ export function LayersDocSection() {
               </div>
 
               {/* What It Does */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                 <h4 className="text-xl font-black text-white mb-4">
                   What This Layer Does
                 </h4>
@@ -589,7 +589,7 @@ export function LayersDocSection() {
               </div>
 
               {/* Key Features */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                 <button
                   onClick={() => toggleSection('features')}
                   className="w-full flex items-center justify-between text-left mb-4"
@@ -617,7 +617,7 @@ export function LayersDocSection() {
 
               {/* React 19 Specific */}
               {selectedLayerData.react19Specific && (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                   <button
                     onClick={() => toggleSection('react19')}
                     className="w-full flex items-center justify-between text-left mb-4"
@@ -646,7 +646,7 @@ export function LayersDocSection() {
 
               {/* Next.js 15.5 Specific */}
               {selectedLayerData.nextjs155Specific && (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                   <button
                     onClick={() => toggleSection('nextjs')}
                     className="w-full flex items-center justify-between text-left mb-4"
@@ -674,7 +674,7 @@ export function LayersDocSection() {
               )}
 
               {/* Examples */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                 <h4 className="text-xl font-black text-white mb-4">
                   Examples
                 </h4>
@@ -696,17 +696,17 @@ export function LayersDocSection() {
                         <div className="space-y-3 animate-fade-in">
                           <div>
                             <div className="text-sm font-bold text-zinc-400 mb-2">Before:</div>
-                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-white/20">
+                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-black">
                               <code>{example.before}</code>
                             </pre>
                           </div>
                           <div>
                             <div className="text-sm font-bold text-white mb-2">After:</div>
-                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-white/20">
+                            <pre className="bg-black/80 text-gray-300 p-3 rounded-lg text-sm overflow-x-auto border border-black">
                               <code>{example.after}</code>
                             </pre>
                           </div>
-                          <div className="bg-white/5 rounded-lg p-3 border border-white/20">
+                          <div className="bg-white/5 rounded-lg p-3 border border-black">
                             <div className="text-sm font-bold text-white mb-1">Explanation:</div>
                             <p className="text-sm text-gray-300">{example.explanation}</p>
                           </div>
@@ -718,7 +718,7 @@ export function LayersDocSection() {
               </div>
 
               {/* When to Use */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                 <h4 className="text-xl font-black text-white mb-3">
                   When to Use This Layer
                 </h4>
@@ -726,7 +726,7 @@ export function LayersDocSection() {
               </div>
 
               {/* Technical Details */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-black">
                 <button
                   onClick={() => toggleSection('technical')}
                   className="w-full flex items-center justify-between text-left"
