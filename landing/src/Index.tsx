@@ -454,7 +454,7 @@ export default function Index() {
           {/* Install Command */}
           <div className="mb-6 md:mb-8 animate-slide-in-up animate-delay-700">
             <div className="max-w-2xl mx-auto bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-4 md:p-5 backdrop-blur-sm relative group hover:border-zinc-600/50 transition-colors duration-300">
-              <code className="text-green-400 font-mono text-sm md:text-base lg:text-lg block text-center pr-10">
+              <code className="text-blue-400 font-mono text-sm md:text-base lg:text-lg block text-center pr-10">
                 $ npm install -g @neurolint/cli
               </code>
               <button
@@ -463,7 +463,7 @@ export default function Index() {
                 aria-label="Copy install command"
               >
                 {copied ? (
-                  <Check className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+                  <Check className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
                 ) : (
                   <Copy className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-white" />
                 )}

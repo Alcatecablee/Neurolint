@@ -76,7 +76,7 @@ export function QuickStart() {
     id: string;
   }) => (
     <div className="max-w-2xl mx-auto bg-zinc-900/90 border border-zinc-700/50 rounded-xl p-4 md:p-5 backdrop-blur-sm relative group hover:border-zinc-600 hover:bg-zinc-800/90 hover:shadow-lg hover:shadow-zinc-900/50 transition-all duration-300 ease-out mb-4 transform hover:scale-[1.01]">
-      <code className="text-green-400 font-mono text-xs sm:text-sm md:text-base block pr-12 md:pr-14 break-all">
+      <code className="text-blue-400 font-mono text-xs sm:text-sm md:text-base block pr-12 md:pr-14 break-all">
         {command}
       </code>
       <button
@@ -86,7 +86,7 @@ export function QuickStart() {
         title={copiedCommand === id ? "Copied!" : "Copy to clipboard"}
       >
         {copiedCommand === id ? (
-          <Check className="w-5 h-5 text-green-400" aria-hidden="true" />
+          <Check className="w-5 h-5 text-blue-400" aria-hidden="true" />
         ) : (
           <Copy className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" aria-hidden="true" />
         )}
@@ -264,9 +264,9 @@ export function QuickStart() {
               Complete CLI reference with all NeuroLint commands
             </p>
             <p className="text-sm sm:text-base text-gray-400 mt-4 md:mt-6 max-w-2xl mx-auto px-2 sm:px-4">
-              Replace <code className="text-green-400 bg-zinc-800 px-2 py-0.5 rounded text-xs sm:text-sm">your-project</code> with your actual project path
+              Replace <code className="text-blue-400 bg-zinc-800 px-2 py-0.5 rounded text-xs sm:text-sm">your-project</code> with your actual project path
               <br className="hidden sm:block" />
-              <span className="text-xs sm:text-sm">(e.g., <code className="text-green-400 text-xs sm:text-sm">C:\Users\YourName\my-app</code> on Windows or <code className="text-green-400 text-xs sm:text-sm">/Users/YourName/my-app</code> on Mac)</span>
+              <span className="text-xs sm:text-sm">(e.g., <code className="text-blue-400 text-xs sm:text-sm">C:\Users\YourName\my-app</code> on Windows or <code className="text-blue-400 text-xs sm:text-sm">/Users/YourName/my-app</code> on Mac)</span>
             </p>
           </div>
 
@@ -430,9 +430,9 @@ export function QuickStart() {
           <div className="mb-12 md:mb-16 text-center">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 scroll-mt-24" id="notes">Notes</h2>
             <div className="text-sm sm:text-base text-gray-400 space-y-2 max-w-3xl mx-auto text-left">
-              <p>• Always use <code className="text-green-400">--dry-run</code> first to preview changes before applying</p>
-              <p>• Backups are created <strong>automatically by default</strong> - use <code className="text-green-400">--no-backup</code> to skip (not recommended)</p>
-              <p>• Use <code className="text-green-400">--verbose</code> to see detailed output and understand what's happening</p>
+              <p>• Always use <code className="text-blue-400">--dry-run</code> first to preview changes before applying</p>
+              <p>• Backups are created <strong>automatically by default</strong> - use <code className="text-blue-400">--no-backup</code> to skip (not recommended)</p>
+              <p>• Use <code className="text-blue-400">--verbose</code> to see detailed output and understand what's happening</p>
               <p>• The CLI validates all transformations twice (AST + regex fallback) to prevent breaking your code</p>
               <p>• All paths can be relative or absolute - use what works best for your system</p>
             </div>
