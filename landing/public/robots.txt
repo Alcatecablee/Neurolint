@@ -1,0 +1,22 @@
+# NeuroLint Robots.txt
+# https://www.neurolint.dev/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.neurolint.dev/sitemap.xml
+
+# Crawl-delay (optional, be polite to crawlers)
+Crawl-delay: 1
+
+# Block common non-essential paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/chunks/
+
+# Allow important resources
+Allow: /favicon.png
+Allow: /logo.png
+Allow: /logo.svg
+Allow: /og-image.png
