@@ -51,9 +51,29 @@ export function QuickStart() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // SEO: Update document title and meta description for Quick Start page
+    const originalTitle = document.title;
+    document.title = 'Quick Start Guide - NeuroLint CLI | Installation & Commands';
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    const originalDescription = metaDescription?.getAttribute('content') || '';
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Get started with NeuroLint CLI in minutes. Learn how to install, analyze code, preview fixes, and automatically fix React/Next.js issues with simple commands.');
+    }
+
+    // Update Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.setAttribute('content', 'Quick Start Guide - NeuroLint CLI');
+    if (ogDescription) ogDescription.setAttribute('content', 'Get started with NeuroLint CLI in minutes. Install, analyze, and fix React/Next.js code issues automatically.');
+
     // Smooth scroll behavior
     document.documentElement.style.scrollBehavior = 'smooth';
+    
     return () => {
+      document.title = originalTitle;
+      if (metaDescription) metaDescription.setAttribute('content', originalDescription);
       document.documentElement.style.scrollBehavior = 'auto';
     };
   }, []);
