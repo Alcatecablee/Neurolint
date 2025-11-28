@@ -114,18 +114,18 @@ npm install -g @neurolint/cli
 
 ---
 
-## Hourly Checklist
+## Hourly Checklist (SA Time)
 
-| Time (PT) | Task |
-|-----------|------|
-| 12:01 AM | Launch live, post first comment |
-| 6 AM | Twitter + LinkedIn posts |
-| 9 AM | Check & respond to all comments |
-| 12 PM | Milestone update if needed |
-| 3 PM | Comment check |
-| 6 PM | Evening social push |
-| 9 PM | Final sweep |
-| 11:59 PM | Thank you post |
+| SA Time (SAST) | PT (US) | Task |
+|----------------|---------|------|
+| **10:01 AM** | 12:01 AM | Launch live, post first comment |
+| **4:00 PM** | 6 AM | Twitter + LinkedIn posts |
+| **7:00 PM** | 9 AM | Check & respond to all comments |
+| **10:00 PM** | 12 PM | Milestone update if needed |
+| **1:00 AM** (next day) | 3 PM | Comment check |
+| **4:00 AM** (next day) | 6 PM | Evening social push |
+| **7:00 AM** (next day) | 9 PM | Final sweep |
+| **9:59 AM** (next day) | 11:59 PM | Thank you post |
 
 ---
 

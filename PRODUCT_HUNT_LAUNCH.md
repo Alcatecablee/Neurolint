@@ -251,18 +251,18 @@ P.S. It's completely free and open source. Install with: npm install -g @neuroli
 
 ---
 
-## Launch Day Schedule (PT timezone)
+## Launch Day Schedule
 
-| Time | Action |
-|------|--------|
-| 12:01 AM | Launch goes live, post first comment |
-| 6:00 AM | Morning social media push (Twitter, LinkedIn) |
-| 9:00 AM | Check comments, respond to all |
-| 12:00 PM | Midday update if hitting milestones |
-| 3:00 PM | Afternoon engagement check |
-| 6:00 PM | Evening social push |
-| 9:00 PM | Final comment sweep |
-| 11:59 PM | Launch day ends — post thank you |
+| PT (US) | SAST (South Africa) | Action |
+|---------|---------------------|--------|
+| 12:01 AM | **10:01 AM** | Launch goes live, post first comment |
+| 6:00 AM | **4:00 PM** | Morning social media push (Twitter, LinkedIn) |
+| 9:00 AM | **7:00 PM** | Check comments, respond to all |
+| 12:00 PM | **10:00 PM** | Midday update if hitting milestones |
+| 3:00 PM | **1:00 AM (next day)** | Afternoon engagement check |
+| 6:00 PM | **4:00 AM (next day)** | Evening social push |
+| 9:00 PM | **7:00 AM (next day)** | Final comment sweep |
+| 11:59 PM | **9:59 AM (next day)** | Launch day ends — post thank you |
 
 ---
 
