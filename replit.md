@@ -68,14 +68,25 @@ The landing page is a static React + Vite application that showcases NeuroLint's
 - **React, Next.js, TypeScript, JavaScript:** Target technologies for code transformation and analysis.
 - **Apache License 2.0:** The project's open-source licensing model, enabling maximum adoption, enterprise use, commercial use, and community contributions without restrictions.
 
-## Recent Changes (November 25, 2025)
+## Recent Changes (November 28, 2025)
+
+- Implemented comprehensive SEO for landing page (neurolint.dev)
+- Added Open Graph and Twitter Card meta tags for social sharing
+- Created JSON-LD structured data (SoftwareApplication, Organization, FAQPage, WebSite schemas)
+- Generated OG image (1200x630) for social media previews
+- Created robots.txt and sitemap.xml for search engine crawling
+- Added per-page SEO for Quick Start page with dynamic title/description updates
+- Created Product Hunt launch materials (PRODUCT_HUNT_LAUNCH.md, LAUNCH_DAY_QUICK_REF.md)
+- Created SEO documentation (SEO_IMPLEMENTATION.md)
+
+## Previous Changes (November 25, 2025)
 
 - Added community CTAs to CLI for GitHub star prompts, documentation links, and issue reporting
 - CTAs appear in: --help output (footer), --version output, after successful operations, and on first-run
 - CTAs are suppressed with --quiet/-q flag
 - Centralized CTA helper function with context-aware messaging
 
-## Previous Changes (November 24, 2025)
+## Earlier Changes (November 24, 2025)
 
 - Added separate Quick Start page with React Router for multi-page navigation
 - Created `/quick-start` route with standalone page layout and navigation
