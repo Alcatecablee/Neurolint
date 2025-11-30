@@ -168,11 +168,11 @@ export class ConfigurationManager {
     }
 
     const invalidLayers = this.configuration.enabledLayers.filter(
-      (layer) => layer < 1 || layer > 6,
+      (layer) => layer < 1 || layer > 7,
     );
     if (invalidLayers.length > 0) {
       errors.push(
-        `Invalid layer numbers: ${invalidLayers.join(", ")} (must be 1-6)`,
+        `Invalid layer numbers: ${invalidLayers.join(", ")} (must be 1-7)`,
       );
     }
 
@@ -218,7 +218,7 @@ export class ConfigurationManager {
     return {
       apiUrl: config.get("apiUrl", "https://app.neurolint.dev/api"),
       apiKey: config.get("apiKey", ""),
-      enabledLayers: config.get("enabledLayers", [1, 2, 3, 4]),
+      enabledLayers: config.get("enabledLayers", [1, 2, 3, 4, 5, 6, 7]),
       autoFix: config.get("autoFix", false),
       showInlineHints: config.get("showInlineHints", true),
       diagnosticsLevel: config.get("diagnosticsLevel", "warning"),

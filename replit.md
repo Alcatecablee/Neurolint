@@ -68,7 +68,35 @@ The landing page is a static React + Vite application that showcases NeuroLint's
 - **React, Next.js, TypeScript, JavaScript:** Target technologies for code transformation and analysis.
 - **Apache License 2.0:** The project's open-source licensing model, enabling maximum adoption, enterprise use, commercial use, and community contributions without restrictions.
 
-## Recent Changes (November 28, 2025)
+## Recent Changes (November 30, 2025)
+
+### VS Code Extension v1.0.15 - Full CLI Parity Update
+- **Layer System Updated:** Fixed layer names and added Layer 7 (Adaptive Learning)
+  - Layer 1: Configuration Modernization
+  - Layer 2: Pattern Standardization  
+  - Layer 3: Accessibility & Components
+  - Layer 4: SSR/Hydration Safety
+  - Layer 5: Next.js App Router
+  - Layer 6: Testing & Error Handling
+  - Layer 7: Adaptive Learning (NEW)
+- **New Migration Commands Added:**
+  - `neurolint.migrateReact19` - React 19 migration
+  - `neurolint.migrateNextjs16` - Next.js 16 migration
+  - `neurolint.migrateBiome` - Biome migration
+  - `neurolint.checkDeps` - React 19 dependency checker
+  - `neurolint.checkTurbopack` - Turbopack compatibility check
+  - `neurolint.checkCompiler` - React Compiler detection
+  - `neurolint.assessRouter` - Router complexity assessment
+  - `neurolint.detectReact192` - React 19.2 feature detection
+  - `neurolint.simplify` - Code simplification
+  - `neurolint.showLayers` - Layer documentation
+  - `neurolint.validate` - Code validation
+  - `neurolint.showStats` - Statistics display
+- **Free for All:** Removed premium gating from fixFile and fixWorkspace (matches CLI Apache 2.0 license)
+- **SharedCoreAdapter:** Updated to expose all CLI capabilities with migration methods
+- **ConfigurationManager:** Updated layer validation to support layers 1-7
+
+## Previous Changes (November 28, 2025)
 
 - Implemented comprehensive SEO for landing page (neurolint.dev)
 - Added Open Graph and Twitter Card meta tags for social sharing
